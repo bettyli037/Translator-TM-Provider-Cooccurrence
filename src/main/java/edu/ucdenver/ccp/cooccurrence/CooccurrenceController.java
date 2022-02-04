@@ -70,7 +70,7 @@ public class CooccurrenceController {
         }
         JsonNode edges = request.get("message").get("knowledge_graph").get("edges");
         ObjectMapper om = new ObjectMapper();
-        ObjectNode newEdgesNode = edges.deepCopy();
+        ObjectNode newEdgesNode = om.createObjectNode();
         for (Iterator<Map.Entry<String, JsonNode>> it = edges.fields(); it.hasNext(); ) {
             Map.Entry<String, JsonNode> edge = it.next();
 
@@ -101,8 +101,8 @@ public class CooccurrenceController {
             newEdge.set("attributes", attributesNode);
             newEdgesNode.set(s + "_" + o + "_abstract", newEdge);
         }
-        request.set("message.knowledge_graph.edges", newEdgesNode);
-        return request.toPrettyString();
+        JsonNode responseNode = om.createObjectNode().set("message", updateMessageNode(request, newEdgesNode));
+        return responseNode.toPrettyString();
     }
 
     private List<String> getAllAncestors(String initialConcept) {
@@ -152,5 +152,22 @@ public class CooccurrenceController {
         return new Metrics(singleCount1, singleCount2, pairCount, totalConceptCount, totalDocumentCount);
     }
 
-
+    private JsonNode updateMessageNode(JsonNode messageNode, JsonNode newEdges) {
+        ObjectNode updatedNode = (new ObjectMapper()).createObjectNode();
+        ObjectNode knowledgeGraph = (new ObjectMapper()).createObjectNode();
+        JsonNode queryGraph = messageNode.get("message").get("query_graph").deepCopy();
+        JsonNode results = messageNode.get("message").get("results").deepCopy();
+        JsonNode nodes = messageNode.get("message").get("knowledge_graph").get("nodes").deepCopy();
+        ObjectNode edges = messageNode.get("message").get("knowledge_graph").get("edges").deepCopy();
+        for (Iterator<Map.Entry<String, JsonNode>> it = newEdges.fields(); it.hasNext(); ) {
+            Map.Entry<String, JsonNode> edge = it.next();
+            edges.set(edge.getKey(), edge.getValue());
+        }
+        knowledgeGraph.set("nodes", nodes);
+        knowledgeGraph.set("edges", edges);
+        updatedNode.set("query_graph", queryGraph);
+        updatedNode.set("knowledge_graph", knowledgeGraph);
+        updatedNode.set("results", results);
+        return updatedNode;
+    }
 }
