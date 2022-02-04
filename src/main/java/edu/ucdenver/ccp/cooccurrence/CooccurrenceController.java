@@ -2,10 +2,12 @@ package edu.ucdenver.ccp.cooccurrence;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 public class CooccurrenceController {
@@ -16,21 +18,16 @@ public class CooccurrenceController {
         this.nodeRepo = repo;
     }
 
-    @GetMapping("/concepts/count")
-    public String conceptCount() {
-        return String.format("%d", nodeRepo.getTotalConceptCount());
-    }
-
-    @GetMapping("/concepts")
-    public String concepts() {
-        Pageable pageable = PageRequest.of(0, 5);
-        return String.format("%d", nodeRepo.findAll(pageable).getTotalElements());
-    }
-
-    @GetMapping("/concepts/{curie}")
-    public String getConcept(@PathVariable("curie") String curie) {
-        Node n = nodeRepo.findByCurie(curie);
-        return String.format("{id: %d, curie: %s, document_count: %d}", n.getId(), n.getCurie(), n.getDocuments().size());
+    @GetMapping("/hierarchy/{curie}")
+    public String getHierarchy(@PathVariable("curie") String curie) {
+        List<String> ancestors = getAllAncestors(curie);
+        ObjectMapper om = new ObjectMapper();
+        ObjectNode responseNode = om.createObjectNode();
+        ArrayNode ancestorNode = responseNode.putArray("hierarchy");
+        for (String ancestor : ancestors) {
+            ancestorNode.add(ancestor);
+        }
+        return responseNode.toPrettyString();
     }
 
     @PostMapping("/metrics")
@@ -39,77 +36,121 @@ public class CooccurrenceController {
             return "Invalid Request";
         }
         long startTime = System.currentTimeMillis();
-        long splitTime1 = startTime, splitTime2;
-        String curie1 = request.get("concept1").asText();
-        String curie2 = request.get("concept2").asText();
+        String concept1 = request.get("concept1").asText();
+        String concept2 = request.get("concept2").asText();
         String part = request.get("document_part").asText();
-        int singleCount1 = nodeRepo.getSingleConceptCount(curie1, part);
-        splitTime2 = System.currentTimeMillis();
-        System.out.printf("First concept count time: %d%n", splitTime2 - splitTime1);
-        int singleCount2 = nodeRepo.getSingleConceptCount(curie2, part);
-        splitTime1 = System.currentTimeMillis();
-        System.out.printf("Second concept count time: %d%n", splitTime1 - splitTime2);
-        int pairCount = nodeRepo.getPairConceptCount(curie1, curie2, part);
-        splitTime2 = System.currentTimeMillis();
-        System.out.printf("Pair concept count time: %d%n", splitTime2 - splitTime1);
-        int totalConceptCount = nodeRepo.getTotalConceptCount();
-        splitTime1 = System.currentTimeMillis();
-        System.out.printf("Total concept count time: %d%n", splitTime1 - splitTime2);
-        int totalDocumentCount = nodeRepo.getTotalDocumentCount();
-        splitTime2 = System.currentTimeMillis();
-        System.out.printf("Total document count time: %d%n", splitTime2 - splitTime1);
 
+        List<String> concept1List = getAllAncestors(concept1);
+        List<String> concept2List = getAllAncestors(concept2);
+        JsonNode metricsNode = getMetrics(concept1List, concept2List, part).toJSON();
         ObjectMapper om = new ObjectMapper();
         ObjectNode responseNode = om.createObjectNode();
-        ObjectNode basicMetricsNode = om.createObjectNode();
+        ObjectNode expandedConceptsNode = om.createObjectNode();
         responseNode.set("request", request);
-        basicMetricsNode.put("single_count1", singleCount1);
-        basicMetricsNode.put("single_count2", singleCount2);
-        basicMetricsNode.put("pair_count", pairCount);
-        basicMetricsNode.put("total_concept_count", totalConceptCount);
-        basicMetricsNode.put("total_document_count", totalDocumentCount);
-        responseNode.set("counts", basicMetricsNode);
-        responseNode.put("NGD", normalizedGoogleDistance(singleCount1, singleCount2, pairCount, totalConceptCount));
-        responseNode.put("PMI", pointwiseMutualInformation(singleCount1, singleCount2, pairCount, totalDocumentCount));
-        responseNode.put("NPMI", normalizedPointwiseMutualInformation(singleCount1, singleCount2, pairCount, totalDocumentCount));
-        responseNode.put("MD", mutualDependence(singleCount1, singleCount2, pairCount, totalDocumentCount));
+
+        ArrayNode concept1Node = expandedConceptsNode.putArray("concept1");
+        for (String ancestor : concept1List) {
+            concept1Node.add(ancestor);
+        }
+        ArrayNode concept2Node = expandedConceptsNode.putArray("concept2");
+        for (String ancestor : concept2List) {
+            concept2Node.add(ancestor);
+        }
+        responseNode.set("expandedConcepts", expandedConceptsNode);
+        responseNode.set("metrics", metricsNode);
         long endTime = System.currentTimeMillis();
-        System.out.println(pointwiseMutualInformation(singleCount1, singleCount2, pairCount, totalDocumentCount));
         responseNode.put("elapsed_time", endTime - startTime);
         return responseNode.toPrettyString();
     }
 
-    private static double normalizedGoogleDistance(int singleCount1, int singleCount2, int pairCount, int totalConceptCount) {
-        double logFx = Math.log(singleCount1);
-        double logFy = Math.log(singleCount2);
-        double logFxy = Math.log(pairCount);
-        double logN = Math.log(totalConceptCount);
-        return (Math.max(logFx, logFy) - logFxy) / (logN - Math.min(logFx, logFy));
-    }
-
-    private static double pointwiseMutualInformation(int singleCount1, int singleCount2, int pairCount, int totalDocumentCount) {
-        double pxy = (double) pairCount / (double) totalDocumentCount;
-        double px = (double) singleCount1 / (double) totalDocumentCount;
-        double py = (double) singleCount2 / (double) totalDocumentCount;
-        return Math.log(pxy / (px * py));
-    }
-
-    private static double normalizedPointwiseMutualInformation(int singleCount1, int singleCount2, int pairCount, int totalDocumentCount) {
-        double pmi = pointwiseMutualInformation(singleCount1, singleCount2, pairCount, totalDocumentCount);
-        if (pmi == Double.NEGATIVE_INFINITY) {
-            return -1.0;
+    @PostMapping("/overlay")
+    public String trapiTest(@RequestBody ObjectNode request) {
+        if (!request.get("message").hasNonNull("knowledge_graph")) {
+            return "Invalid Request";
         }
-        double pxy = (double) pairCount / (double) totalDocumentCount;
-        double offset = 0.000000001;
-        double denominator = -1 * Math.log(pxy + offset);
-        return pmi / denominator;
+        JsonNode edges = request.get("message").get("knowledge_graph").get("edges");
+        ObjectMapper om = new ObjectMapper();
+        ObjectNode newEdgesNode = edges.deepCopy();
+        for (Iterator<Map.Entry<String, JsonNode>> it = edges.fields(); it.hasNext(); ) {
+            Map.Entry<String, JsonNode> edge = it.next();
+
+            String s = edge.getValue().get("subject").asText();
+            String o = edge.getValue().get("object").asText();
+            List<String> concept1List = getAllAncestors(s);
+            List<String> concept2List = getAllAncestors(o);
+//            System.out.println(s + "_" + o);
+//            concept1List.forEach(System.out::print);
+//            System.out.println();
+//            concept2List.forEach(System.out::print);
+//            System.out.println();
+            Metrics cooccurrenceMetrics = getMetrics(concept1List, concept2List, "abstract");
+            if (Double.isNaN(cooccurrenceMetrics.getNormalizedGoogleDistance())) {
+//                System.out.println("Nothing to see here");
+                continue;
+            }
+            ObjectNode newEdge = om.createObjectNode();
+            newEdge.put("subject", s);
+            newEdge.put("object", o);
+            newEdge.put("predicate", "biolink:occurs_together_in_literature_with");
+            ObjectNode attributesNode = om.createObjectNode();
+            attributesNode.put("type", "cooccurrence");
+            ObjectNode valueNode = cooccurrenceMetrics.toJSON();
+            valueNode.put("predicate", "biolink:occurs_together_in_literature_with");
+            valueNode.put("provided_by", "cooccurrence");
+            attributesNode.set("value", valueNode);
+            newEdge.set("attributes", attributesNode);
+            newEdgesNode.set(s + "_" + o + "_abstract", newEdge);
+        }
+        request.set("message.knowledge_graph.edges", newEdgesNode);
+        return request.toPrettyString();
     }
 
-    private static double mutualDependence(int singleCount1, int singleCount2, int pairCount, int totalDocumentCount) {
-        double pxy = (double) pairCount / (double) totalDocumentCount;
-        double px = (double) singleCount1 / (double) totalDocumentCount;
-        double py = (double) singleCount2 / (double) totalDocumentCount;
-        return Math.log(Math.pow(pxy, 2) / (px * py));
+    private List<String> getAllAncestors(String initialConcept) {
+        List<String> allAncestors = new ArrayList<>();
+        allAncestors.add(initialConcept);
+        List<String> nullList = Collections.singletonList(null);
+        List<String> ancestors = nodeRepo.getConceptAncestors(Collections.singletonList(initialConcept)).stream().distinct().collect(Collectors.toList());
+        ancestors.removeAll(nullList);
+        while (ancestors.size() > 0) {
+            allAncestors.addAll(ancestors);
+            ancestors = nodeRepo.getConceptAncestors(ancestors).stream().distinct().collect(Collectors.toList());
+            ancestors.removeAll(nullList);
+            ancestors.removeAll(allAncestors);
+        }
+        return allAncestors;
     }
+
+    private Metrics getMetrics(List<String> concept1List, List<String> concept2List, String part) {
+        int singleCount1, singleCount2, pairCount, totalConceptCount, totalDocumentCount;
+        totalConceptCount = nodeRepo.getTotalConceptCount();
+        switch (part) {
+            case "abstract":
+                singleCount1 = nodeRepo.getSingleConceptHierarchyAbstractCount(concept1List);
+                singleCount2 = nodeRepo.getSingleConceptHierarchyAbstractCount(concept2List);
+                pairCount = nodeRepo.getPairConceptHierarchyAbstractCount(concept1List, concept2List);
+                totalDocumentCount = nodeRepo.getTotalAbstractCount();
+                break;
+            case "sentence":
+                singleCount1 = nodeRepo.getSingleConceptHierarchySentenceCount(concept1List);
+                singleCount2 = nodeRepo.getSingleConceptHierarchySentenceCount(concept2List);
+                pairCount = nodeRepo.getPairConceptHierarchySentenceCount(concept1List, concept2List);
+                totalDocumentCount = nodeRepo.getTotalSentenceCount();
+                break;
+            case "title":
+                singleCount1 = nodeRepo.getSingleConceptHierarchyTitleCount(concept1List);
+                singleCount2 = nodeRepo.getSingleConceptHierarchyTitleCount(concept2List);
+                pairCount = nodeRepo.getPairConceptHierarchyTitleCount(concept1List, concept2List);
+                totalDocumentCount = nodeRepo.getTotalTitleCount();
+                break;
+            default:
+                singleCount1 = nodeRepo.getSingleConceptHierarchyCount(concept1List, part);
+                singleCount2 = nodeRepo.getSingleConceptHierarchyCount(concept2List, part);
+                pairCount = nodeRepo.getPairConceptHierarchyCount(concept1List, concept2List, part);
+                totalDocumentCount = nodeRepo.getTotalDocumentCount();
+                break;
+        }
+        return new Metrics(singleCount1, singleCount2, pairCount, totalConceptCount, totalDocumentCount);
+    }
+
 
 }
