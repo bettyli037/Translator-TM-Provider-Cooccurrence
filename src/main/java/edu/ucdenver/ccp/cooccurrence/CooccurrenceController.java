@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -13,9 +14,11 @@ import java.util.stream.Collectors;
 public class CooccurrenceController {
 
     private final NodeRepository nodeRepo;
+    private final ObjectMapper objectMapper;
 
     public CooccurrenceController(NodeRepository repo) {
         this.nodeRepo = repo;
+        this.objectMapper = new ObjectMapper();
     }
 
     @GetMapping("/hierarchy/{curie}")
@@ -63,46 +66,86 @@ public class CooccurrenceController {
         return responseNode.toPrettyString();
     }
 
-    @PostMapping("/overlay")
-    public String trapiTest(@RequestBody ObjectNode request) {
-        if (!request.get("message").hasNonNull("knowledge_graph")) {
-            return "Invalid Request";
-        }
-        JsonNode edges = request.get("message").get("knowledge_graph").get("edges");
-        ObjectMapper om = new ObjectMapper();
-        ObjectNode newEdgesNode = om.createObjectNode();
-        for (Iterator<Map.Entry<String, JsonNode>> it = edges.fields(); it.hasNext(); ) {
-            Map.Entry<String, JsonNode> edge = it.next();
+    @GetMapping("/meta_knowledge_graph")
+    public JsonNode getMetaKnowledgeGraph() {
+        List<NodeMetadata> nodeMetadata = nodeRepo.getNodeMetadata();
+        List<EdgeMetadata> edgeMetadata = nodeRepo.getEdgeMetadata();
 
-            String s = edge.getValue().get("subject").asText();
-            String o = edge.getValue().get("object").asText();
+        ObjectNode nodeMetadataNode = objectMapper.createObjectNode();
+        Map<String, List<String>> categoryPrefixMap = new HashMap<>();
+        for (NodeMetadata nm : nodeMetadata) {
+            if (!categoryPrefixMap.containsKey(nm.getCategory())) {
+                categoryPrefixMap.put(nm.getCategory(), new ArrayList<>());
+            }
+            categoryPrefixMap.get(nm.getCategory()).add(nm.getIdPrefix());
+        }
+        for (Map.Entry<String, List<String>> categoryEntry : categoryPrefixMap.entrySet()) {
+            ObjectNode entry = objectMapper.createObjectNode();
+            ArrayNode prefixes = objectMapper.valueToTree(categoryEntry.getValue());
+            entry.set("id_prefixes", prefixes);
+            entry.set("attributes", objectMapper.nullNode());
+            nodeMetadataNode.set(categoryEntry.getKey(), entry);
+        }
+
+        ArrayNode edgeMetadataArray = objectMapper.createArrayNode();
+        for (EdgeMetadata em : edgeMetadata) {
+            ObjectNode entry = objectMapper.createObjectNode();
+            entry.put("subject", em.getSubject());
+            entry.put("object", em.getObject());
+            entry.put("predicate", em.getPredicate());
+            entry.set("attributes", objectMapper.nullNode());
+            edgeMetadataArray.add(entry);
+        }
+
+        ObjectNode responseNode = objectMapper.createObjectNode();
+        responseNode.set("nodes", nodeMetadataNode);
+        responseNode.set("edges", edgeMetadataArray);
+        return responseNode;
+    }
+
+    @PostMapping("/overlay")
+    public ResponseEntity<JsonNode> overlay(@RequestBody ObjectNode request) {
+        ObjectMapper om = new ObjectMapper();
+        if (!isValid(request)) {
+            // TODO: figure out what caused it to fail validation and use it to build a ValidationError object
+            return ResponseEntity.unprocessableEntity().body(om.createObjectNode().put("error", "Validation failed"));
+        }
+        JsonNode nodes = request.get("message").get("knowledge_graph").get("nodes");
+        ObjectNode newEdgesNode = om.createObjectNode();
+        List<String> concepts = new ArrayList<>();
+        ArrayNode newEdgeBindings = om.createArrayNode();
+        for (Iterator<String> iter = nodes.fieldNames(); iter.hasNext(); ) {
+            concepts.add(iter.next());
+        }
+        for (List<String> pair : getAllConceptPairs(concepts)) {
+            String s = pair.get(0);
+            String o = pair.get(1);
             List<String> concept1List = getAllAncestors(s);
             List<String> concept2List = getAllAncestors(o);
-//            System.out.println(s + "_" + o);
-//            concept1List.forEach(System.out::print);
-//            System.out.println();
-//            concept2List.forEach(System.out::print);
-//            System.out.println();
             Metrics cooccurrenceMetrics = getMetrics(concept1List, concept2List, "abstract");
             if (Double.isNaN(cooccurrenceMetrics.getNormalizedGoogleDistance())) {
-//                System.out.println("Nothing to see here");
                 continue;
             }
+            String edgeID = s + "_" + o + "_abstract";
+            ObjectNode binding = om.createObjectNode();
+            binding.put("id", edgeID);
+            newEdgeBindings.add(binding);
             ObjectNode newEdge = om.createObjectNode();
+            ObjectNode edgeAttributes = om.createObjectNode();
             newEdge.put("subject", s);
             newEdge.put("object", o);
             newEdge.put("predicate", "biolink:occurs_together_in_literature_with");
-            ObjectNode attributesNode = om.createObjectNode();
-            attributesNode.put("type", "cooccurrence");
-            ObjectNode valueNode = cooccurrenceMetrics.toJSON();
-            valueNode.put("predicate", "biolink:occurs_together_in_literature_with");
-            valueNode.put("provided_by", "cooccurrence");
-            attributesNode.set("value", valueNode);
-            newEdge.set("attributes", attributesNode);
-            newEdgesNode.set(s + "_" + o + "_abstract", newEdge);
+            edgeAttributes.put("attribute_type_id", "biolink:supporting_study_result");
+            edgeAttributes.put("value", "tmkp:" + edgeID);
+            edgeAttributes.put("value_type_id", "biolink:AbstractLevelConceptCooccurrenceAnalysisResult");
+            edgeAttributes.put("description", "a single result from computing cooccurrence metrics between two concepts that occur in the document abstract");
+            edgeAttributes.put("attribute_source", "infores:text-mining-provider-cooccurrence");
+            edgeAttributes.set("attributes", cooccurrenceMetrics.toJSONArray());
+            newEdge.set("attributes", edgeAttributes);
+            newEdgesNode.set(edgeID, newEdge);
         }
-        JsonNode responseNode = om.createObjectNode().set("message", updateMessageNode(request, newEdgesNode));
-        return responseNode.toPrettyString();
+        JsonNode responseNode = om.createObjectNode().set("message", updateMessageNode(request, newEdgesNode, newEdgeBindings));
+        return ResponseEntity.ok(responseNode);
     }
 
     private List<String> getAllAncestors(String initialConcept) {
@@ -152,11 +195,10 @@ public class CooccurrenceController {
         return new Metrics(singleCount1, singleCount2, pairCount, totalConceptCount, totalDocumentCount);
     }
 
-    private JsonNode updateMessageNode(JsonNode messageNode, JsonNode newEdges) {
-        ObjectNode updatedNode = (new ObjectMapper()).createObjectNode();
-        ObjectNode knowledgeGraph = (new ObjectMapper()).createObjectNode();
-        JsonNode queryGraph = messageNode.get("message").get("query_graph").deepCopy();
-        JsonNode results = messageNode.get("message").get("results").deepCopy();
+    private JsonNode updateMessageNode(JsonNode messageNode, JsonNode newEdges, ArrayNode newEdgeBindings) {
+        ObjectMapper om = new ObjectMapper();
+        ObjectNode updatedNode = om.createObjectNode();
+        ObjectNode knowledgeGraph = om.createObjectNode();
         JsonNode nodes = messageNode.get("message").get("knowledge_graph").get("nodes").deepCopy();
         ObjectNode edges = messageNode.get("message").get("knowledge_graph").get("edges").deepCopy();
         for (Iterator<Map.Entry<String, JsonNode>> it = newEdges.fields(); it.hasNext(); ) {
@@ -165,9 +207,52 @@ public class CooccurrenceController {
         }
         knowledgeGraph.set("nodes", nodes);
         knowledgeGraph.set("edges", edges);
+        JsonNode queryGraph = messageNode.get("message").get("query_graph").deepCopy();
         updatedNode.set("query_graph", queryGraph);
         updatedNode.set("knowledge_graph", knowledgeGraph);
-        updatedNode.set("results", results);
+        if (newEdgeBindings.isEmpty()) {
+            JsonNode results = messageNode.get("message").get("results").deepCopy();
+            updatedNode.set("results", results);
+        } else {
+            // Note: making the dangerous assumption that there is exactly one object in the results array
+            ArrayNode resultsArray = om.createArrayNode();
+            ObjectNode results = om.createObjectNode();
+            JsonNode nodeBindings = messageNode.get("message").get("results").get(0).get("node_bindings").deepCopy();
+            ObjectNode edgeBindings = messageNode.get("message").get("results").get(0).get("edge_bindings").deepCopy();
+            edgeBindings.set("", newEdgeBindings);
+            results.set("node_bindings", nodeBindings);
+            results.set("edge_bindings", edgeBindings);
+            resultsArray.add(results);
+            updatedNode.set("results", resultsArray);
+        }
         return updatedNode;
+    }
+
+    private boolean isValid(JsonNode objectNode) {
+        if (objectNode.hasNonNull("message")) {
+            JsonNode messageNode = objectNode.get("message");
+            if (messageNode.hasNonNull("query_graph") && messageNode.hasNonNull("knowledge_graph") && messageNode.hasNonNull("results")) {
+                return messageNode.get("knowledge_graph").hasNonNull("nodes") &&
+                        messageNode.get("knowledge_graph").hasNonNull("edges") &&
+                        messageNode.get("results").get(0).hasNonNull("node_bindings") &&
+                        messageNode.get("results").get(0).hasNonNull("edge_bindings");
+            }
+        }
+        return false;
+    }
+
+    private List<List<String>> getAllConceptPairs(List<String> concepts) {
+        HashSet<List<String>> uniquePairs = new HashSet<>();
+        for (String concept1 : concepts) {
+            for (String concept2 : concepts) {
+                if (concept1.equals(concept2)) {
+                    continue;
+                }
+                List<String> pair = Arrays.asList(concept1, concept2);
+                pair.sort(Comparator.naturalOrder());
+                uniquePairs.add(pair);
+            }
+        }
+        return new ArrayList<>(uniquePairs);
     }
 }
