@@ -1,0 +1,756 @@
+openapi: 3.0.2
+info:
+  contact:
+    email: edgar.gatica@cuanschutz.edu
+    name: Edgar Gatica
+    x-id: https://github.com/edgargaticaCU
+    x-role: responsible developer
+  description: >-
+    A KG linking concepts that cooccur in scientific text, scored 
+    at different levels, e.g. title, sentence, document, using 
+    a suite of cooccurrence metrics
+  termsOfService: 
+  title: Text Mined Cooccurrence API
+  version: 1.0.0
+  x-translator:
+    component: KP
+    infores: infores:text-mining-provider-cooccurrence
+    team:
+    - Text Mining Provider
+  x-trapi:
+    version: 1.2.0
+    asyncquery: false
+    operations:
+      - overlay
+  license:
+    name: MIT License
+    url: https://github.com/UCDenver-ccp/Translator-TM-Provider-Cooccurrence/blob/main/LICENSE
+servers:
+- description: Default server
+  url: https://cooccurrence-p36smkc6hq-uc.a.run.app
+  x-maturity: development
+tags:
+- name: meta_knowledge_graph
+  description: >-
+    Retrieve the meta knowledge graph representation of this
+    TRAPI web service.
+- name: overlay
+  description: >-
+    Add edges between existing nodes based on literature cooccurrence.
+- name: translator
+  description: Required for SmartAPI validation of x-translator
+- name: trapi
+  description: Required for SmartAPI validation of x-trapi
+paths:
+  /meta_knowledge_graph:
+    get:
+      tags:
+        - meta_knowledge_graph
+      summary: Meta knowledge graph representation of this TRAPI web service.
+      responses:
+        '200':
+          description: >-
+            Returns meta knowledge graph representation of this TRAPI web
+            service.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetaKnowledgeGraph'
+  /overlay:
+    post:
+      tags:
+        - overlay
+      summary: Overlay results with available connections between each node.
+      description: Given a ReasonerAPI graph, add support edges for any nodes.
+      requestBody:
+        description: Existing ReasonerAPI graph
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/Query'
+              example: >-
+                {
+                  "message": {
+                    "query_graph": {
+                      "edges": {
+                        "e00": {
+                          "object": "n01",
+                          "predicates": [
+                            "biolink:biomarker_for"
+                          ],
+                          "subject": "n00"
+                        }
+                      },
+                      "nodes": {
+                        "n00": {
+                          "categories": [
+                            "biolink:NamedThing"
+                          ]
+                        },
+                        "n01": {
+                          "categories": [
+                            "biolink:Disease"
+                          ],
+                          "ids": [
+                            "MONDO:0008383"
+                          ]
+                        }
+                      }
+                    },
+                    "knowledge_graph": {
+                      "nodes": {
+                        "MONDO:0008383": {
+                          "attributes": [
+                            {
+                              "attribute_type_id": "biolink:xref",
+                              "value": [
+                                "MONDO:0008383",
+                                "DOID:7148",
+                                "OMIM:180300",
+                                "EFO:0000685",
+                                "UMLS:C0003873",
+                                "UMLS:C1306838",
+                                "UMLS:C1833448",
+                                "MESH:D001172",
+                                "MEDDRA:10003268",
+                                "MEDDRA:10036856",
+                                "MEDDRA:10037740",
+                                "MEDDRA:10039073",
+                                "MEDDRA:10042952",
+                                "NCIT:C2884",
+                                "SNOMEDCT:69896004",
+                                "ICD10:M06.9",
+                                "ICD9:714.0",
+                                "KEGG.DISEASE:05323",
+                                "HP:0001370"
+                              ]
+                            },
+                            {
+                              "attribute_type_id": "biolink:synonym",
+                              "value": [
+                                "rheumatoid arthritis",
+                                "Rheumatoid Arthritis",
+                                "Proliferative arthritis",
+                                "RHEUMATOID ARTHRITIS, SUSCEPTIBILITY TO",
+                                "Arthritis, Rheumatoid",
+                                "Rheumatoid arthritis"
+                              ]
+                            },
+                            {
+                              "attribute_type_id": "num_source_nodes",
+                              "value": 23
+                            },
+                            {
+                              "attribute_type_id": "num_target_nodes",
+                              "value": 0
+                            },
+                            {
+                              "attribute_type_id": "source_qg_nodes",
+                              "value": [
+                                "n00"
+                              ]
+                            },
+                            {
+                              "attribute_type_id": "target_qg_nodes",
+                              "value": []
+                            }
+                          ],
+                          "categories": [
+                            "biolink:Disease"
+                          ],
+                          "name": "rheumatoid arthritis"
+                        },
+                        "DRUGBANK:DB00563": {
+                          "attributes": [
+                            {
+                              "attribute_type_id": "biolink:xref",
+                              "value": [
+                                "PUBCHEM.COMPOUND:126941",
+                                "CHEMBL.COMPOUND:CHEMBL34259",
+                                "UNII:YL5FZ2Y5U1",
+                                "CHEBI:44185",
+                                "CHEBI:CHEBI:44185",
+                                "DRUGBANK:DB00563",
+                                "MESH:D008727",
+                                "DrugCentral:1751",
+                                "GTOPDB:4674",
+                                "GTOPDB:4815",
+                                "HMDB:HMDB0014703",
+                                "KEGG.COMPOUND:C01937",
+                                "INCHIKEY:FBOZXECLQNJBKD-ZDUSSCGKSA-N",
+                                "UMLS:C0025677",
+                                "UMLS:C0887180",
+                                "UMLS:C0949359"
+                              ]
+                            },
+                            {
+                              "attribute_type_id": "biolink:synonym",
+                              "value": [
+                                "Methotrexate",
+                                "METHOTREXATE",
+                                "methotrexate",
+                                "[<sup>3</sup>H]methotrexate",
+                                "Methotrexate, (D)-Isomer",
+                                "Methotrexate Sodium"
+                              ]
+                            },
+                            {
+                              "attribute_type_id": "num_source_nodes",
+                              "value": 0
+                            },
+                            {
+                              "attribute_type_id": "num_target_nodes",
+                              "value": 1
+                            },
+                            {
+                              "attribute_type_id": "source_qg_nodes",
+                              "value": []
+                            },
+                            {
+                              "attribute_type_id": "target_qg_nodes",
+                              "value": [
+                                "n01"
+                              ]
+                            }
+                          ],
+                          "categories": [
+                            "biolink:SmallMolecule"
+                          ],
+                          "name": "Methotrexate"
+                        }
+                      },
+                      "edges": {
+                        "71ef68879f82536e7b82c55f984f76db": {
+                          "attributes": [
+                            {
+                              "attribute_type_id": "biolink:aggregator_knowledge_source",
+                              "value": [
+                                "infores:biothings-explorer"
+                              ],
+                              "value_type_id": "biolink:InformationResource"
+                            },
+                            {
+                              "attribute_source": null,
+                              "attribute_type_id": "biolink:aggregator_knowledge_source",
+                              "attributes": null,
+                              "description": null,
+                              "original_attribute_name": "biolink:aggregator_knowledge_source",
+                              "value": [
+                                "infores:sri-reference-kg"
+                              ],
+                              "value_type_id": "biolink:InformationResource",
+                              "value_url": null
+                            },
+                            {
+                              "attribute_source": null,
+                              "attribute_type_id": "biolink:relation",
+                              "attributes": null,
+                              "description": null,
+                              "original_attribute_name": "relation",
+                              "value": "RO:0002607",
+                              "value_type_id": "EDAM:data_0006",
+                              "value_url": null
+                            },
+                            {
+                              "attribute_source": null,
+                              "attribute_type_id": "biolink:aggregator_knowledge_source",
+                              "attributes": null,
+                              "description": null,
+                              "original_attribute_name": "biolink:aggregator_knowledge_source",
+                              "value": "infores:automat-biolink",
+                              "value_type_id": "biolink:InformationResource",
+                              "value_url": null
+                            }
+                          ],
+                          "object": "MONDO:0008383",
+                          "predicate": "biolink:biomarker_for",
+                          "subject": "DRUGBANK:DB00563"
+                        }
+                      }
+                    },
+                    "results": [
+                      {
+                        "edge_bindings": {
+                          "e00": [
+                            {
+                              "id": "71ef68879f82536e7b82c55f984f76db"
+                            }
+                          ]
+                        },
+                        "node_bindings": {
+                          "n00": [
+                            {
+                              "id": "DRUGBANK:DB00563"
+                            }
+                          ],
+                          "n01": [
+                            {
+                              "id": "MONDO:0008383"
+                            }
+                          ]
+                        },
+                        "reasoner_id": "BTE",
+                        "score": 1
+                      }
+                    ]
+                  }
+                }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+components:
+  schemas:
+    Attribute:
+      additionalProperties: false
+      description: Node/edge attribute.
+      properties:
+        name:
+          nullable: true
+          title: Name
+          type: string
+        source:
+          nullable: true
+          title: Source
+          type: string
+        type:
+          allOf:
+          - $ref: '#/components/schemas/CURIE'
+          title: type
+        url:
+          nullable: true
+          title: Url
+          type: string
+        value:
+          title: value
+      required:
+      - type
+      - value
+      title: Attribute
+      type: object
+    BiolinkEntity:
+      description: Biolink entity.
+      pattern: ^biolink:[A-Z][a-zA-Z]*$
+      title: biolink entity
+      type: string
+    BiolinkPredicate:
+      description: Biolink predicate.
+      pattern: ^biolink:[a-z][a-z_]*$
+      title: biolink predicate
+      type: string
+    CURIE:
+      description: Compact URI.
+      title: CURIE
+      type: string
+    Edge:
+      additionalProperties: false
+      description: Knowledge graph edge.
+      properties:
+        attributes:
+          items:
+            $ref: '#/components/schemas/Attribute'
+          nullable: true
+          title: Attributes
+          type: array
+        object:
+          allOf:
+          - $ref: '#/components/schemas/CURIE'
+          title: object node id
+        predicate:
+          allOf:
+          - $ref: '#/components/schemas/BiolinkPredicate'
+          nullable: true
+          title: Predicate
+        relation:
+          nullable: true
+          title: Relation
+          type: string
+        subject:
+          allOf:
+          - $ref: '#/components/schemas/CURIE'
+          title: subject node id
+      required:
+      - subject
+      - object
+      title: knowledge-graph edge
+      type: object
+    EdgeBinding:
+      description: Edge binding.
+      example:
+        id: string
+      properties:
+        id:
+          title: knowledge graph id
+          type: string
+      required:
+      - id
+      title: edge binding
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    KnowledgeGraph:
+      description: Knowledge graph.
+      properties:
+        edges:
+          additionalProperties:
+            $ref: '#/components/schemas/Edge'
+          title: edges
+          type: object
+        nodes:
+          additionalProperties:
+            $ref: '#/components/schemas/Node'
+          title: nodes
+          type: object
+      required:
+      - nodes
+      - edges
+      title: knowledge graph
+      type: object
+    Message:
+      additionalProperties: false
+      description: Message.
+      properties:
+        knowledge_graph:
+          allOf:
+          - $ref: '#/components/schemas/KnowledgeGraph'
+          nullable: true
+          title: knowledge graph
+        query_graph:
+          allOf:
+          - $ref: '#/components/schemas/QueryGraph'
+          nullable: true
+          title: query graph
+        results:
+          items:
+            $ref: '#/components/schemas/Result'
+          nullable: true
+          title: list of results
+          type: array
+      title: message
+      type: object
+    MetaKnowledgeGraph:
+      type: object
+      description: >-
+        Knowledge-map representation of this TRAPI web service. The meta
+        knowledge graph is composed of the union of most specific categories
+        and predicates for each node and edge.
+      properties:
+        nodes:
+          type: object
+          description: >-
+            Collection of the most specific node categories provided by
+            this TRAPI web service, indexed by Biolink class CURIEs.
+            A node category is only exposed here if there is
+            node for which that is the most specific category available.
+          additionalProperties:
+            $ref: '#/components/schemas/MetaNode'
+        edges:
+          type: array
+          description: >-
+            List of the most specific edges/predicates provided by this TRAPI
+            web service. A predicate is only exposed here if there is an edge
+            for which the predicate is the most specific available.
+          items:
+            $ref: '#/components/schemas/MetaEdge'
+      required:
+        - nodes
+        - edges
+    MetaNode:
+      type: object
+      description: >-
+        Description of a node category provided by this TRAPI web service.
+      properties:
+        id_prefixes:
+          type: array
+          description: >-
+            List of CURIE prefixes for the node category that this TRAPI web
+            service understands and accepts on the input.
+          items:
+            type: string
+          minItems: 1
+          example: [CHEMBL.COMPOUND, INCHIKEY]
+        attributes:
+          type: array
+          description: >-
+            Node attributes provided by this TRAPI web service.
+          items:
+            $ref: '#/components/schemas/MetaAttribute'
+          nullable: true
+      required:
+        - id_prefixes
+      additionalProperties: false
+    MetaEdge:
+      type: object
+      description: >-
+        Edge in a meta knowledge map describing relationship between a subject
+        Biolink class and an object Biolink class.
+      properties:
+        subject:
+          $ref: '#/components/schemas/BiolinkEntity'
+          description: >-
+            Subject node category of this relationship edge.
+          example: biolink:ChemicalSubstance
+        predicate:
+          $ref: '#/components/schemas/BiolinkPredicate'
+          description: >-
+            Biolink relationship between the subject and object categories.
+          example: biolink:affects
+        object:
+          $ref: '#/components/schemas/BiolinkEntity'
+          description: >-
+            Object node category of this relationship edge.
+          example: biolink:Protein
+        attributes:
+          type: array
+          description: >-
+            Edge attributes provided by this TRAPI web service.
+          items:
+            $ref: '#/components/schemas/MetaAttribute'
+          nullable: true
+      required:
+        - subject
+        - predicate
+        - object
+      additionalProperties: false
+    MetaAttribute:
+      type: object
+      properties:
+        attribute_type_id:
+          $ref: '#/components/schemas/CURIE'
+          description: >-
+            Type of an attribute provided by this TRAPI web service
+            (preferably the CURIE of a Biolink association slot)
+          example: biolink:p_value
+        attribute_source:
+          type: string
+          description: >-
+            Source of an attribute provided by this TRAPI web service.
+          example: infores:chembl
+          nullable: true
+        original_attribute_names:
+          type: array
+          items:
+            type: string
+          description: >-
+            Names of an the attribute as provided by the source.
+          nullable: true
+          minItems: 1
+        constraint_use:
+          type: boolean
+          description: >-
+            Indicates whether this attribute can be used as a query
+            constraint.
+          default: false
+        constraint_name:
+          type: string
+          description: >-
+            Human-readable name or label for the constraint concept.
+            Required whenever constraint_use is true.
+          example: p-value
+          nullable: true
+      required:
+        - attribute_type_id
+    Node:
+      additionalProperties: false
+      description: Knowledge graph node.
+      example:
+        category: string
+      properties:
+        attributes:
+          items:
+            $ref: '#/components/schemas/Attribute'
+          nullable: true
+          title: Attributes
+          type: array
+        category:
+          anyOf:
+          - $ref: '#/components/schemas/BiolinkEntity'
+          - items:
+              $ref: '#/components/schemas/BiolinkEntity'
+            type: array
+          nullable: true
+          title: category
+        name:
+          nullable: true
+          title: Name
+          type: string
+      title: knowledge-graph node
+      type: object
+    NodeBinding:
+      description: Node binding.
+      example:
+        id: x:string
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/CURIE'
+          title: knowledge graph id
+      required:
+      - id
+      title: node binding
+      type: object
+    QEdge:
+      description: Query edge.
+      properties:
+        object:
+          title: object node id
+          type: string
+        predicate:
+          anyOf:
+          - $ref: '#/components/schemas/BiolinkPredicate'
+          - items:
+              $ref: '#/components/schemas/BiolinkPredicate'
+            type: array
+          nullable: true
+          title: predicate
+        relation:
+          nullable: true
+          title: Relation
+          type: string
+        subject:
+          title: subject node id
+          type: string
+      required:
+      - subject
+      - object
+      title: query-graph edge
+      type: object
+    QNode:
+      description: Query node.
+      properties:
+        category:
+          anyOf:
+          - $ref: '#/components/schemas/BiolinkEntity'
+          - items:
+              $ref: '#/components/schemas/BiolinkEntity'
+            type: array
+          nullable: true
+          title: category
+        id:
+          anyOf:
+          - $ref: '#/components/schemas/CURIE'
+          - items:
+              $ref: '#/components/schemas/CURIE'
+            type: array
+          nullable: true
+          title: id
+        is_set:
+          default: false
+          title: Is Set
+          type: boolean
+      title: query-graph node
+      type: object
+    Query:
+      description: Request.
+      properties:
+        message:
+          allOf:
+          - $ref: '#/components/schemas/Message'
+          title: message
+      required:
+      - message
+      title: query
+      type: object
+    QueryGraph:
+      description: Query graph.
+      properties:
+        edges:
+          additionalProperties:
+            $ref: '#/components/schemas/QEdge'
+          title: dict of edges
+          type: object
+        nodes:
+          additionalProperties:
+            $ref: '#/components/schemas/QNode'
+          title: dict of nodes
+          type: object
+      required:
+      - nodes
+      - edges
+      title: simple query graph
+      type: object
+    Result:
+      description: Result.
+      properties:
+        edge_bindings:
+          additionalProperties:
+            items:
+              $ref: '#/components/schemas/EdgeBinding'
+            type: array
+          title: list of edge bindings
+          type: object
+        node_bindings:
+          additionalProperties:
+            items:
+              $ref: '#/components/schemas/NodeBinding'
+            type: array
+          title: list of node bindings
+          type: object
+      required:
+      - node_bindings
+      - edge_bindings
+      title: result
+      type: object
+    SimpleSpecElement:
+      properties:
+        edge_type:
+          title: Edge Type
+          type: string
+        source_type:
+          title: Source Type
+          type: string
+        target_type:
+          title: Target Type
+          type: string
+      required:
+      - source_type
+      - target_type
+      - edge_type
+      title: SimpleSpecElement
+      type: object
+    TypeSummary:
+      properties:
+        nodes_count:
+          title: Nodes Count
+          type: integer
+      required:
+      - nodes_count
+      title: TypeSummary
+      type: object
+    ValidationError:
+      properties:
+        loc:
+          items:
+            type: string
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
