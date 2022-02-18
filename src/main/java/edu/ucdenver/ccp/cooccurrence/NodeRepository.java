@@ -100,4 +100,12 @@ public interface NodeRepository extends Repository<Node, Integer> {
     @Query("SELECT parentCurie FROM ConceptHierarchy WHERE childCurie IN :curies")
     @Transactional(readOnly = true)
     List<String> getConceptAncestors(@Param("curies") Collection<String> curies);
+
+    @Query("SELECT em FROM EdgeMetadata em")
+    @Transactional(readOnly = true)
+    List<EdgeMetadata> getEdgeMetadata();
+
+    @Query("SELECT nm FROM NodeMetadata nm")
+    @Transactional(readOnly = true)
+    List<NodeMetadata> getNodeMetadata();
 }
