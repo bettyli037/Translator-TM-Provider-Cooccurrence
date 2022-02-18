@@ -8,8 +8,7 @@ info:
   description: >-
     A KG linking concepts that cooccur in scientific text, scored 
     at different levels, e.g. title, sentence, document, using 
-    a suite of cooccurrence metrics
-  termsOfService: 
+    a suite of cooccurrence metrics.
   title: Text Mined Cooccurrence API
   version: 1.0.0
   x-translator:
