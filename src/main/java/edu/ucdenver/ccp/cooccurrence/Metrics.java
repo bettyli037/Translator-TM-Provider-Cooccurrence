@@ -20,12 +20,15 @@ public class Metrics {
 
     private final double mutualDependence;
 
-    public Metrics(int singleCount1, int singleCount2, int pairCount, int conceptCount, int documentCount) {
+    private final String documentPart;
+
+    public Metrics(int singleCount1, int singleCount2, int pairCount, int conceptCount, int documentCount, String part) {
         this.singleCount1 = singleCount1;
         this.singleCount2 = singleCount2;
         this.pairCount = pairCount;
         this.conceptCount = conceptCount;
         this.documentCount = documentCount;
+        this.documentPart = part;
         normalizedGoogleDistance = calculateNormalizedGoogleDistance(singleCount1, singleCount2, pairCount, conceptCount);
         pointwiseMutualInformation = calculatePointwiseMutualInformation(singleCount1, singleCount2, pairCount, documentCount);
         normalizedPointwiseMutualInformation = calculateNormalizedPointwiseMutualInformation(singleCount1, singleCount2, pairCount, documentCount);
@@ -124,25 +127,28 @@ public class Metrics {
         count1Node.put("attribute_type_id", "biolink:tmkp_concept1_count");
         count1Node.put("value", singleCount1);
         count1Node.put("value_type_id", "SIO:000794");
-        count1Node.put("description", "The number of times concept #1 was observed to occur at the abstract level in the documents that were processed");
+        String description = String.format("The number of times concept #1 was observed to occur at the %s level in the documents that were processed", this.documentPart);
+        count1Node.put("description", description);
         count1Node.put("attribute_source", "infores:text-mining-provider-cooccurrence");
 
         count2Node.put("attribute_type_id", "biolink:tmkp_concept2_count");
         count2Node.put("value", singleCount2);
         count2Node.put("value_type_id", "SIO:000794");
-        count2Node.put("description", "The number of times concept #2 was observed to occur at the abstract level in the documents that were processed");
+        description = String.format("The number of times concept #2 was observed to occur at the %s level in the documents that were processed", this.documentPart);
+        count2Node.put("description", description);
         count2Node.put("attribute_source", "infores:text-mining-provider-cooccurrence");
 
         pairNode.put("attribute_type_id", "biolink:tmkp_concept_pair_count");
         pairNode.put("value", pairCount);
         pairNode.put("value_type_id", "SIO:000794");
-        pairNode.put("description", "The number of times the concepts of this assertion were observed to cooccur at the abstract level in the documents that were processed");
+        description = String.format("The number of times the concepts of this assertion were observed to cooccur at the %s level in the documents that were processed", this.documentPart);
+        pairNode.put("description", description);
         pairNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
 
         ngdNode.put("attribute_type_id", "biolink:tmkp_normalized_google_distance");
         ngdNode.put("value", normalizedGoogleDistance);
         ngdNode.put("value_type_id", "SIO:000794");
-        ngdNode.put("description", "The number of times concept #1 was observed to occur at the abstract level in the documents that were processed");
+        ngdNode.put("description", "The normalized google distance score for the concepts in this assertion based on their cooccurrence in the documents that were processed");
         ngdNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
 
         pmiNode.put("attribute_type_id", "biolink:tmkp_pointwise_mutual_information");

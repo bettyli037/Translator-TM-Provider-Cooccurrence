@@ -20,6 +20,11 @@ public interface NodeRepository extends Repository<Node, Integer> {
     int getTotalConceptCount();
 
     @Cacheable("documents")
+    @Query("SELECT recordCount FROM DocumentCount dc WHERE dc.part = :part")
+    @Transactional(readOnly = true)
+    int getDocumentCount(@Param("part") String part);
+
+    @Cacheable("documents")
     @Query("SELECT COUNT(1) FROM Document d")
     @Transactional(readOnly = true)
     int getTotalDocumentCount();

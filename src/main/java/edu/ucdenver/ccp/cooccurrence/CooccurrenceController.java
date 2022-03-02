@@ -105,15 +105,14 @@ public class CooccurrenceController {
 
     @PostMapping("/overlay")
     public ResponseEntity<JsonNode> overlay(@RequestBody ObjectNode request) {
-        ObjectMapper om = new ObjectMapper();
         if (!isValid(request)) {
             // TODO: figure out what caused it to fail validation and use it to build a ValidationError object
-            return ResponseEntity.unprocessableEntity().body(om.createObjectNode().put("error", "Validation failed"));
+            return ResponseEntity.unprocessableEntity().body(objectMapper.createObjectNode().put("error", "Validation failed"));
         }
         JsonNode nodes = request.get("message").get("knowledge_graph").get("nodes");
-        ObjectNode newEdgesNode = om.createObjectNode();
+        ObjectNode newEdgesNode = objectMapper.createObjectNode();
         List<String> concepts = new ArrayList<>();
-        ArrayNode newEdgeBindings = om.createArrayNode();
+        ArrayNode newEdgeBindings = objectMapper.createArrayNode();
         for (Iterator<String> iter = nodes.fieldNames(); iter.hasNext(); ) {
             concepts.add(iter.next());
         }
@@ -122,30 +121,53 @@ public class CooccurrenceController {
             String o = pair.get(1);
             List<String> concept1List = getAllAncestors(s);
             List<String> concept2List = getAllAncestors(o);
-            Metrics cooccurrenceMetrics = getMetrics(concept1List, concept2List, "abstract");
-            if (Double.isNaN(cooccurrenceMetrics.getNormalizedGoogleDistance())) {
-                continue;
+            List<String> documentParts = Arrays.asList("abstract", "title", "sentence");
+
+            for (String part : documentParts) {
+                Metrics cooccurrenceMetrics = getMetrics(concept1List, concept2List, part);
+                if (!Double.isNaN(cooccurrenceMetrics.getNormalizedGoogleDistance())) {
+                    String edgeID = s + "_" + o + "_" + part;
+                    ObjectNode binding = objectMapper.createObjectNode();
+                    binding.put("id", edgeID);
+                    newEdgeBindings.add(binding);
+                    JsonNode newEdge = createEdgeNode(edgeID, s, o, part, cooccurrenceMetrics);
+                    newEdgesNode.set(edgeID, newEdge);
+                }
             }
-            String edgeID = s + "_" + o + "_abstract";
-            ObjectNode binding = om.createObjectNode();
-            binding.put("id", edgeID);
-            newEdgeBindings.add(binding);
-            ObjectNode newEdge = om.createObjectNode();
-            ObjectNode edgeAttributes = om.createObjectNode();
-            newEdge.put("subject", s);
-            newEdge.put("object", o);
-            newEdge.put("predicate", "biolink:occurs_together_in_literature_with");
-            edgeAttributes.put("attribute_type_id", "biolink:supporting_study_result");
-            edgeAttributes.put("value", "tmkp:" + edgeID);
-            edgeAttributes.put("value_type_id", "biolink:AbstractLevelConceptCooccurrenceAnalysisResult");
-            edgeAttributes.put("description", "a single result from computing cooccurrence metrics between two concepts that occur in the document abstract");
-            edgeAttributes.put("attribute_source", "infores:text-mining-provider-cooccurrence");
-            edgeAttributes.set("attributes", cooccurrenceMetrics.toJSONArray());
-            newEdge.set("attributes", edgeAttributes);
-            newEdgesNode.set(edgeID, newEdge);
         }
-        JsonNode responseNode = om.createObjectNode().set("message", updateMessageNode(request, newEdgesNode, newEdgeBindings));
+        JsonNode responseNode = objectMapper.createObjectNode().set("message", updateMessageNode(request, newEdgesNode, newEdgeBindings));
         return ResponseEntity.ok(responseNode);
+    }
+
+    private JsonNode createEdgeNode(String edgeID, String concept1, String concept2, String documentPart, Metrics cooccurrenceMetrics) {
+        ObjectNode newEdge = objectMapper.createObjectNode();
+        ObjectNode edgeAttributes = objectMapper.createObjectNode();
+        newEdge.put("subject", concept1);
+        newEdge.put("object", concept2);
+        newEdge.put("predicate", "biolink:occurs_together_in_literature_with");
+        edgeAttributes.put("attribute_type_id", "biolink:supporting_study_result");
+        edgeAttributes.put("value", "tmkp:" + edgeID);
+        edgeAttributes.put("value_type_id", "biolink:AbstractLevelConceptCooccurrenceAnalysisResult");
+        String description;
+        switch (documentPart) {
+            case "sentence":
+                description = "a single result from computing cooccurrence metrics between two concepts that cooccur at the sentence level";
+                break;
+            case "title":
+                description = "a single result from computing cooccurrence metrics between two concepts that cooccur in the document title";
+                break;
+            case "abstract":
+                description = "a single result from computing cooccurrence metrics between two concepts that cooccur in the abstract";
+                break;
+            default:
+                description = "a single result from computing cooccurrence metrics between two concepts that cooccur in a document";
+        }
+
+        edgeAttributes.put("description", description);
+        edgeAttributes.put("attribute_source", "infores:text-mining-provider-cooccurrence");
+        edgeAttributes.set("attributes", cooccurrenceMetrics.toJSONArray());
+        newEdge.set("attributes", edgeAttributes);
+        return newEdge;
     }
 
     private List<String> getAllAncestors(String initialConcept) {
@@ -166,24 +188,22 @@ public class CooccurrenceController {
     private Metrics getMetrics(List<String> concept1List, List<String> concept2List, String part) {
         int singleCount1, singleCount2, pairCount, totalConceptCount, totalDocumentCount;
         totalConceptCount = nodeRepo.getTotalConceptCount();
+        totalDocumentCount = nodeRepo.getDocumentCount(part);
         switch (part) {
             case "abstract":
                 singleCount1 = nodeRepo.getSingleConceptHierarchyAbstractCount(concept1List);
                 singleCount2 = nodeRepo.getSingleConceptHierarchyAbstractCount(concept2List);
                 pairCount = nodeRepo.getPairConceptHierarchyAbstractCount(concept1List, concept2List);
-                totalDocumentCount = nodeRepo.getTotalAbstractCount();
                 break;
             case "sentence":
                 singleCount1 = nodeRepo.getSingleConceptHierarchySentenceCount(concept1List);
                 singleCount2 = nodeRepo.getSingleConceptHierarchySentenceCount(concept2List);
                 pairCount = nodeRepo.getPairConceptHierarchySentenceCount(concept1List, concept2List);
-                totalDocumentCount = nodeRepo.getTotalSentenceCount();
                 break;
             case "title":
                 singleCount1 = nodeRepo.getSingleConceptHierarchyTitleCount(concept1List);
                 singleCount2 = nodeRepo.getSingleConceptHierarchyTitleCount(concept2List);
                 pairCount = nodeRepo.getPairConceptHierarchyTitleCount(concept1List, concept2List);
-                totalDocumentCount = nodeRepo.getTotalTitleCount();
                 break;
             default:
                 singleCount1 = nodeRepo.getSingleConceptHierarchyCount(concept1List, part);
@@ -192,7 +212,7 @@ public class CooccurrenceController {
                 totalDocumentCount = nodeRepo.getTotalDocumentCount();
                 break;
         }
-        return new Metrics(singleCount1, singleCount2, pairCount, totalConceptCount, totalDocumentCount);
+        return new Metrics(singleCount1, singleCount2, pairCount, totalConceptCount, totalDocumentCount, part);
     }
 
     private JsonNode updateMessageNode(JsonNode messageNode, JsonNode newEdges, ArrayNode newEdgeBindings) {
