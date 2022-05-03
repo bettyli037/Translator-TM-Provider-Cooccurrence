@@ -303,6 +303,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/Message'
           description: Successful Response
+        '400':
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Bad request. The request is invalid according to this OpenAPI
+            schema OR a specific identifier is believed to be invalid somehow (not
+            just unrecognized).
         '422':
           content:
             application/json:
