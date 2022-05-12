@@ -70,7 +70,6 @@ paths:
               allOf:
               - $ref: '#/components/schemas/Query'
               example: >
-                {
                   "message": {
                     "query_graph": {
                       "edges": {
@@ -295,7 +294,6 @@ paths:
                       }
                     ]
                   }
-                }
       responses:
         '200':
           content:
