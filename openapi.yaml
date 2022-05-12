@@ -69,7 +69,7 @@ paths:
             schema:
               allOf:
               - $ref: '#/components/schemas/Query'
-              example: >-
+              example: >
                   message:
                     query_graph:
                       edges: 
