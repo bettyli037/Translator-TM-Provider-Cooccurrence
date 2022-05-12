@@ -1,5 +1,6 @@
 package edu.ucdenver.ccp.cooccurrence;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -104,12 +105,21 @@ public class CooccurrenceController {
     }
 
     @PostMapping("/overlay")
-    public ResponseEntity<JsonNode> overlay(@RequestBody ObjectNode request) {
-        if (!isValid(request)) {
+    public ResponseEntity<JsonNode> overlay(@RequestBody String requestString) throws JsonProcessingException {
+        JsonNode valueNode = objectMapper.readTree(requestString);
+        JsonNode requestNode;
+        // The SmartAPI status monitor sends a mangled requestString, which we have to "fix" by reading the first time.
+        // After that we can use the value of that JsonNode to create the requestNode.
+        if (valueNode.isValueNode()) {
+            requestNode = objectMapper.readTree(valueNode.asText());
+        } else { // If it parsed correctly the first time there's no need to do it again.
+            requestNode = valueNode;
+        }
+        if (!isValid(requestNode)) {
             // TODO: figure out what caused it to fail validation and use it to build a ValidationError object
             return ResponseEntity.unprocessableEntity().body(objectMapper.createObjectNode().put("error", "Validation failed"));
         }
-        JsonNode nodes = request.get("message").get("knowledge_graph").get("nodes");
+        JsonNode nodes = requestNode.get("message").get("knowledge_graph").get("nodes");
         ObjectNode newEdgesNode = objectMapper.createObjectNode();
         List<String> concepts = new ArrayList<>();
         ArrayNode newEdgeBindings = objectMapper.createArrayNode();
@@ -135,7 +145,7 @@ public class CooccurrenceController {
                 }
             }
         }
-        JsonNode responseNode = objectMapper.createObjectNode().set("message", updateMessageNode(request, newEdgesNode, newEdgeBindings));
+        JsonNode responseNode = objectMapper.createObjectNode().set("message", updateMessageNode(requestNode, newEdgesNode, newEdgeBindings));
         return ResponseEntity.ok(responseNode);
     }
 
