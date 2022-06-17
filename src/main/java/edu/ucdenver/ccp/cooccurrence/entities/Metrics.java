@@ -1,4 +1,4 @@
-package edu.ucdenver.ccp.cooccurrence;
+package edu.ucdenver.ccp.cooccurrence.entities;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -6,21 +6,30 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class Metrics {
 
-    private final int singleCount1;
-    private final int singleCount2;
-    private final int pairCount;
-    private final int conceptCount;
-    private final int documentCount;
+    private int singleCount1;
+    private int singleCount2;
+    private int pairCount;
+    private int conceptCount;
+    private int documentCount;
 
-    private final double normalizedGoogleDistance;
+    private double normalizedGoogleDistance;
 
-    private final double pointwiseMutualInformation;
+    private double pointwiseMutualInformation;
 
-    private final double normalizedPointwiseMutualInformation;
+    private double normalizedPointwiseMutualInformation;
 
-    private final double mutualDependence;
+    private double mutualDependence;
 
-    private final String documentPart;
+    private String documentPart;
+
+    public Metrics() {
+        this.singleCount1 = 0;
+        this.singleCount2 = 0;
+        this.pairCount = 0;
+        this.conceptCount = 0;
+        this.documentCount = 0;
+        this.documentPart = "blank";
+    }
 
     public Metrics(int singleCount1, int singleCount2, int pairCount, int conceptCount, int documentCount, String part) {
         this.singleCount1 = singleCount1;
@@ -33,6 +42,30 @@ public class Metrics {
         pointwiseMutualInformation = calculatePointwiseMutualInformation(singleCount1, singleCount2, pairCount, documentCount);
         normalizedPointwiseMutualInformation = calculateNormalizedPointwiseMutualInformation(singleCount1, singleCount2, pairCount, documentCount);
         mutualDependence = calculateMutualDependence(singleCount1, singleCount2, pairCount, documentCount);
+    }
+
+    public void setSingleCount1(int singleCount1) {
+        this.singleCount1 = singleCount1;
+    }
+
+    public void setSingleCount2(int singleCount2) {
+        this.singleCount2 = singleCount2;
+    }
+
+    public void setPairCount(int pairCount) {
+        this.pairCount = pairCount;
+    }
+
+    public void setConceptCount(int conceptCount) {
+        this.conceptCount = conceptCount;
+    }
+
+    public void setDocumentCount(int documentCount) {
+        this.documentCount = documentCount;
+    }
+
+    public void setDocumentPart(String part) {
+        this.documentPart = part;
     }
 
     private static double calculateNormalizedGoogleDistance(int singleCount1, int singleCount2, int pairCount, int totalConceptCount) {

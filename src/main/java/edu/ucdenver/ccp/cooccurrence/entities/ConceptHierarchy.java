@@ -1,4 +1,4 @@
-package edu.ucdenver.ccp.cooccurrence;
+package edu.ucdenver.ccp.cooccurrence.entities;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -19,6 +19,18 @@ public class ConceptHierarchy {
     @Column(name = "child_curie")
     @NotNull
     private String childCurie;
+
+    public ConceptHierarchy() {
+        id = 0;
+        parentCurie = "";
+        childCurie = "";
+    }
+
+    public ConceptHierarchy(String parent, String child) {
+        this.parentCurie = parent;
+        this.childCurie = child;
+        this.id = 0;
+    }
 
     public String getParentCurie() {
         return parentCurie;
@@ -42,5 +54,9 @@ public class ConceptHierarchy {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String toString() {
+        return "{" + id + "," + parentCurie + "," + childCurie + "}";
     }
 }

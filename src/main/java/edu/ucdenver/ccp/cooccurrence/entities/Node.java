@@ -1,4 +1,4 @@
-package edu.ucdenver.ccp.cooccurrence;
+package edu.ucdenver.ccp.cooccurrence.entities;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;

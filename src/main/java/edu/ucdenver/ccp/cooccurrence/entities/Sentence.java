@@ -1,13 +1,12 @@
-package edu.ucdenver.ccp.cooccurrence;
+package edu.ucdenver.ccp.cooccurrence.entities;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Entity
-@Table(name = "abstracts")
-public class Abstract {
-
+@Table(name = "sentences")
+public class Sentence {
     @Column(name = "id")
     @NotEmpty
     @Id
@@ -18,8 +17,8 @@ public class Abstract {
     private String hash;
 
     @ManyToMany
-    @JoinTable(name = "concept_abstract",
-            joinColumns = @JoinColumn(name = "abstract_id", referencedColumnName = "id"),
+    @JoinTable(name = "concept_sentence",
+            joinColumns = @JoinColumn(name = "sentence_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "concept_id", referencedColumnName = "id"))
     private List<Node> nodes;
 

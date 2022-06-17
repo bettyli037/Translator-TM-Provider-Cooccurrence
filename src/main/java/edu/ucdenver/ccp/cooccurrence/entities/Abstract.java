@@ -1,29 +1,26 @@
-package edu.ucdenver.ccp.cooccurrence;
+package edu.ucdenver.ccp.cooccurrence.entities;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Entity
-@Table(name = "documents")
-public class Document {
+@Table(name = "abstracts")
+public class Abstract {
 
     @Column(name = "id")
     @NotEmpty
     @Id
     private int id;
 
-    @Column(name = "document_hash")
+    @Column(name = "hash")
     @NotEmpty
     private String hash;
 
-    @Column(name = "document_part")
-    private String part;
-
     @ManyToMany
-    @JoinTable(name = "node_document",
-            joinColumns = @JoinColumn(name = "document_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "node_id", referencedColumnName = "id"))
+    @JoinTable(name = "concept_abstract",
+            joinColumns = @JoinColumn(name = "abstract_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "concept_id", referencedColumnName = "id"))
     private List<Node> nodes;
 
     public int getId() {
@@ -40,14 +37,6 @@ public class Document {
 
     public void setHash(String hash) {
         this.hash = hash;
-    }
-
-    public String getPart() {
-        return part;
-    }
-
-    public void setPart(String part) {
-        this.part = part;
     }
 
     public List<Node> getNodes() {
