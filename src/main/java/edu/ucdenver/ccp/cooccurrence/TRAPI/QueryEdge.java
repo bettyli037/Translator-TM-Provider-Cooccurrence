@@ -64,8 +64,8 @@ public class QueryEdge {
             return null;
         }
         QueryEdge edge = new QueryEdge();
-        if (jsonQEdge.hasNonNull("predicate")) {
-            JsonNode predicatesNode = jsonQEdge.get("predicate");
+        if (jsonQEdge.hasNonNull("predicate") || jsonQEdge.hasNonNull("predicates")) {
+            JsonNode predicatesNode = jsonQEdge.hasNonNull("predicate") ? jsonQEdge.get("predicate") : jsonQEdge.get("predicates");
             if (predicatesNode.isArray()) {
                 Iterator<JsonNode> predicates = predicatesNode.elements();
                 while (predicates.hasNext()) {

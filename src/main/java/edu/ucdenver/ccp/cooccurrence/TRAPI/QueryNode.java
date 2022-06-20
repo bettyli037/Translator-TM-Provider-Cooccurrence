@@ -82,15 +82,16 @@ public class QueryNode {
 
     public static QueryNode parseJSON(JsonNode jsonQNode) {
         // Note: the YAML definition of QNode pluralizes "ids" and "categories" but the simple.json example in ReasonerAPI uses the singular.
-        if (!jsonQNode.hasNonNull("id") && !jsonQNode.hasNonNull("category")) {
+        if (!(jsonQNode.hasNonNull("id") || jsonQNode.hasNonNull("ids")) &&
+                !(jsonQNode.hasNonNull("category") || jsonQNode.hasNonNull("categories"))) {
             return null;
         }
         QueryNode node = new QueryNode();
         if (jsonQNode.hasNonNull("is_set")) {
             node.setSet(jsonQNode.get("is_set").asBoolean());
         }
-        if (jsonQNode.hasNonNull("id")) {
-            JsonNode idNode = jsonQNode.get("id");
+        if (jsonQNode.hasNonNull("id") || jsonQNode.hasNonNull("ids")) {
+            JsonNode idNode = jsonQNode.hasNonNull("id") ? jsonQNode.get("id") : jsonQNode.get("ids");
             if (idNode.isArray()) {
                 Iterator<JsonNode> ids = idNode.elements();
                 while (ids.hasNext()) {
@@ -103,8 +104,8 @@ public class QueryNode {
                 return null;
             }
         }
-        if (jsonQNode.hasNonNull("category")) {
-            JsonNode categoryNode = jsonQNode.get("category");
+        if (jsonQNode.hasNonNull("category") || jsonQNode.hasNonNull("categories")) {
+            JsonNode categoryNode = jsonQNode.hasNonNull("category") ? jsonQNode.get("category") : jsonQNode.get("categories");
             if (categoryNode.isArray()) {
                 Iterator<JsonNode> cats = categoryNode.elements();
                 while (cats.hasNext()) {
