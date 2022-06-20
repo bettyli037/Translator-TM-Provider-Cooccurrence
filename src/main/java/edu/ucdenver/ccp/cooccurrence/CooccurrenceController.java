@@ -68,7 +68,9 @@ public class CooccurrenceController {
     @PostMapping("/query")
     public ResponseEntity<JsonNode> lookup(@RequestBody JsonNode requestNode) {
         if (!requestNode.hasNonNull("message")) {
-            return ResponseEntity.badRequest().body(objectMapper.convertValue("no message", ObjectNode.class));
+            ObjectNode errorNode = objectMapper.createObjectNode();
+            errorNode.put("error", "No message in request");
+            return ResponseEntity.badRequest().body(errorNode);
         }
         JsonNode messageNode = requestNode.get("message");
         Validator validator = new Validator();
