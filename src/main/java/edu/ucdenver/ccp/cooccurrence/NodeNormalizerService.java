@@ -43,7 +43,7 @@ public class NodeNormalizerService {
             JsonNode idNode = normalizedNodes.get(curie).get("id");
             return idNode.get("label").textValue();
         }
-        return "";
+        return curie;
     }
 
     public List<String> getNodeCategories(String curie, JsonNode normalizedNodes) {
@@ -55,6 +55,6 @@ public class NodeNormalizerService {
         } catch (IOException iex) {
             System.out.println(iex.getLocalizedMessage());
         }
-        return Collections.emptyList();
+        return List.of("biolink:Entity");
     }
 }
