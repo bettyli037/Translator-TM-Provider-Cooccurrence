@@ -235,4 +235,16 @@ public class LookupRepository {
         }
         return conceptGroups;
     }
+
+    @Cacheable("concepts")
+    Map<String, Integer> getConceptCounts() {
+        List<Object[]> results = session.createNativeQuery("SELECT document_part, COUNT(DISTINCT(curie)) " +
+                "FROM concept_counts " +
+                "GROUP BY document_part").getResultList();
+        Map<String, Integer> countMap = new HashMap<>();
+        results.forEach(row -> countMap.put((String) row[0], ((BigInteger) row[1]).intValue()));
+        return countMap;
+    }
+
+
 }

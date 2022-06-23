@@ -69,6 +69,9 @@ public class Metrics {
     }
 
     private static double calculateNormalizedGoogleDistance(int singleCount1, int singleCount2, int pairCount, int totalConceptCount) {
+        if (pairCount == 0 && singleCount1 > 0 && singleCount2 > 0) {
+            return Double.POSITIVE_INFINITY;
+        }
         double logFx = Math.log(singleCount1);
         double logFy = Math.log(singleCount2);
         double logFxy = Math.log(pairCount);

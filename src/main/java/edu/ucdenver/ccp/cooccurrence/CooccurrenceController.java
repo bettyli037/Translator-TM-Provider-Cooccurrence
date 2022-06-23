@@ -24,13 +24,13 @@ public class CooccurrenceController {
     private final NodeNormalizerService sri;
     private static final List<String> documentParts = List.of("abstract", "title", "sentence");
     private static final Map<String, Integer> documentPartCounts = new HashMap<>();
-    private static int conceptCount = 0;
+    private Map<String, Integer> conceptCounts;
     public CooccurrenceController(NodeRepository repo, LookupRepository impl, NodeNormalizerService sri) {
         this.nodeRepo = repo;
         this.objectMapper = new ObjectMapper();
         this.lookupQueries = impl;
         this.sri = sri;
-        conceptCount = nodeRepo.getTotalConceptCount();
+        conceptCounts = lookupQueries.getConceptCounts();
         for (String part : documentParts) {
             documentPartCounts.put(part, nodeRepo.getDocumentCount(part));
         }
@@ -39,7 +39,7 @@ public class CooccurrenceController {
     // region: Endpoints
     @GetMapping("/refresh")
     public String getRefresh() {
-        conceptCount = nodeRepo.getTotalConceptCount();
+        conceptCounts = lookupQueries.getConceptCounts();
         for (String part : documentParts) {
             documentPartCounts.put(part, nodeRepo.getDocumentCount(part));
         }
@@ -503,7 +503,7 @@ public class CooccurrenceController {
                         } else {
                             totalObjectCount = topLevelObjectCounts.getOrDefault(obj, Collections.emptyMap()).getOrDefault(part, 0);
                         }
-                        Metrics metrics = new Metrics(totalSubjectCount, totalObjectCount, pairCount, conceptCount, documentPartCounts.get(part), part);
+                        Metrics metrics = new Metrics(totalSubjectCount, totalObjectCount, pairCount, conceptCounts.get(part), documentPartCounts.get(part), part);
                         pair.setPairMetrics(metrics);
                         conceptPairs.add(pair);
                     }
