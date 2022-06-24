@@ -544,12 +544,13 @@ public class CooccurrenceController {
                 for (String childObject : objectEntry.getValue()) {
                     for (String part : documentParts) {
                         String parentKey = parentSubject + parentObject + part;
-                        if (cooccurrences.containsKey(parentSubject + childObject + part) && !completedKeys.contains(parentSubject + childObject + part)) {
-                            completedKeys.add(parentSubject + childObject + part);
+                        String childKey = parentSubject + childObject + part;
+                        if (cooccurrences.containsKey(parentSubject + childObject + part) && !completedKeys.contains(parentKey + "_" + childKey)) {
+                            completedKeys.add(parentKey + "_" + childKey);
                             if (documentDictionary.containsKey(parentKey)) {
-                                documentDictionary.get(parentKey).addAll(cooccurrences.get(parentSubject + childObject + part));
+                                documentDictionary.get(parentKey).addAll(cooccurrences.get(childKey));
                             } else {
-                                Set<String> docSet = new HashSet<>(cooccurrences.get(parentSubject + childObject + part));
+                                Set<String> docSet = new HashSet<>(cooccurrences.get(childKey));
                                 documentDictionary.put(parentKey, docSet);
                             }
                         }
@@ -559,12 +560,13 @@ public class CooccurrenceController {
                 for (String childSubject : subjectEntry.getValue()) {
                     for (String part : documentParts) {
                         String parentKey = parentSubject + parentObject + part;
-                        if (cooccurrences.containsKey(childSubject + parentObject + part) && !completedKeys.contains(childSubject + parentObject + part)) {
-                            completedKeys.add(childSubject + parentObject + part);
+                        String childKey = childSubject + parentObject + part;
+                        if (cooccurrences.containsKey(childSubject + parentObject + part) && !completedKeys.contains(parentKey + "_" + childKey)) {
+                            completedKeys.add(parentKey + "_" + childKey);
                             if (documentDictionary.containsKey(parentKey)) {
-                                documentDictionary.get(parentKey).addAll(cooccurrences.get(childSubject + parentObject + part));
+                                documentDictionary.get(parentKey).addAll(cooccurrences.get(childKey));
                             } else {
-                                Set<String> docSet = new HashSet<>(cooccurrences.get(childSubject + parentObject + part));
+                                Set<String> docSet = new HashSet<>(cooccurrences.get(childKey));
                                 documentDictionary.put(parentKey, docSet);
                             }
                         }
@@ -574,8 +576,8 @@ public class CooccurrenceController {
                         for (String part : documentParts) {
                             String parentKey = parentSubject + parentObject + part;
                             String childKey = childSubject + childObject + part;
-                            if (cooccurrences.containsKey(childKey) && !completedKeys.contains(childKey)) {
-                                completedKeys.add(childKey);
+                            if (cooccurrences.containsKey(childKey) && !completedKeys.contains(parentKey + "_" + childKey)) {
+                                completedKeys.add(parentKey + "_" + childKey);
                                 if (documentDictionary.containsKey(parentKey)) {
                                     documentDictionary.get(parentKey).addAll(cooccurrences.get(childKey));
                                 } else {
