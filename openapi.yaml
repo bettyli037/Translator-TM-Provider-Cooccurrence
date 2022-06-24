@@ -323,7 +323,7 @@ paths:
   /query:
     post:
       tags:
-        - lookup
+        - query
       summary: Initiate a query and wait to receive the response
       description: Given a Query Graph, fills in a Knowledge Graph, binds it to the Query Graph, and completes the results
       requestBody:
