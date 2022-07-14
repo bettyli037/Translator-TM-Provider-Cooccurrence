@@ -22,24 +22,6 @@ public class Node {
             inverseJoinColumns = @JoinColumn(name = "document_id", referencedColumnName = "id"))
     private List<Document> documents;
 
-    @ManyToMany
-    @JoinTable(name = "concept_abstract",
-            joinColumns = @JoinColumn(name = "concept_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "abstract_id", referencedColumnName = "id"))
-    private List<Abstract> abstracts;
-
-    @ManyToMany
-    @JoinTable(name = "concept_sentence",
-            joinColumns = @JoinColumn(name = "concept_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "sentence_id", referencedColumnName = "id"))
-    private List<Sentence> sentences;
-
-    @ManyToMany
-    @JoinTable(name = "concept_title",
-            joinColumns = @JoinColumn(name = "concept_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "title_id", referencedColumnName = "id"))
-    private List<Title> titles;
-
     public int getId() {
         return id;
     }
@@ -58,17 +40,5 @@ public class Node {
 
     public List<Document> getDocuments() {
         return documents;
-    }
-
-    public List<Abstract> getAbstracts() {
-        return abstracts;
-    }
-
-    public List<Sentence> getSentences() {
-        return sentences;
-    }
-
-    public List<Title> getTitles() {
-        return titles;
     }
 }
