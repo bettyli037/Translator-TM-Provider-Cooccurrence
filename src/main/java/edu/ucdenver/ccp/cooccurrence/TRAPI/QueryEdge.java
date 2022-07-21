@@ -12,7 +12,7 @@ public class QueryEdge {
     private List<String> predicates;
     private String subject;
     private String object;
-    private List<Object> constraints;
+    private List<AttributeConstraint> constraints;
 
     public QueryEdge() {
         predicates = new ArrayList<>();
@@ -47,12 +47,16 @@ public class QueryEdge {
         this.object = object;
     }
 
-    public List<Object> getConstraints() {
+    public List<AttributeConstraint> getConstraints() {
         return constraints;
     }
 
-    public void setConstraints(List<Object> constraints) {
+    public void setConstraints(List<AttributeConstraint> constraints) {
         this.constraints = constraints;
+    }
+
+    public void addConstraint(AttributeConstraint constraint) {
+        this.constraints.add(constraint);
     }
 
     public JsonNode toJSON() {
@@ -78,6 +82,16 @@ public class QueryEdge {
                 return null;
             }
         }
+
+        if (jsonQEdge.hasNonNull("constraints") && jsonQEdge.get("constraints").isArray()) {
+            JsonNode constraintsNode = jsonQEdge.get("constraints");
+            Iterator<JsonNode> constraintIterator = constraintsNode.elements();
+            while (constraintIterator.hasNext()) {
+                JsonNode constraintNode = constraintIterator.next();
+                edge.addConstraint(AttributeConstraint.parseJSON(constraintNode));
+            }
+        }
+
         edge.setSubject(jsonQEdge.get("subject").asText());
         edge.setObject(jsonQEdge.get("object").asText());
         return edge;

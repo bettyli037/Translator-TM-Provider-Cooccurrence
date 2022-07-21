@@ -11,7 +11,7 @@ public class QueryNode {
     private List<String> ids;
     private List<String> categories;
     private boolean isSet;
-    private List<Object> constraints;
+    private List<AttributeConstraint> constraints;
     private Map<String, JsonNode> additionalProperties;
 
     public QueryNode() {
@@ -54,12 +54,16 @@ public class QueryNode {
         isSet = set;
     }
 
-    public List<Object> getConstraints() {
+    public List<AttributeConstraint> getConstraints() {
         return constraints;
     }
 
-    public void setConstraints(List<Object> constraints) {
+    public void setConstraints(List<AttributeConstraint> constraints) {
         this.constraints = constraints;
+    }
+
+    public void addConstraint(AttributeConstraint constraint) {
+        this.constraints.add(constraint);
     }
 
     public Map<String, JsonNode> getAdditionalProperties() {
@@ -133,8 +137,18 @@ public class QueryNode {
                 return null;
             }
         }
+
+        if (jsonQNode.hasNonNull("constraints") && jsonQNode.get("constraints").isArray()) {
+            JsonNode constraintsNode = jsonQNode.get("constraints");
+            Iterator<JsonNode> constraintIterator = constraintsNode.elements();
+            while (constraintIterator.hasNext()) {
+                JsonNode constraintNode = constraintIterator.next();
+                node.addConstraint(AttributeConstraint.parseJSON(constraintNode));
+            }
+        }
+
         Iterator<String> keyIterator = jsonQNode.fieldNames();
-        List<String> excludedKeys = List.of("id", "ids", "category", "categories", "is_set");
+        List<String> excludedKeys = List.of("id", "ids", "category", "categories", "is_set", "constraints");
         while (keyIterator.hasNext()) {
             String key = keyIterator.next();
             if (excludedKeys.contains(key)) {
