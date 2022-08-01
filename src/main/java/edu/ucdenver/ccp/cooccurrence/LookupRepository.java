@@ -74,18 +74,8 @@ public class LookupRepository {
 
     @Transactional
     public Map<String, Map<String, BigInteger>> getHierchicalCounts(Map<String, List<String>> hierarchy, boolean includeKeys) {
-        int tableCount = 0;
-        try {
-            BigInteger count = (BigInteger) session
-                    .createNativeQuery("SELECT COUNT(1) FROM information_schema.innodb_temp_table_info")
-                    .getSingleResult();
-            tableCount = count.intValue();
-        } catch (NoResultException nre) {
-            System.err.println("Temp table check failed badly. " + nre.getLocalizedMessage());
-        }
-        String tempTableCreateStatement = "CREATE TEMPORARY TABLE curie_hierarchy" + tableCount + " (parent_curie VARCHAR(50), child_curie VARCHAR(50))";
+        String tempTableCreateStatement = "CREATE TEMPORARY TABLE curie_hierarchy (parent_curie VARCHAR(50), child_curie VARCHAR(50)) ON COMMIT DROP";
         StringBuilder insertHierarchyStatement = new StringBuilder("INSERT INTO curie_hierarchy");
-        insertHierarchyStatement.append(tableCount);
         insertHierarchyStatement.append(" (parent_curie, child_curie) VALUES ");
         List<String> keyList = new ArrayList<>(hierarchy.keySet());
         List<String> values = new ArrayList<>();
@@ -101,7 +91,7 @@ public class LookupRepository {
         insertHierarchyStatement.append(String.join(",", values));
         String query = "" +
                 "SELECT parent_curie, document_part, COUNT(DISTINCT(document_hash)) " +
-                "FROM curie_hierarchy" + tableCount + " ch " +
+                "FROM curie_hierarchy ch " +
                     "INNER JOIN nodes n ON n.curie = ch.child_curie " +
                     "INNER JOIN node_document nd ON nd.node_id = n.id " +
                     "INNER JOIN documents d ON d.id = nd.document_id " +
@@ -133,7 +123,6 @@ public class LookupRepository {
                 countMap.get(parentCurie).put(documentPart, count);
             }
         }
-        session.createNativeQuery("DROP TABLE curie_hierarchy" + tableCount).executeUpdate();
         return countMap;
     }
 
