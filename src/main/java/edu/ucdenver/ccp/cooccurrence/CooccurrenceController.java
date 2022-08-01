@@ -381,7 +381,7 @@ public class CooccurrenceController {
     private KnowledgeGraph buildKnowledgeGraph(List<ConceptPair> conceptPairs, JsonNode normalizedNodes) {
         KnowledgeGraph kg = new KnowledgeGraph();
         for (ConceptPair pair : conceptPairs) {
-            KnowledgeEdge edge = new KnowledgeEdge(pair.getSubject(), pair.getObject(), "biolink:occurs_together_in_literature_with", pair.getPairMetrics().toJSONArray());
+            KnowledgeEdge edge = new KnowledgeEdge(pair.getSubject(), pair.getObject(), "biolink:occurs_together_in_literature_with", pair.getPairMetrics().toAttributeList());
             KnowledgeNode subjectNode = new KnowledgeNode(sri.getNodeName(pair.getSubject(), normalizedNodes), sri.getNodeCategories(pair.getSubject(), normalizedNodes));
             KnowledgeNode objectNode = new KnowledgeNode(sri.getNodeName(pair.getObject(), normalizedNodes), sri.getNodeCategories(pair.getObject(), normalizedNodes));
 

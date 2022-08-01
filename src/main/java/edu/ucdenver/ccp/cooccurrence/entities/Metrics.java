@@ -3,6 +3,10 @@ package edu.ucdenver.ccp.cooccurrence.entities;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import edu.ucdenver.ccp.cooccurrence.TRAPI.Attribute;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Metrics {
 
@@ -148,6 +152,71 @@ public class Metrics {
         metricsNode.put("NPMI", normalizedPointwiseMutualInformation);
         metricsNode.put("MD", mutualDependence);
         return metricsNode;
+    }
+
+    public List<Attribute> toAttributeList() {
+        List<Attribute> attributeList = new ArrayList<>();
+
+        Attribute count1 = new Attribute();
+        count1.setAttributeTypeId("biolink:tmkp_concept1_count");
+        count1.setValue(singleCount1);
+        count1.setValueTypeId("SIO:000794");
+        String description = String.format("The number of times concept #1 was observed to occur at the %s level in the documents that were processed", this.documentPart);
+        count1.setDescription(description);
+        count1.setAttributeSource("infores:text-mining-provider-cooccurrence");
+        attributeList.add(count1);
+
+        Attribute count2 = new Attribute();
+        count2.setAttributeTypeId("biolink:tmkp_concept2_count");
+        count2.setValue(singleCount2);
+        count2.setValueTypeId("SIO:000794");
+        description = String.format("The number of times concept #2 was observed to occur at the %s level in the documents that were processed", this.documentPart);
+        count2.setDescription(description);
+        count2.setAttributeSource("infores:text-mining-provider-cooccurrence");
+        attributeList.add(count2);
+
+        Attribute pairCountAttribute = new Attribute();
+        pairCountAttribute.setAttributeTypeId("biolink:tmkp_concept_pair_count");
+        pairCountAttribute.setValue(pairCount);
+        pairCountAttribute.setValueTypeId("SIO:000794");
+        description = String.format("The number of times the concepts of this assertion were observed to cooccur at the %s level in the documents that were processed", this.documentPart);
+        pairCountAttribute.setDescription(description);
+        pairCountAttribute.setAttributeSource("infores:text-mining-provider-cooccurrence");
+        attributeList.add(pairCountAttribute);
+
+        Attribute ngd = new Attribute();
+        ngd.setAttributeTypeId("biolink:tmkp_normalized_google_distance");
+        ngd.setValue(normalizedGoogleDistance);
+        ngd.setValueTypeId("SIO:000794");
+        ngd.setDescription("The normalized google distance score for the concepts in this assertion based on their cooccurrence in the documents that were processed");
+        ngd.setAttributeSource("infores:text-mining-provider-cooccurrence");
+        attributeList.add(ngd);
+
+        Attribute pmi = new Attribute();
+        pmi.setAttributeTypeId("biolink:tmkp_pointwise_mutual_information");
+        pmi.setValue(pointwiseMutualInformation);
+        pmi.setValueTypeId("SIO:000794");
+        pmi.setDescription("The pointwise mutual information score for the concepts in this assertion based on their cooccurrence in the documents that were processed");
+        pmi.setAttributeSource("infores:text-mining-provider-cooccurrence");
+        attributeList.add(pmi);
+
+        Attribute npmi = new Attribute();
+        npmi.setAttributeTypeId("biolink:tmkp_normalized_pointwise_mutual_information");
+        npmi.setValue(normalizedPointwiseMutualInformation);
+        npmi.setValueTypeId("SIO:000794");
+        npmi.setDescription("The normalized pointwise mutual information score for the concepts in this assertion based on their cooccurrence in the documents that were processed");
+        npmi.setAttributeSource("infores:text-mining-provider-cooccurrence");
+        attributeList.add(npmi);
+
+        Attribute md = new Attribute();
+        md.setAttributeTypeId("biolink:tmkp_mutual_dependence");
+        md.setValue(mutualDependence);
+        md.setValueTypeId("SIO:000794");
+        md.setDescription("The mutual dependence (PMI^2) score for the concepts in this assertion based on their cooccurrence in the documents that were processed");
+        md.setAttributeSource("infores:text-mining-provider-cooccurrence");
+        attributeList.add(md);
+
+        return attributeList;
     }
 
     public ArrayNode toJSONArray() {
