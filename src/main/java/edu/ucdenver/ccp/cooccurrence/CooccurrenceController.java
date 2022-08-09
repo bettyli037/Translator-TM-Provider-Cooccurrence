@@ -22,7 +22,7 @@ public class CooccurrenceController {
     private final ObjectMapper objectMapper;
     private final LookupRepository lookupQueries;
     private final NodeNormalizerService sri;
-    private static final List<String> documentParts = List.of("abstract", "title", "sentence");
+    private static final List<String> documentParts = List.of("abstract", "title", "sentence", "article");
     private static final Map<String, Integer> documentPartCounts = new HashMap<>();
 
     private static final List<String> supportedPredicates = List.of("biolink:related_to", "biolink:related_to_at_instance_level", "biolink:associated_with",
@@ -165,7 +165,6 @@ public class CooccurrenceController {
         for (List<String> pair : getAllConceptPairs(concepts)) {
             String s = pair.get(0);
             String o = pair.get(1);
-            List<String> documentParts = Arrays.asList("abstract", "title", "sentence");
 
             for (String part : documentParts) {
                 Metrics cooccurrenceMetrics = getMetrics(s, o, part);
