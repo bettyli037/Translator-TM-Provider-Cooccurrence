@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -18,7 +17,7 @@ public class NodeNormalizerService {
     private final ObjectMapper objectMapper;
 
     public NodeNormalizerService(WebClient.Builder webClientBuilder) {
-        webClient = webClientBuilder.baseUrl("https://nodenormalization-dev.apps.renci.org/1.2").build();
+        webClient = webClientBuilder.baseUrl("https://nodenorm.transltr.io/1.2").build();
         objectMapper = new ObjectMapper();
     }
 

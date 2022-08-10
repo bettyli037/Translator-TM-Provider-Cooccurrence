@@ -5,20 +5,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class QueryNode {
     private List<String> ids;
     private List<String> categories;
     private boolean isSet;
-    private List<Object> constraints;
+    private List<AttributeConstraint> constraints;
+    private Map<String, JsonNode> additionalProperties;
 
     public QueryNode() {
         ids = new ArrayList<>();
         categories = new ArrayList<>();
         constraints = new ArrayList<>();
+        additionalProperties = new HashMap<>();
         isSet = false;
     }
 
@@ -54,12 +54,28 @@ public class QueryNode {
         isSet = set;
     }
 
-    public List<Object> getConstraints() {
+    public List<AttributeConstraint> getConstraints() {
         return constraints;
     }
 
-    public void setConstraints(List<Object> constraints) {
+    public void setConstraints(List<AttributeConstraint> constraints) {
         this.constraints = constraints;
+    }
+
+    public void addConstraint(AttributeConstraint constraint) {
+        this.constraints.add(constraint);
+    }
+
+    public Map<String, JsonNode> getAdditionalProperties() {
+        return additionalProperties;
+    }
+
+    public void setAdditionalProperties(Map<String, JsonNode> additionalProperties) {
+        this.additionalProperties = additionalProperties;
+    }
+
+    public void addAdditionalProperty(String key, JsonNode value) {
+        additionalProperties.put(key, value);
     }
 
     public JsonNode toJSON() {
@@ -76,6 +92,9 @@ public class QueryNode {
         }
         if (isSet) {
             nodeNode.put("is_set", true);
+        }
+        for (Map.Entry<String, JsonNode> kv : this.additionalProperties.entrySet()) {
+            nodeNode.set(kv.getKey(), kv.getValue());
         }
         return nodeNode;
     }
@@ -118,6 +137,26 @@ public class QueryNode {
                 return null;
             }
         }
+
+        if (jsonQNode.hasNonNull("constraints") && jsonQNode.get("constraints").isArray()) {
+            JsonNode constraintsNode = jsonQNode.get("constraints");
+            Iterator<JsonNode> constraintIterator = constraintsNode.elements();
+            while (constraintIterator.hasNext()) {
+                JsonNode constraintNode = constraintIterator.next();
+                node.addConstraint(AttributeConstraint.parseJSON(constraintNode));
+            }
+        }
+
+        Iterator<String> keyIterator = jsonQNode.fieldNames();
+        List<String> excludedKeys = List.of("id", "ids", "category", "categories", "is_set", "constraints");
+        while (keyIterator.hasNext()) {
+            String key = keyIterator.next();
+            if (excludedKeys.contains(key)) {
+                continue;
+            }
+            node.addAdditionalProperty(key, jsonQNode.get(key));
+        }
+
         return node;
     }
 }

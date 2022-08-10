@@ -10,10 +10,12 @@ import java.util.*;
 public class QueryGraph {
     private Map<String, QueryNode> nodes;
     private Map<String, QueryEdge> edges;
+    private Map<String, JsonNode> additionalProperties;
 
     public QueryGraph() {
         nodes = new HashMap<>();
         edges = new HashMap<>();
+        additionalProperties = new HashMap<>();
     }
 
     public Map<String, QueryNode> getNodes() {
@@ -40,6 +42,18 @@ public class QueryGraph {
         edges.put(key, edge);
     }
 
+    public Map<String, JsonNode> getAdditionalProperties() {
+        return additionalProperties;
+    }
+
+    public void setAdditionalProperties(Map<String, JsonNode> additionalProperties) {
+        this.additionalProperties = additionalProperties;
+    }
+
+    public void addAdditionalProperty(String key, JsonNode value) {
+        additionalProperties.put(key, value);
+    }
+
     public JsonNode toJSON() {
         ObjectMapper om = new ObjectMapper();
         ObjectNode graphNode = om.createObjectNode();
@@ -53,6 +67,9 @@ public class QueryGraph {
         }
         graphNode.set("nodes", nodes);
         graphNode.set("edges", edges);
+        for (Map.Entry<String, JsonNode> kv : this.additionalProperties.entrySet()) {
+            graphNode.set(kv.getKey(), kv.getValue());
+        }
         return graphNode;
     }
 
@@ -83,6 +100,14 @@ public class QueryGraph {
             if (edge != null) {
                 graph.addEdge(key, edge);
             }
+        }
+        keyIterator = jsonQGraph.fieldNames();
+        while (keyIterator.hasNext()) {
+            String key = keyIterator.next();
+            if (key.equals("nodes") || key.equals("edges")) {
+                continue;
+            }
+            graph.addAdditionalProperty(key, jsonQGraph.get(key));
         }
         return graph;
     }
