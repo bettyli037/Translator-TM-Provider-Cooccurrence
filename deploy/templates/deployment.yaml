@@ -23,7 +23,7 @@ spec:
             - name: DB_PASSWORD
               value: {{ .Values.db.password }}     
             - name: DB_NAME
-              value: {{ .Values.db.name }}
+              value: {{ .Values.db.dbname }}
           ports:
             - name: http
               containerPort: 80
