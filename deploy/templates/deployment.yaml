@@ -5,6 +5,9 @@ metadata:
   labels:
     {{- include "cooccurrence.labels" . | nindent 4 }}
 spec:
+  selector:
+    matchLabels:
+      {{- include "cooccurrence.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
