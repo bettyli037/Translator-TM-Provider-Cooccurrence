@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cooccurrence.fullname" . }}
+  labels:
+    {{- include "cooccurrence.labels" . | nindent 4 }}
+spec:
+  template:
+    metadata:
+      labels:
+        {{- include "cooccurrence.selectorLabels" . | nindent 8 }}
+        {{- toYaml .Values.ncats.labels | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DB_HOST
+              value: {{ .Values.db.host }}
+            - name: DB_USERNAME
+              value: {{ .Values.db.username }}   
+            - name: DB_PASSWORD
+              value: {{ .Values.db.password }}     
+            - name: DB_NAME
+              value: {{ .Values.db.name }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
