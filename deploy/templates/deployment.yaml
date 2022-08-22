@@ -20,7 +20,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: SPRING_DATASOURCE_URL
-              value: {{ .Values.db.host }}
+              value: {{ .Values.db.url }}
             - name: SPRING_DATASOURCE_USERNAME
               value: {{ .Values.db.username }}   
             - name: SPRING_DATASOURCE_PASSWORD
