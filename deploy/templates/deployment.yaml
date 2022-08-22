@@ -19,14 +19,12 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            - name: DB_HOST
+            - name: SPRING_DATASOURCE_URL
               value: {{ .Values.db.host }}
-            - name: DB_USERNAME
+            - name: SPRING_DATASOURCE_USERNAME
               value: {{ .Values.db.username }}   
-            - name: DB_PASSWORD
+            - name: SPRING_DATASOURCE_PASSWORD
               value: {{ .Values.db.password }}     
-            - name: DB_NAME
-              value: {{ .Values.db.dbname }}
           ports:
             - name: http
               containerPort: 80
