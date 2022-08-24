@@ -58,7 +58,7 @@ pipeline {
                     ]){
                         withAWS(credentials:'aws-ifx-deploy') {
                             sh '''
-                            git clone -b tmkp git@github.com:Sphinx-Automation/translator-ops.git 
+                            git clone git@github.com:Sphinx-Automation/translator-ops.git 
                             mkdir deploy 
                             cp -r translator-ops/ops/tmkp/cooccurrence/* deploy/
                             mv values-ncats.yaml deploy/
