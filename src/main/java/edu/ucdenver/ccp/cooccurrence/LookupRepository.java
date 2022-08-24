@@ -74,18 +74,8 @@ public class LookupRepository {
 
     @Transactional
     public Map<String, Map<String, BigInteger>> getHierchicalCounts(Map<String, List<String>> hierarchy, boolean includeKeys) {
-        int tableCount = 0;
-        try {
-            BigInteger count = (BigInteger) session
-                    .createNativeQuery("SELECT COUNT(1) FROM information_schema.innodb_temp_table_info")
-                    .getSingleResult();
-            tableCount = count.intValue();
-        } catch (NoResultException nre) {
-            System.err.println("Temp table check failed badly. " + nre.getLocalizedMessage());
-        }
-        String tempTableCreateStatement = "CREATE TEMPORARY TABLE curie_hierarchy" + tableCount + " (parent_curie VARCHAR(50), child_curie VARCHAR(50))";
+        String tempTableCreateStatement = "CREATE TEMPORARY TABLE curie_hierarchy (parent_curie VARCHAR(50), child_curie VARCHAR(50)) ON COMMIT DROP";
         StringBuilder insertHierarchyStatement = new StringBuilder("INSERT INTO curie_hierarchy");
-        insertHierarchyStatement.append(tableCount);
         insertHierarchyStatement.append(" (parent_curie, child_curie) VALUES ");
         List<String> keyList = new ArrayList<>(hierarchy.keySet());
         List<String> values = new ArrayList<>();
@@ -99,13 +89,34 @@ public class LookupRepository {
             }
         }
         insertHierarchyStatement.append(String.join(",", values));
-        String query = "" +
-                "SELECT parent_curie, document_part, COUNT(DISTINCT(document_hash)) " +
-                "FROM curie_hierarchy" + tableCount + " ch " +
-                    "INNER JOIN nodes n ON n.curie = ch.child_curie " +
-                    "INNER JOIN node_document nd ON nd.node_id = n.id " +
-                    "INNER JOIN documents d ON d.id = nd.document_id " +
-                "GROUP BY parent_curie, document_part";
+        String abstractsQuery = "" +
+                "SELECT parent_curie, 'abstract' AS document_part, COUNT(DISTINCT(hash)) " +
+                "FROM curie_hierarchy ch " +
+                "INNER JOIN nodes n ON n.curie = ch.child_curie " +
+                "INNER JOIN node_abstract na ON na.node_id = n.id " +
+                "INNER JOIN abstracts a ON a.id = na.abstract_id " +
+                "GROUP BY parent_curie";
+        String titlesQuery = "" +
+                "SELECT parent_curie, 'title' AS document_part, COUNT(DISTINCT(hash)) " +
+                "FROM curie_hierarchy ch " +
+                "INNER JOIN nodes n ON n.curie = ch.child_curie " +
+                "INNER JOIN node_title nt ON nt.node_id = n.id " +
+                "INNER JOIN titles t ON t.id = nt.title_id " +
+                "GROUP BY parent_curie";
+        String sentencesQuery = "" +
+                "SELECT parent_curie, 'sentence' AS document_part, COUNT(DISTINCT(hash)) " +
+                "FROM curie_hierarchy ch " +
+                "INNER JOIN nodes n ON n.curie = ch.child_curie " +
+                "INNER JOIN node_sentence ns ON ns.node_id = n.id " +
+                "INNER JOIN sentences s ON s.id = ns.sentence_id " +
+                "GROUP BY parent_curie";
+        String articlesQuery = "" +
+                "SELECT parent_curie, 'article' AS document_part, COUNT(DISTINCT(hash)) " +
+                "FROM curie_hierarchy ch " +
+                "INNER JOIN nodes n ON n.curie = ch.child_curie " +
+                "INNER JOIN node_article na ON na.node_id = n.id " +
+                "INNER JOIN articles a ON a.id = na.article_id " +
+                "GROUP BY parent_curie";
         session.createNativeQuery(tempTableCreateStatement).executeUpdate();
         Query insertQuery = session.createNativeQuery(insertHierarchyStatement.toString());
         int a = 0;
@@ -119,7 +130,10 @@ public class LookupRepository {
             a++;
         }
         insertQuery.executeUpdate();
-        List<Object[]> results = session.createNativeQuery(query).getResultList();
+        List<Object[]> results = session.createNativeQuery(abstractsQuery).getResultList();
+        results.addAll(session.createNativeQuery(titlesQuery).getResultList());
+        results.addAll(session.createNativeQuery(sentencesQuery).getResultList());
+        results.addAll(session.createNativeQuery(articlesQuery).getResultList());
         Map<String, Map<String, BigInteger>> countMap = new HashMap<>();
         for (Object[] row : results) {
             String parentCurie = (String) row[0];
@@ -133,7 +147,6 @@ public class LookupRepository {
                 countMap.get(parentCurie).put(documentPart, count);
             }
         }
-        session.createNativeQuery("DROP TABLE curie_hierarchy" + tableCount).executeUpdate();
         return countMap;
     }
 

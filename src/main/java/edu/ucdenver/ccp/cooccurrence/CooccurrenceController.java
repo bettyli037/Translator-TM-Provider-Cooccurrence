@@ -22,8 +22,11 @@ public class CooccurrenceController {
     private final ObjectMapper objectMapper;
     private final LookupRepository lookupQueries;
     private final NodeNormalizerService sri;
-    private static final List<String> documentParts = List.of("abstract", "title", "sentence");
+    private static final List<String> documentParts = List.of("abstract", "title", "sentence", "article");
     private static final Map<String, Integer> documentPartCounts = new HashMap<>();
+
+    private static final List<String> supportedPredicates = List.of("biolink:related_to", "biolink:related_to_at_instance_level", "biolink:associated_with",
+            "biolink:correlated_with", "biolink:occurs_together_in_literature_with");
     private Map<String, Integer> conceptCounts;
     public CooccurrenceController(NodeRepository repo, LookupRepository impl, NodeNormalizerService sri) {
         this.nodeRepo = repo;
@@ -162,7 +165,6 @@ public class CooccurrenceController {
         for (List<String> pair : getAllConceptPairs(concepts)) {
             String s = pair.get(0);
             String o = pair.get(1);
-            List<String> documentParts = Arrays.asList("abstract", "title", "sentence");
 
             for (String part : documentParts) {
                 Metrics cooccurrenceMetrics = getMetrics(s, o, part);
@@ -378,7 +380,7 @@ public class CooccurrenceController {
     private KnowledgeGraph buildKnowledgeGraph(List<ConceptPair> conceptPairs, JsonNode normalizedNodes) {
         KnowledgeGraph kg = new KnowledgeGraph();
         for (ConceptPair pair : conceptPairs) {
-            KnowledgeEdge edge = new KnowledgeEdge(pair.getSubject(), pair.getObject(), "biolink:occurs_together_in_literature_with", pair.getPairMetrics().toJSONArray());
+            KnowledgeEdge edge = new KnowledgeEdge(pair.getSubject(), pair.getObject(), "biolink:occurs_together_in_literature_with", pair.getPairMetrics().toAttributeList());
             KnowledgeNode subjectNode = new KnowledgeNode(sri.getNodeName(pair.getSubject(), normalizedNodes), sri.getNodeCategories(pair.getSubject(), normalizedNodes));
             KnowledgeNode objectNode = new KnowledgeNode(sri.getNodeName(pair.getObject(), normalizedNodes), sri.getNodeCategories(pair.getObject(), normalizedNodes));
 
@@ -412,7 +414,7 @@ public class CooccurrenceController {
     private List<ConceptPair> getConceptPairsForEdge(String edgeKey, QueryEdge edge, Map<String, QueryNode> nodeMap) {
         List<ConceptPair> conceptPairs = new ArrayList<>();
         for (String predicate : edge.getPredicates()) {
-            if (predicate.equals("biolink:occurs_together_in_literature_with") || predicate.isBlank()) {
+            if (supportedPredicates.contains(predicate) || predicate.isBlank()) {
                 String subjectKey = edge.getSubject();
                 String objectKey = edge.getObject();
                 QueryNode subjectNode = nodeMap.get(subjectKey);

@@ -11,7 +11,7 @@ import java.util.List;
 public class KnowledgeNode {
     private String name;
     private List<String> categories;
-    private List<String> attributes;
+    private List<Attribute> attributes;
 
     private String queryKey;
 
@@ -37,11 +37,11 @@ public class KnowledgeNode {
         this.categories = categories;
     }
 
-    public List<String> getAttributes() {
+    public List<Attribute> getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(List<String> attributes) {
+    public void setAttributes(List<Attribute> attributes) {
         this.attributes = attributes;
     }
 
@@ -57,11 +57,15 @@ public class KnowledgeNode {
         ObjectMapper om = new ObjectMapper();
         ObjectNode nodeNode = om.createObjectNode();
         nodeNode.put("name", this.name);
-        if (categories.size() > 0) {
+        if (this.categories.size() > 0) {
             nodeNode.set("categories", om.convertValue(this.categories, ArrayNode.class));
         }
-        if (attributes.size() > 0) {
-            nodeNode.set("constraints", om.convertValue(this.attributes, ArrayNode.class));
+        if (this.attributes.size() > 0) {
+            ArrayNode attributesNode = om.createArrayNode();
+            for (Attribute attribute : this.attributes) {
+                attributesNode.add(attribute.toJSON());
+            }
+            nodeNode.set("attributes", attributesNode);
         }
         return nodeNode;
     }
