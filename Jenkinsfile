@@ -52,6 +52,7 @@ pipeline {
         }
         stage('Deploy to AWS EKS Blue') {
             steps {
+                dir(deploy)
                 sshagent (credentials: ['labshare-svc']) {
                     configFileProvider([
                         configFile(fileId: 'values-ci.yaml', targetLocation: 'values-ncats.yaml')
