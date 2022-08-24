@@ -62,6 +62,7 @@ pipeline {
                                 git clone -b tmkp git@github.com:Sphinx-Automation/translator-ops.git 
                                 cp -r translator-ops/ops/tmkp/cooccurrence/* ./
                                 aws --region ${AWS_REGION} eks update-kubeconfig --name ${KUBERNETES_BLUE_CLUSTER_NAME}
+                                ls
                                 /bin/bash deploy.sh
                                 '''
                             }
