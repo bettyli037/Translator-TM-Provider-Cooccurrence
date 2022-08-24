@@ -53,18 +53,18 @@ pipeline {
         stage('Deploy to AWS EKS Blue') {
             steps {
                 sshagent (credentials: ['labshare-svc']) {
-                    configFileProvider([
+                    dir("deploy/") {
+                        configFileProvider([
                         configFile(fileId: 'values-ci.yaml', targetLocation: 'values-ncats.yaml')
-                    ]){
-                        withAWS(credentials:'aws-ifx-deploy') {
-                            sh '''
-                            mkdir deploy && cd deploy
-                            git clone -b tmkp git@github.com:Sphinx-Automation/translator-ops.git 
-                            cp -r translator-ops/ops/tmkp/cooccurrence/* ./
-                            aws --region ${AWS_REGION} eks update-kubeconfig --name ${KUBERNETES_BLUE_CLUSTER_NAME}
-                            ls
-                            /bin/bash deploy.sh
-                            '''
+                        ]){
+                            withAWS(credentials:'aws-ifx-deploy') {
+                                sh '''
+                                git clone -b tmkp git@github.com:Sphinx-Automation/translator-ops.git 
+                                cp -r translator-ops/ops/tmkp/cooccurrence/* ./
+                                aws --region ${AWS_REGION} eks update-kubeconfig --name ${KUBERNETES_BLUE_CLUSTER_NAME}
+                                /bin/bash deploy.sh
+                                '''
+                            }
                         }
                     }
                 }
