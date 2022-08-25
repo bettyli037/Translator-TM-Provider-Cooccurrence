@@ -22,8 +22,8 @@ public class Validator {
         populateJsonSchemas(null);
     }
 
-    private static void populateJsonSchemas(String uri) {
-        String specUri = "https://raw.githubusercontent.com/NCATSTranslator/ReasonerAPI/v1.2.0/TranslatorReasonerAPI.yaml";
+    public static void populateJsonSchemas(String uri) {
+        String specUri = "https://raw.githubusercontent.com/NCATSTranslator/ReasonerAPI/v1.3.0-beta/TranslatorReasonerAPI.yaml";
         if (uri != null && !uri.isBlank()) {
             specUri = uri;
         }

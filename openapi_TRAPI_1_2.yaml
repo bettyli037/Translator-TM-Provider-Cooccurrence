@@ -15,9 +15,9 @@ info:
     component: KP
     infores: infores:text-mining-provider-cooccurrence
     team:
-    - Text Mining Provider
+      - Text Mining Provider
   x-trapi:
-    version: 1.3.0
+    version: 1.2.0
     asyncquery: false
     operations:
       - lookup
@@ -26,27 +26,27 @@ info:
     name: MIT License
     url: https://github.com/UCDenver-ccp/Translator-TM-Provider-Cooccurrence/blob/main/LICENSE
 servers:
-- description: Development server
-  url: https://cooccurrence-p36smkc6hq-uc.a.run.app
-  x-maturity: development
-- description: CI server
-  url: https://cooccurrence.ci.transltr.io/
-  x-maturity: staging
+  - description: Development server
+    url: https://cooccurrence-p36smkc6hq-uc.a.run.app
+    x-maturity: development
+  - description: CI server
+    url: https://cooccurrence.ci.transltr.io/
+    x-maturity: staging
 
 tags:
-- name: meta_knowledge_graph
-  description: >-
-    Retrieve the meta knowledge graph representation of this
-    TRAPI web service.
-- name: overlay
-  description: >-
-    Add edges between existing nodes based on literature cooccurrence
-- name: query
-  description: Initiate a query and wait to receive the response
-- name: translator
-  description: Required for SmartAPI validation of x-translator
-- name: trapi
-  description: Required for SmartAPI validation of x-trapi
+  - name: meta_knowledge_graph
+    description: >-
+      Retrieve the meta knowledge graph representation of this
+      TRAPI web service.
+  - name: overlay
+    description: >-
+      Add edges between existing nodes based on literature cooccurrence
+  - name: query
+    description: Initiate a query and wait to receive the response
+  - name: translator
+    description: Required for SmartAPI validation of x-translator
+  - name: trapi
+    description: Required for SmartAPI validation of x-trapi
 paths:
   /meta_knowledge_graph:
     get:
@@ -62,7 +62,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MetaKnowledgeGraph'
-  /overlay:
+  /1.2/overlay:
     post:
       tags:
         - overlay
@@ -75,120 +75,120 @@ paths:
           application/json:
             schema:
               allOf:
-              - $ref: '#/components/schemas/Query'
+                - $ref: '#/components/schemas/Query'
               example: >-
-                  {
-                    "message": {
-                      "query_graph": {
-                        "nodes": {
-                          "test_ms": {
-                            "id": "MS:1"
-                          },
-                          "small_molecule": {
-                            "category": "biolink:TinyMolecule"
-                          }
+                {
+                  "message": {
+                    "query_graph": {
+                      "nodes": {
+                        "test_ms": {
+                          "id": "MS:1"
                         },
-                        "edges": {
-                          "cooccurs": {
-                            "subject": "small_molecule",
-                            "predicate": "biolink:occurs_together_in_literature_with",
-                            "object": "test_ms"
-                          }
+                        "small_molecule": {
+                          "category": "biolink:TinyMolecule"
                         }
                       },
-                      "knowledge_graph": {
-                        "nodes": {
-                          "DRUGBANK:DB01294": {
-                            "name": "Bismuth;2-oxidobenzoate;hydroxide",
-                            "categories": [
-                              "biolink:MolecularMixture",
-                              "biolink:ChemicalMixture",
-                              "biolink:ChemicalEntity",
-                              "biolink:PhysicalEssence",
-                              "biolink:ChemicalOrDrugOrTreatment",
-                              "biolink:ChemicalEntityOrGeneOrGeneProduct",
-                              "biolink:ChemicalEntityOrProteinOrPolypeptide",
-                              "biolink:NamedThing",
-                              "biolink:Entity",
-                              "biolink:PhysicalEssenceOrOccurrent"
-                            ]
-                          },
-                          "DRUGBANK:DB09338": {
-                            "name": "[3-[[2-(Carboxymethoxy)benzoyl]amino]-2-methoxypropyl]hydroxymercury(II)",
-                            "categories": [
-                              "biolink:MolecularMixture",
-                              "biolink:ChemicalMixture",
-                              "biolink:ChemicalEntity",
-                              "biolink:PhysicalEssence",
-                              "biolink:ChemicalOrDrugOrTreatment",
-                              "biolink:ChemicalEntityOrGeneOrGeneProduct",
-                              "biolink:ChemicalEntityOrProteinOrPolypeptide",
-                              "biolink:NamedThing",
-                              "biolink:Entity",
-                              "biolink:PhysicalEssenceOrOccurrent"
-                            ]
-                          },
-                          "DRUGBANK:DB00761": {
-                            "name": "Potassium chloride",
-                            "categories": [
-                              "biolink:MolecularMixture",
-                              "biolink:ChemicalMixture",
-                              "biolink:ChemicalEntity",
-                              "biolink:PhysicalEssence",
-                              "biolink:ChemicalOrDrugOrTreatment",
-                              "biolink:ChemicalEntityOrGeneOrGeneProduct",
-                              "biolink:ChemicalEntityOrProteinOrPolypeptide",
-                              "biolink:NamedThing",
-                              "biolink:Entity",
-                              "biolink:PhysicalEssenceOrOccurrent"
-                            ]
-                          },
-                          "CHEBI:28741": {
-                            "name": "Sodium fluoride",
-                            "categories": [
-                              "biolink:MolecularMixture",
-                              "biolink:ChemicalMixture",
-                              "biolink:ChemicalEntity",
-                              "biolink:PhysicalEssence",
-                              "biolink:ChemicalOrDrugOrTreatment",
-                              "biolink:ChemicalEntityOrGeneOrGeneProduct",
-                              "biolink:ChemicalEntityOrProteinOrPolypeptide",
-                              "biolink:NamedThing",
-                              "biolink:Entity",
-                              "biolink:PhysicalEssenceOrOccurrent"
-                            ]
-                          }
-                        },
-                        "edges": {}
-                      },
-                      "results": [
-                        {
-                          "node_bindings": {
-                            "n02": [
-                              {
-                                "id": "UBERON:0002384"
-                              }
-                            ],
-                            "n00": [
-                              {
-                                "id": "DRUGBANK:DB13620"
-                              }
-                            ]
-                          },
-                          "edge_bindings": {
-                            "e00": [
-                              {
-                                "id": "UBERON:0002384_DRUGBANK:DB13620_abstract"
-                              },
-                              {
-                                "id": "UBERON:0002384_DRUGBANK:DB13620_article"
-                              }
-                            ]
-                          }
+                      "edges": {
+                        "cooccurs": {
+                          "subject": "small_molecule",
+                          "predicate": "biolink:occurs_together_in_literature_with",
+                          "object": "test_ms"
                         }
-                      ]
-                    }
+                      }
+                    },
+                    "knowledge_graph": {
+                      "nodes": {
+                        "DRUGBANK:DB01294": {
+                          "name": "Bismuth;2-oxidobenzoate;hydroxide",
+                          "categories": [
+                            "biolink:MolecularMixture",
+                            "biolink:ChemicalMixture",
+                            "biolink:ChemicalEntity",
+                            "biolink:PhysicalEssence",
+                            "biolink:ChemicalOrDrugOrTreatment",
+                            "biolink:ChemicalEntityOrGeneOrGeneProduct",
+                            "biolink:ChemicalEntityOrProteinOrPolypeptide",
+                            "biolink:NamedThing",
+                            "biolink:Entity",
+                            "biolink:PhysicalEssenceOrOccurrent"
+                          ]
+                        },
+                        "DRUGBANK:DB09338": {
+                          "name": "[3-[[2-(Carboxymethoxy)benzoyl]amino]-2-methoxypropyl]hydroxymercury(II)",
+                          "categories": [
+                            "biolink:MolecularMixture",
+                            "biolink:ChemicalMixture",
+                            "biolink:ChemicalEntity",
+                            "biolink:PhysicalEssence",
+                            "biolink:ChemicalOrDrugOrTreatment",
+                            "biolink:ChemicalEntityOrGeneOrGeneProduct",
+                            "biolink:ChemicalEntityOrProteinOrPolypeptide",
+                            "biolink:NamedThing",
+                            "biolink:Entity",
+                            "biolink:PhysicalEssenceOrOccurrent"
+                          ]
+                        },
+                        "DRUGBANK:DB00761": {
+                          "name": "Potassium chloride",
+                          "categories": [
+                            "biolink:MolecularMixture",
+                            "biolink:ChemicalMixture",
+                            "biolink:ChemicalEntity",
+                            "biolink:PhysicalEssence",
+                            "biolink:ChemicalOrDrugOrTreatment",
+                            "biolink:ChemicalEntityOrGeneOrGeneProduct",
+                            "biolink:ChemicalEntityOrProteinOrPolypeptide",
+                            "biolink:NamedThing",
+                            "biolink:Entity",
+                            "biolink:PhysicalEssenceOrOccurrent"
+                          ]
+                        },
+                        "CHEBI:28741": {
+                          "name": "Sodium fluoride",
+                          "categories": [
+                            "biolink:MolecularMixture",
+                            "biolink:ChemicalMixture",
+                            "biolink:ChemicalEntity",
+                            "biolink:PhysicalEssence",
+                            "biolink:ChemicalOrDrugOrTreatment",
+                            "biolink:ChemicalEntityOrGeneOrGeneProduct",
+                            "biolink:ChemicalEntityOrProteinOrPolypeptide",
+                            "biolink:NamedThing",
+                            "biolink:Entity",
+                            "biolink:PhysicalEssenceOrOccurrent"
+                          ]
+                        }
+                      },
+                      "edges": {}
+                    },
+                    "results": [
+                      {
+                        "node_bindings": {
+                          "n02": [
+                            {
+                              "id": "UBERON:0002384"
+                            }
+                          ],
+                          "n00": [
+                            {
+                              "id": "DRUGBANK:DB13620"
+                            }
+                          ]
+                        },
+                        "edge_bindings": {
+                          "e00": [
+                            {
+                              "id": "UBERON:0002384_DRUGBANK:DB13620_abstract"
+                            },
+                            {
+                              "id": "UBERON:0002384_DRUGBANK:DB13620_article"
+                            }
+                          ]
+                        }
+                      }
+                    ]
                   }
+                }
       responses:
         '200':
           content:
@@ -210,7 +210,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
           description: Validation Error
-  /query:
+  /1.2/query:
     post:
       tags:
         - query
@@ -224,7 +224,7 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/Message'
-              example: >- 
+              example: >-
                 {
                   "message": {
                     "query_graph": {
@@ -289,7 +289,7 @@ components:
           type: string
         type:
           allOf:
-          - $ref: '#/components/schemas/CURIE'
+            - $ref: '#/components/schemas/CURIE'
           title: type
         url:
           nullable: true
@@ -298,8 +298,8 @@ components:
         value:
           title: value
       required:
-      - type
-      - value
+        - type
+        - value
       title: Attribute
       type: object
     BiolinkEntity:
@@ -328,11 +328,11 @@ components:
           type: array
         object:
           allOf:
-          - $ref: '#/components/schemas/CURIE'
+            - $ref: '#/components/schemas/CURIE'
           title: object node id
         predicate:
           allOf:
-          - $ref: '#/components/schemas/BiolinkPredicate'
+            - $ref: '#/components/schemas/BiolinkPredicate'
           nullable: true
           title: Predicate
         relation:
@@ -341,11 +341,11 @@ components:
           type: string
         subject:
           allOf:
-          - $ref: '#/components/schemas/CURIE'
+            - $ref: '#/components/schemas/CURIE'
           title: subject node id
       required:
-      - subject
-      - object
+        - subject
+        - object
       title: knowledge-graph edge
       type: object
     EdgeBinding:
@@ -357,7 +357,7 @@ components:
           title: knowledge graph id
           type: string
       required:
-      - id
+        - id
       title: edge binding
       type: object
     HTTPValidationError:
@@ -383,8 +383,8 @@ components:
           title: nodes
           type: object
       required:
-      - nodes
-      - edges
+        - nodes
+        - edges
       title: knowledge graph
       type: object
     Message:
@@ -393,12 +393,12 @@ components:
       properties:
         knowledge_graph:
           allOf:
-          - $ref: '#/components/schemas/KnowledgeGraph'
+            - $ref: '#/components/schemas/KnowledgeGraph'
           nullable: true
           title: knowledge graph
         query_graph:
           allOf:
-          - $ref: '#/components/schemas/QueryGraph'
+            - $ref: '#/components/schemas/QueryGraph'
           nullable: true
           title: query graph
         results:
@@ -545,10 +545,10 @@ components:
           type: array
         category:
           anyOf:
-          - $ref: '#/components/schemas/BiolinkEntity'
-          - items:
-              $ref: '#/components/schemas/BiolinkEntity'
-            type: array
+            - $ref: '#/components/schemas/BiolinkEntity'
+            - items:
+                $ref: '#/components/schemas/BiolinkEntity'
+              type: array
           nullable: true
           title: category
         name:
@@ -564,10 +564,10 @@ components:
       properties:
         id:
           allOf:
-          - $ref: '#/components/schemas/CURIE'
+            - $ref: '#/components/schemas/CURIE'
           title: knowledge graph id
       required:
-      - id
+        - id
       title: node binding
       type: object
     QEdge:
@@ -578,10 +578,10 @@ components:
           type: string
         predicate:
           anyOf:
-          - $ref: '#/components/schemas/BiolinkPredicate'
-          - items:
-              $ref: '#/components/schemas/BiolinkPredicate'
-            type: array
+            - $ref: '#/components/schemas/BiolinkPredicate'
+            - items:
+                $ref: '#/components/schemas/BiolinkPredicate'
+              type: array
           nullable: true
           title: predicate
         relation:
@@ -592,8 +592,8 @@ components:
           title: subject node id
           type: string
       required:
-      - subject
-      - object
+        - subject
+        - object
       title: query-graph edge
       type: object
     QNode:
@@ -601,18 +601,18 @@ components:
       properties:
         category:
           anyOf:
-          - $ref: '#/components/schemas/BiolinkEntity'
-          - items:
-              $ref: '#/components/schemas/BiolinkEntity'
-            type: array
+            - $ref: '#/components/schemas/BiolinkEntity'
+            - items:
+                $ref: '#/components/schemas/BiolinkEntity'
+              type: array
           nullable: true
           title: category
         id:
           anyOf:
-          - $ref: '#/components/schemas/CURIE'
-          - items:
-              $ref: '#/components/schemas/CURIE'
-            type: array
+            - $ref: '#/components/schemas/CURIE'
+            - items:
+                $ref: '#/components/schemas/CURIE'
+              type: array
           nullable: true
           title: id
         is_set:
@@ -626,10 +626,10 @@ components:
       properties:
         message:
           allOf:
-          - $ref: '#/components/schemas/Message'
+            - $ref: '#/components/schemas/Message'
           title: message
       required:
-      - message
+        - message
       title: query
       type: object
     QueryGraph:
@@ -646,8 +646,8 @@ components:
           title: dict of nodes
           type: object
       required:
-      - nodes
-      - edges
+        - nodes
+        - edges
       title: simple query graph
       type: object
     Result:
@@ -668,8 +668,8 @@ components:
           title: list of node bindings
           type: object
       required:
-      - node_bindings
-      - edge_bindings
+        - node_bindings
+        - edge_bindings
       title: result
       type: object
     SimpleSpecElement:
@@ -684,9 +684,9 @@ components:
           title: Target Type
           type: string
       required:
-      - source_type
-      - target_type
-      - edge_type
+        - source_type
+        - target_type
+        - edge_type
       title: SimpleSpecElement
       type: object
     TypeSummary:
@@ -695,7 +695,7 @@ components:
           title: Nodes Count
           type: integer
       required:
-      - nodes_count
+        - nodes_count
       title: TypeSummary
       type: object
     ValidationError:
@@ -712,8 +712,8 @@ components:
           title: Error Type
           type: string
       required:
-      - loc
-      - msg
-      - type
+        - loc
+        - msg
+        - type
       title: ValidationError
       type: object
