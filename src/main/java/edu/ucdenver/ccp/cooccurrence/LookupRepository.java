@@ -182,6 +182,29 @@ public class LookupRepository {
         return cooccurrences;
     }
 
+    public List<Object[]> getCooccurrencesByParts(String query, List<Integer> concept1List, List<Integer> concept2List) {
+        int MAX_LIST_SIZE = Short.MAX_VALUE / 2;
+        List<Object[]> results = new ArrayList<>();
+        for (int startIndex1 = 0; startIndex1 < concept1List.size(); startIndex1 += MAX_LIST_SIZE) {
+            int endIndex1 = startIndex1 + MAX_LIST_SIZE > concept1List.size() ? concept1List.size() - 1 : startIndex1 + MAX_LIST_SIZE;
+            List<Integer> concept1Sublist = concept1List.subList(startIndex1, endIndex1);
+            for (int startIndex2 = 0; startIndex2 < concept2List.size(); startIndex2 += MAX_LIST_SIZE) {
+                int endIndex2 = startIndex2 + MAX_LIST_SIZE > concept2List.size() ? concept2List.size() - 1 : startIndex2 + MAX_LIST_SIZE;
+                List<Integer> concept2Sublist = concept2List.subList(startIndex2, endIndex2);
+                // TODO: find out why the node1 -> node2 cooccurrence is not the same as node2 -> node1
+                results.addAll(session.createNativeQuery(query)
+                        .setParameter("p1", concept1Sublist)
+                        .setParameter("p2", concept2Sublist)
+                        .getResultList());
+                results.addAll(session.createNativeQuery(query)
+                        .setParameter("p2", concept1Sublist)
+                        .setParameter("p1", concept2Sublist)
+                        .getResultList());
+            }
+        }
+        return results;
+    }
+
     public Map<String, List<List<Integer>>> getCooccurrentNodes(List<Integer> concept1List, List<Integer> concept2List) {
         System.out.format("(%d, %d)\n", concept1List.size(), concept2List.size());
         Map<String, List<List<Integer>>> cooccurrences = new HashMap<>(4);
@@ -204,28 +227,16 @@ public class LookupRepository {
                 "WHERE node1 IN (:p1) AND node2 IN (:p2)";
         List<Integer> expandedList = session.createNativeQuery(expansionQuery).setParameter("p", concept2List).getResultList();
         long t1 = System.currentTimeMillis();
-        List<Object[]> abstractResults = session.createNativeQuery(abstractQuery)
-                .setParameter("p1", concept1List)
-                .setParameter("p2", expandedList)
-                .getResultList();
+        List<Object[]> abstractResults = getCooccurrencesByParts(abstractQuery, concept1List, expandedList);
         long t2 = System.currentTimeMillis();
         System.out.format("Abstracts (%d): %dms\n", abstractResults.size(), t2 - t1);
-        List<Object[]> titleResults = session.createNativeQuery(titleQuery)
-                .setParameter("p1", concept1List)
-                .setParameter("p2", expandedList)
-                .getResultList();
+        List<Object[]> titleResults = getCooccurrencesByParts(titleQuery, concept1List, expandedList);
         long t3 = System.currentTimeMillis();
         System.out.format("Titles (%d): %dms\n", titleResults.size(), t3 - t2);
-        List<Object[]> articleResults = session.createNativeQuery(articleQuery)
-                .setParameter("p1", concept1List)
-                .setParameter("p2", expandedList)
-                .getResultList();
+        List<Object[]> articleResults = getCooccurrencesByParts(articleQuery, concept1List, expandedList);
         long t4 = System.currentTimeMillis();
         System.out.format("Articles (%d): %dms\n", articleResults.size(), t4 - t3);
-        List<Object[]> sentenceResults = session.createNativeQuery(sentenceQuery)
-                .setParameter("p1", concept1List)
-                .setParameter("p2", expandedList)
-                .getResultList();
+        List<Object[]> sentenceResults = getCooccurrencesByParts(sentenceQuery, concept1List, expandedList);
         long t5 = System.currentTimeMillis();
         System.out.format("Sentence (%d): %dms\n", sentenceResults.size(), t5 - t4);
         cooccurrences.put("abstract", abstractResults.stream().map((row) -> List.of((Integer) row[0], (Integer) row[1])).collect(Collectors.toList()));
