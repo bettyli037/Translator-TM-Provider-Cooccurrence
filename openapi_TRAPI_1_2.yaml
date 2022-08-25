@@ -9,7 +9,7 @@ info:
     A KG linking concepts that cooccur in scientific text, scored 
     at different levels, e.g. title, sentence, document, using 
     a suite of cooccurrence metrics.
-  title: Text Mined Cooccurrence API
+  title: Text Mined Cooccurrence API (TRAPI v-1.2.0)
   version: 1.0.0
   x-translator:
     component: KP
