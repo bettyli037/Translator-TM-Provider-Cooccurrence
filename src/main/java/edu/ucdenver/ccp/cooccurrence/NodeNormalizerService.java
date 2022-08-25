@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -16,8 +17,8 @@ public class NodeNormalizerService {
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
 
-    public NodeNormalizerService(WebClient.Builder webClientBuilder) {
-        webClient = webClientBuilder.baseUrl("https://nodenorm.transltr.io/1.2").build();
+    public NodeNormalizerService(WebClient.Builder webClientBuilder, @Value("${sri.url}") String endpoint) {
+        webClient = webClientBuilder.baseUrl(endpoint).build();
         objectMapper = new ObjectMapper();
     }
 
@@ -40,6 +41,9 @@ public class NodeNormalizerService {
     public String getNodeName(String curie, JsonNode normalizedNodes) {
         if (normalizedNodes.hasNonNull(curie)) {
             JsonNode idNode = normalizedNodes.get(curie).get("id");
+            if (!idNode.hasNonNull("label")) {
+                return idNode.get("identifier").asText();
+            }
             return idNode.get("label").textValue();
         }
         return curie;
