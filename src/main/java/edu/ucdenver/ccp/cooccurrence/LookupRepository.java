@@ -162,7 +162,7 @@ public class LookupRepository {
             return Collections.emptyMap();
         }
         int MAX_LIST_SIZE = Short.MAX_VALUE / 2;
-        System.out.format("(%d, %d)\n%s\n", concept1List.size(), concept2List.size(), concept1List.get(0));
+        System.out.format("(%d, %d)\n", concept1List.size(), concept2List.size());
         Map<String, List<List<Integer>>> cooccurrences = new HashMap<>();
         for (int startIndex = 0; startIndex < concept1List.size(); startIndex += MAX_LIST_SIZE) {
             int endIndex = Math.min(startIndex + MAX_LIST_SIZE, concept1List.size());
