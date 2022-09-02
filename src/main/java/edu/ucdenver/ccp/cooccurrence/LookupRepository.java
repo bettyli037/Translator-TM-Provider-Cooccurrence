@@ -115,6 +115,7 @@ public class LookupRepository {
         }
         System.out.format("Time for %s coccurrences query with list sizes (%d, %d): %dms\n",
                 documentPart, node1List.size(), node2List.size(), System.currentTimeMillis() - t1);
+        System.out.format("Found %d %s keys\n", cooccurrences.keySet().size(), documentPart);
         return cooccurrences;
     }
 
@@ -296,6 +297,7 @@ public class LookupRepository {
                 }
             }
         }
+        System.out.format("%d total cooccurrence keys", cooccurrenceMap.keySet().size());
         return cooccurrenceMap;
     }
 
