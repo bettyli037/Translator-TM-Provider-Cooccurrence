@@ -26,6 +26,9 @@ public class LookupRepository {
 
     @Cacheable("cooccurrences")
     public Map<String, List<String>> getPairCounts(List<String> concept1List, List<String> concept2List) {
+        if (concept1List.size() == 0 || concept2List.size() == 0) {
+            return Collections.emptyMap();
+        }
         List<Object[]> results = session.createNativeQuery("" +
                         "SELECT concept1, concept2, part, document_hash " +
                         "FROM concept_pairs " +
@@ -53,11 +56,11 @@ public class LookupRepository {
 
     @Cacheable("cooccurrences")
     public Map<String, List<String>> getCooccurrencesByDocumentPart(List<Integer> node1List, List<Integer> node2List, String documentPart) {
+        System.out.format("%s cooccurrences query with list sizes (%d, %d)\n",
+                documentPart, node1List.size(), node2List.size());
         if (node1List.size() == 0 || node2List.size() == 0 || !CooccurrenceController.documentParts.contains(documentPart)) {
             return Collections.emptyMap();
         }
-        System.out.format("%s cooccurrences query with list sizes (%d, %d)\n",
-                documentPart, node1List.size(), node2List.size());
         String abstractQuery = "" +
                 "SELECT concept1_curie, concept2_curie, part, document_hash " +
                 "FROM concept_pairs_abstract " +
@@ -132,7 +135,7 @@ public class LookupRepository {
                     .getResultList();
         } else {
             for (int i = 0; i < curies.size(); i += Short.MAX_VALUE) {
-                int endIndex = i + Short.MAX_VALUE >= curies.size() ? curies.size() - 1 : i + Short.MAX_VALUE;
+                int endIndex = Math.min(i + Short.MAX_VALUE, curies.size());
                 List<String> curiesSubList = curies.subList(i, endIndex);
                 results.addAll(session.createNativeQuery(query)
                         .setParameter("curies", curiesSubList)
@@ -154,8 +157,17 @@ public class LookupRepository {
     }
 
     public List<Integer> getIds(List<String> curies) {
+        if (curies == null || curies.size() == 0) {
+            return Collections.emptyList();
+        }
+        int MAX_LIST_SIZE = Short.MAX_VALUE / 2;
+        List<Integer> resultsList = new ArrayList<>();
         String query = "SELECT id FROM nodes WHERE curie IN (:c)";
-        return session.createNativeQuery(query).setParameter("c", curies).getResultList();
+        for (int startIndex = 0; startIndex < curies.size(); startIndex += MAX_LIST_SIZE) {
+            int endIndex = Math.min(startIndex + MAX_LIST_SIZE, curies.size());
+            resultsList.addAll(session.createNativeQuery(query).setParameter("c", curies.subList(startIndex, endIndex)).getResultList());
+        }
+        return resultsList;
     }
 
     public Map<String, List<List<Integer>>> getCoccurrentNodesByParts(List<String> concept1List, List<String> concept2List) {
@@ -187,20 +199,23 @@ public class LookupRepository {
         int MAX_LIST_SIZE = Short.MAX_VALUE / 2;
         List<Object[]> results = new ArrayList<>();
         for (int startIndex1 = 0; startIndex1 < concept1List.size(); startIndex1 += MAX_LIST_SIZE) {
-            int endIndex1 = startIndex1 + MAX_LIST_SIZE > concept1List.size() ? concept1List.size() - 1 : startIndex1 + MAX_LIST_SIZE;
+            int endIndex1 = Math.min(startIndex1 + MAX_LIST_SIZE, concept1List.size());
             List<Integer> concept1Sublist = concept1List.subList(startIndex1, endIndex1);
             for (int startIndex2 = 0; startIndex2 < concept2List.size(); startIndex2 += MAX_LIST_SIZE) {
-                int endIndex2 = startIndex2 + MAX_LIST_SIZE > concept2List.size() ? concept2List.size() - 1 : startIndex2 + MAX_LIST_SIZE;
+                int endIndex2 = Math.min(startIndex2 + MAX_LIST_SIZE, concept2List.size());
                 List<Integer> concept2Sublist = concept2List.subList(startIndex2, endIndex2);
                 // TODO: find out why the node1 -> node2 cooccurrence is not the same as node2 -> node1
                 results.addAll(session.createNativeQuery(query)
                         .setParameter("p1", concept1Sublist)
                         .setParameter("p2", concept2Sublist)
                         .getResultList());
-                results.addAll(session.createNativeQuery(query)
+                List<Object[]> reversedResults = session.createNativeQuery(query)
                         .setParameter("p2", concept1Sublist)
                         .setParameter("p1", concept2Sublist)
-                        .getResultList());
+                        .getResultList();
+                for (Object[] row : reversedResults) {
+                    results.add(new Object[]{row[1], row[0], row[2]});
+                }
             }
         }
         return results;
@@ -255,7 +270,7 @@ public class LookupRepository {
         List<Object[]> results = new ArrayList<>();
         int MAX_LIST_SIZE = Short.MAX_VALUE;
         for (int startIndex = 0; startIndex < parentCuries.size(); startIndex += MAX_LIST_SIZE) {
-            int endIndex = startIndex + MAX_LIST_SIZE > parentCuries.size() ? parentCuries.size() - 1 : startIndex + MAX_LIST_SIZE;
+            int endIndex = Math.min(startIndex + MAX_LIST_SIZE, parentCuries.size());
             List<String> keySublist = parentCuries.subList(startIndex, endIndex);
             results.addAll(session.createNativeQuery(queryString).setParameter("p", keySublist).getResultList());
         }
@@ -288,31 +303,39 @@ public class LookupRepository {
             List<Integer> node1List = pairs.stream().map(pair -> pair.get(0)).distinct().collect(Collectors.toList());
             List<Integer> node2List = pairs.stream().map(pair -> pair.get(1)).distinct().collect(Collectors.toList());
             for (int startIndex1 = 0; startIndex1 < node1List.size(); startIndex1 += MAX_SUBLIST_SIZE) {
-                int endIndex1 = startIndex1 + MAX_SUBLIST_SIZE > node1List.size() ? node1List.size() - 1 : startIndex1 + MAX_SUBLIST_SIZE;
+                int endIndex1 = Math.min(startIndex1 + MAX_SUBLIST_SIZE, node1List.size());
                 List<Integer> node1Sublist = node1List.subList(startIndex1, endIndex1);
                 for (int startIndex2 = 0; startIndex2 < node2List.size(); startIndex2 += MAX_SUBLIST_SIZE) {
-                    int endIndex2 = startIndex2 + MAX_SUBLIST_SIZE > node2List.size() ? node2List.size() - 1 : startIndex2 + MAX_SUBLIST_SIZE;
+                    int endIndex2 = Math.min(startIndex2 + MAX_SUBLIST_SIZE, node2List.size());
                     List<Integer> node2Sublist = node2List.subList(startIndex2, endIndex2);
                     cooccurrenceMap.putAll(getCooccurrencesByDocumentPart(node1Sublist, node2Sublist, documentPart));
                 }
             }
         }
-        System.out.format("%d total cooccurrence keys", cooccurrenceMap.keySet().size());
+        System.out.format("%d total cooccurrence keys\n", cooccurrenceMap.keySet().size());
         return cooccurrenceMap;
     }
 
 
     public Map<String, List<String>> getDescendantHierarchy(List<String> startingConcepts) {
+        if (startingConcepts == null || startingConcepts.size() == 0) {
+            return Collections.emptyMap();
+        }
+        int MAX_LIST_SIZE = Short.MAX_VALUE;
         List<Integer> ids = getIds(startingConcepts);
+        List<Object[]> resultsList = new ArrayList<>();
         String query = "" +
                 "SELECT n1.curie AS parent, n2.curie AS child " +
                 "FROM nodes n1 " +
                 "INNER JOIN flat_node_hierarchy fnh ON fnh.parent_id = n1.id " +
                 "INNER JOIN nodes n2 ON n2.id = fnh.child_id " +
                 "WHERE fnh.parent_id IN (:p)";
-        List<Object[]> results = session.createNativeQuery(query).setParameter("p", ids).getResultList();
+        for (int startIndex = 0; startIndex < ids.size(); startIndex += MAX_LIST_SIZE) {
+            int endIndex = Math.min(startIndex + MAX_LIST_SIZE, ids.size());
+            resultsList.addAll(session.createNativeQuery(query).setParameter("p", ids.subList(startIndex, endIndex)).getResultList());
+        }
         Map<String, List<String>> conceptGroups = new HashMap<>();
-        for (Object[] row : results) {
+        for (Object[] row : resultsList) {
             String parent = (String) row[0];
             String child = (String) row[1];
             if (!conceptGroups.containsKey(parent)) {
