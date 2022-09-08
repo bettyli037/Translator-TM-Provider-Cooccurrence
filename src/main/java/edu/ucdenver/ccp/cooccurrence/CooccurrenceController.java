@@ -517,21 +517,26 @@ public class CooccurrenceController {
             objectCuries = lookupQueries.getCuriesForCategory(objectCategory);
         }
 
-        long t0 = System.currentTimeMillis();
+//        long t0 = System.currentTimeMillis();
 
         Map<String, Map<String, Integer>> topLevelSubjectCounts = lookupQueries.getSingleCounts(subjectCuries);
         Map<String, Map<String, Integer>> topLevelObjectCounts = lookupQueries.getSingleCounts(objectCuries);
 
-        long t1 = System.currentTimeMillis();
-        System.out.println("Got single counts: " + (t1 - t0) + "ms");
+//        long t1 = System.currentTimeMillis();
+//        System.out.println("Got single counts: " + (t1 - t0) + "ms");
 
         Map<String, List<String>> subjectHierarchy = lookupQueries.getDescendantHierarchy(subjectCuries);
         Map<String, List<String>> objectHierarchy = lookupQueries.getDescendantHierarchy(objectCuries);
 
-        long t2 = System.currentTimeMillis();
-        System.out.println("Got hierarchies: " + (t2 - t1) + "ms");
+//        long t2 = System.currentTimeMillis();
+//        System.out.println("Got hierarchies: " + (t2 - t1) + "ms");
 
-        Map<String, Integer> pairCounts = getPairCounts(subjectHierarchy, objectHierarchy);
+        Map<String, List<String>> cooccurrences = getPairCounts(subjectHierarchy, objectHierarchy);
+        Map<String, Integer> pairCounts = new HashMap<>();
+        for (Map.Entry<String, List<String>> pairList : cooccurrences.entrySet()) {
+            pairCounts.put(pairList.getKey(), pairList.getValue().size());
+        }
+
         subjectHierarchyCounts = lookupQueries.getHierchicalCounts(subjectCuries);
         objectHierarchyCounts = lookupQueries.getHierchicalCounts(objectCuries);
 
@@ -563,6 +568,7 @@ public class CooccurrenceController {
                             continue;
                         }
                         Metrics metrics = new Metrics(totalSubjectCount, totalObjectCount, pairCount, conceptCounts.get(part), documentPartCounts.get(part), part);
+                        metrics.setDocumentIdList(cooccurrences.get(sub + obj + part).stream().map(hash -> hash.split("_")[0]).collect(Collectors.toList()));
                         pair.setPairMetrics(metrics);
                         conceptPairs.add(pair);
                     }
@@ -572,10 +578,10 @@ public class CooccurrenceController {
         return conceptPairs;
     }
 
-    private Map<String, Integer> getPairCounts(Map<String, List<String>> subjectHierarchy, Map<String, List<String>> objectHierarchy) {
-        long t1 = System.currentTimeMillis();
+    private Map<String, List<String>> getPairCounts(Map<String, List<String>> subjectHierarchy, Map<String, List<String>> objectHierarchy) {
+//        long t1 = System.currentTimeMillis();
         Map<String, List<String>> cooccurrences = lookupQueries.getCooccurrencesByParts(new ArrayList<>(subjectHierarchy.keySet()), new ArrayList<>(objectHierarchy.keySet()));
-        long t2 = System.currentTimeMillis();
+//        long t2 = System.currentTimeMillis();
         // region: Create Dictionary for Pair Counts
         Map<String, Set<String>> documentDictionary = new HashMap<>();
         Set<String> completedKeys = new HashSet<>();
@@ -647,13 +653,13 @@ public class CooccurrenceController {
             }
         }
         // endregion
-        Map<String, Integer> pairCounts = new HashMap<>();
-        for (Map.Entry<String, Set<String>> pairList : documentDictionary.entrySet()) {
-            pairCounts.put(pairList.getKey(), pairList.getValue().size());
-        }
-        long t3 = System.currentTimeMillis();
-        System.out.format("Time to get cooccurrences: %d\tTime to create dictionary: %d\n", t2 - t1, t3 - t2);
-        return pairCounts;
+//        Map<String, Integer> pairCounts = new HashMap<>();
+//        for (Map.Entry<String, Set<String>> pairList : documentDictionary.entrySet()) {
+//            pairCounts.put(pairList.getKey(), pairList.getValue().size());
+//        }
+//        long t3 = System.currentTimeMillis();
+//        System.out.format("Time to get cooccurrences: %d\tTime to create dictionary: %d\n", t2 - t1, t3 - t2);
+        return cooccurrences;
     }
 
     // endregion
