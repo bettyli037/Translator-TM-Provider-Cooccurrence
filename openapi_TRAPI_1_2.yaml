@@ -30,7 +30,7 @@ servers:
     url: https://cooccurrence-p36smkc6hq-uc.a.run.app
     x-maturity: development
   - description: CI server
-    url: https://cooccurrence.ci.transltr.io/
+    url: https://cooccurrence.ci.transltr.io
     x-maturity: staging
 
 tags:
