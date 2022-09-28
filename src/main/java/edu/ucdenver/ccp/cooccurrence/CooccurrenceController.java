@@ -42,12 +42,15 @@ public class CooccurrenceController {
 
     // region: Endpoints
     @GetMapping("/refresh")
-    public String getRefresh() {
+    public JsonNode getRefresh() {
         conceptCounts = lookupQueries.getConceptCounts();
         for (String part : documentParts) {
             documentPartCounts.put(part, nodeRepo.getDocumentCount(part));
         }
-        return "Thanks!";
+        ObjectNode responseNode = objectMapper.createObjectNode();
+        responseNode.set("concepts", objectMapper.valueToTree(conceptCounts));
+        responseNode.set("documents", objectMapper.valueToTree(documentPartCounts));
+        return responseNode;
     }
 
     @PostMapping("/1.2/query")
@@ -567,7 +570,8 @@ public class CooccurrenceController {
                         if (totalSubjectCount == 0 || totalObjectCount == 0) {
                             continue;
                         }
-                        Metrics metrics = new Metrics(totalSubjectCount, totalObjectCount, pairCount, conceptCounts.get(part), documentPartCounts.get(part), part);
+                        Metrics metrics = new Metrics(totalSubjectCount, totalObjectCount, pairCount, conceptCounts.getOrDefault(part, 0),
+                                documentPartCounts.getOrDefault(part, 0), part);
                         metrics.setDocumentIdList(cooccurrences.get(sub + obj + part).stream().map(hash -> hash.split("_")[0]).collect(Collectors.toList()));
                         pair.setPairMetrics(metrics);
                         conceptPairs.add(pair);
