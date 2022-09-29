@@ -26,6 +26,8 @@ public class Metrics {
 
     private String documentPart;
 
+    private List<String> documentIdList;
+
     public Metrics() {
         this.singleCount1 = 0;
         this.singleCount2 = 0;
@@ -33,6 +35,7 @@ public class Metrics {
         this.conceptCount = 0;
         this.documentCount = 0;
         this.documentPart = "blank";
+        this.documentIdList = new ArrayList<>();
     }
 
     public Metrics(int singleCount1, int singleCount2, int pairCount, int conceptCount, int documentCount, String part) {
@@ -42,6 +45,7 @@ public class Metrics {
         this.conceptCount = conceptCount;
         this.documentCount = documentCount;
         this.documentPart = part;
+        this.documentIdList = new ArrayList<>();
         normalizedGoogleDistance = calculateNormalizedGoogleDistance(singleCount1, singleCount2, pairCount, conceptCount);
         pointwiseMutualInformation = calculatePointwiseMutualInformation(singleCount1, singleCount2, pairCount, documentCount);
         normalizedPointwiseMutualInformation = calculateNormalizedPointwiseMutualInformation(singleCount1, singleCount2, pairCount, documentCount);
@@ -70,6 +74,10 @@ public class Metrics {
 
     public void setDocumentPart(String part) {
         this.documentPart = part;
+    }
+
+    public void setDocumentIdList(List<String> list) {
+        this.documentIdList = list;
     }
 
     private static double calculateNormalizedGoogleDistance(int singleCount1, int singleCount2, int pairCount, int totalConceptCount) {
@@ -215,6 +223,17 @@ public class Metrics {
         md.setDescription("The mutual dependence (PMI^2) score for the concepts in this assertion based on their cooccurrence in the documents that were processed");
         md.setAttributeSource("infores:text-mining-provider-cooccurrence");
         attributeList.add(md);
+
+        if (this.documentIdList.size() > 0) {
+            Attribute supportingDocument = new Attribute();
+            supportingDocument.setAttributeTypeId("biolink:supporting_document");
+            supportingDocument.setValue(String.join("|", documentIdList.subList(0, Math.min(50, documentIdList.size()))));
+            supportingDocument.setValueTypeId("biolink:Publication");
+            description = String.format("The documents where the concepts of this assertion were observed to cooccur at the %s level.", this.documentPart);
+            supportingDocument.setDescription(description);
+            supportingDocument.setAttributeSource("infores:pubmed");
+            attributeList.add(supportingDocument);
+        }
 
         return attributeList;
     }

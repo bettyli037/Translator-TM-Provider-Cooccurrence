@@ -29,9 +29,15 @@ servers:
 - description: Development server
   url: https://cooccurrence-p36smkc6hq-uc.a.run.app
   x-maturity: development
-- description: CI server
-  url: https://cooccurrence.ci.transltr.io/
+- description: ITRB CI server
+  url: https://cooccurrence.ci.transltr.io
   x-maturity: staging
+- description: ITRB Test server
+  url: https://cooccurrence.test.transltr.io
+  x-maturity: testing
+- description: ITRB Prod server
+  url: https://cooccurrence.transltr.io
+  x-maturity: production
 
 tags:
 - name: meta_knowledge_graph
@@ -240,12 +246,12 @@ paths:
                       "nodes": {
                         "n00": {
                           "categories": [
-                            "biolink:Pathway"
+                            "biolink:AnatomicalEntity"
                           ]
                         },
                         "n01": {
                           "ids": [
-                            "MONDO:0005300"
+                            "NCBITaxon:33746"
                           ]
                         }
                       }
