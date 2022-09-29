@@ -8,6 +8,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.ValidationMessage;
 import edu.ucdenver.ccp.cooccurrence.TRAPI.*;
 import edu.ucdenver.ccp.cooccurrence.entities.*;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +20,8 @@ import java.util.stream.Collectors;
 
 @RestController
 public class CooccurrenceController {
+
+    public static Logger logger = LoggerFactory.getLogger(CooccurrenceController.class);
 
     private final NodeRepository nodeRepo;
     private final ObjectMapper objectMapper;
@@ -53,53 +58,21 @@ public class CooccurrenceController {
         return responseNode;
     }
 
-    @PostMapping("/1.2/query")
-    public ResponseEntity<JsonNode> lookup_TRAPI2(@RequestBody JsonNode requestNode) {
-        if (!requestNode.hasNonNull("message")) {
-            ObjectNode errorNode = objectMapper.createObjectNode();
-            errorNode.put("error", "No message in request");
-            return ResponseEntity.badRequest().body(errorNode);
-        }
-        JsonNode messageNode = requestNode.get("message");
-        Validator validator = new Validator();
-        Validator.populateJsonSchemas("https://raw.githubusercontent.com/NCATSTranslator/ReasonerAPI/v1.2.0/TranslatorReasonerAPI.yaml");
-        Set<ValidationMessage> errors = validator.validateInput(messageNode.get("query_graph"));
-        if (errors.size() > 0) {
-            return ResponseEntity.unprocessableEntity().body(objectMapper.convertValue(errors, ArrayNode.class));
-        }
-        QueryGraph queryGraph = QueryGraph.parseJSON(messageNode.get("query_graph"));
-        List<ConceptPair> conceptPairs = getConceptPairs(queryGraph); // This is the actual query portion.
-
-        List<String> curies = conceptPairs.stream()
-                .map(cp -> List.of(cp.getSubject(), cp.getObject()))
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
-        JsonNode normalizedNodes = sri.getNormalizedNodes(curies);
-
-        KnowledgeGraph knowledgeGraph = buildKnowledgeGraph(conceptPairs, normalizedNodes); // Equivalent to a fill operation.
-        List<Result> resultsList = bindGraphs(queryGraph, knowledgeGraph); // Almost an atomic bind operation
-        List<Result> completedResults = completeResults(resultsList); // Atomic complete_results operation
-
-        // With all the information in place, we just pack it up into JSON to respond.
-        ObjectNode responseNode = objectMapper.createObjectNode();
-        responseNode.set("query_graph", queryGraph.toJSON());
-        responseNode.set("knowledge_graph", knowledgeGraph.toJSON());
-        List<JsonNode> jsonResults = completedResults.stream().map(Result::toJSON).collect(Collectors.toList());
-        responseNode.set("results", objectMapper.convertValue(jsonResults, ArrayNode.class));
-        return ResponseEntity.ok(responseNode);
-    }
-
     @PostMapping("/query")
     public ResponseEntity<JsonNode> lookup(@RequestBody JsonNode requestNode) {
+        long startTime = System.currentTimeMillis();
         if (!requestNode.hasNonNull("message")) {
             ObjectNode errorNode = objectMapper.createObjectNode();
             errorNode.put("error", "No message in request");
+            logger.warn("Lookup request with no message");
             return ResponseEntity.badRequest().body(errorNode);
         }
         JsonNode messageNode = requestNode.get("message");
         Validator validator = new Validator();
         Set<ValidationMessage> errors = validator.validateInput(messageNode.get("query_graph"));
         if (errors.size() > 0) {
+            logger.warn("Lookup message failed validation");
+            logger.debug(StringUtils.join(errors, "|"));
             return ResponseEntity.unprocessableEntity().body(objectMapper.convertValue(errors, ArrayNode.class));
         }
         QueryGraph queryGraph = QueryGraph.parseJSON(messageNode.get("query_graph"));
@@ -121,11 +94,13 @@ public class CooccurrenceController {
         responseNode.set("knowledge_graph", knowledgeGraph.toJSON());
         List<JsonNode> jsonResults = completedResults.stream().map(Result::toJSON).collect(Collectors.toList());
         responseNode.set("results", objectMapper.convertValue(jsonResults, ArrayNode.class));
+        logger.info("Lookup completed in " + (System.currentTimeMillis() - startTime) + "ms");
         return ResponseEntity.ok(responseNode);
     }
 
     @GetMapping("/meta_knowledge_graph")
     public JsonNode getMetaKnowledgeGraph() {
+        long startTime = System.currentTimeMillis();
         List<NodeMetadata> nodeMetadata = nodeRepo.getNodeMetadata();
         List<EdgeMetadata> edgeMetadata = nodeRepo.getEdgeMetadata();
 
@@ -158,60 +133,13 @@ public class CooccurrenceController {
         ObjectNode responseNode = objectMapper.createObjectNode();
         responseNode.set("nodes", nodeMetadataNode);
         responseNode.set("edges", edgeMetadataArray);
+        logger.info("MKG completed in " + (System.currentTimeMillis() - startTime) + "ms");
         return responseNode;
-    }
-
-    @PostMapping("/1.2/overlay")
-    public ResponseEntity<JsonNode> overlay_TRAPI2(@RequestBody String requestString) throws JsonProcessingException {
-        JsonNode valueNode = objectMapper.readTree(requestString);
-        JsonNode requestNode;
-        // The SmartAPI status monitor sends a mangled requestString, which we have to "fix" by reading the first time.
-        // After that we can use the value of that JsonNode to create the requestNode.
-        if (valueNode.isValueNode()) {
-            requestNode = objectMapper.readTree(valueNode.asText());
-        } else { // If it parsed correctly the first time there's no need to do it again.
-            requestNode = valueNode;
-        }
-        JsonNode messageNode = requestNode.get("message");
-        Validator validator = new Validator();
-        Validator.populateJsonSchemas("https://raw.githubusercontent.com/NCATSTranslator/ReasonerAPI/v1.2.0/TranslatorReasonerAPI.yaml");
-        Set<ValidationMessage> errors = validator.validateInput(messageNode.get("query_graph"));
-        if (errors.size() > 0) {
-            return ResponseEntity.unprocessableEntity().body(objectMapper.convertValue(errors, ArrayNode.class));
-        }
-        errors = validator.validateInput(messageNode.get("knowledge_graph"));
-        if (errors.size() > 0) {
-            return ResponseEntity.unprocessableEntity().body(objectMapper.convertValue(errors, ArrayNode.class));
-        }
-        JsonNode nodes = messageNode.get("knowledge_graph").get("nodes");
-        ObjectNode newEdgesNode = objectMapper.createObjectNode();
-        List<String> concepts = new ArrayList<>();
-        ArrayNode newEdgeBindings = objectMapper.createArrayNode();
-        for (Iterator<String> iter = nodes.fieldNames(); iter.hasNext(); ) {
-            concepts.add(iter.next());
-        }
-        for (List<String> pair : getAllConceptPairs(concepts)) {
-            String s = pair.get(0);
-            String o = pair.get(1);
-
-            for (String part : documentParts) {
-                Metrics cooccurrenceMetrics = getMetrics(s, o, part);
-                if (cooccurrenceMetrics.getPairCount() != 0 && !Double.isNaN(cooccurrenceMetrics.getNormalizedGoogleDistance())) {
-                    String edgeID = s + "_" + o + "_" + part;
-                    ObjectNode binding = objectMapper.createObjectNode();
-                    binding.put("id", edgeID);
-                    newEdgeBindings.add(binding);
-                    JsonNode newEdge = createEdgeNode(edgeID, s, o, part, cooccurrenceMetrics);
-                    newEdgesNode.set(edgeID, newEdge);
-                }
-            }
-        }
-        JsonNode responseNode = objectMapper.createObjectNode().set("message", updateMessageNode(requestNode, newEdgesNode, newEdgeBindings));
-        return ResponseEntity.ok(responseNode);
     }
 
     @PostMapping("/overlay")
     public ResponseEntity<JsonNode> overlay(@RequestBody String requestString) throws JsonProcessingException {
+        long startTime = System.currentTimeMillis();
         JsonNode valueNode = objectMapper.readTree(requestString);
         JsonNode requestNode;
         // The SmartAPI status monitor sends a mangled requestString, which we have to "fix" by reading the first time.
@@ -255,6 +183,7 @@ public class CooccurrenceController {
             }
         }
         JsonNode responseNode = objectMapper.createObjectNode().set("message", updateMessageNode(requestNode, newEdgesNode, newEdgeBindings));
+        logger.info("Overlay completed in " + (System.currentTimeMillis() - startTime) + "ms");
         return ResponseEntity.ok(responseNode);
     }
 
@@ -471,6 +400,7 @@ public class CooccurrenceController {
         return conceptPairs;
     }
 
+
     // The specifications allow for lists in place of either curie or category, but category list is
     // rather difficult to implement at the moment. Since the curies belonging to a category can overlap
     // with other categories, and the document lists can also overlap, getting the single count for a node
@@ -491,6 +421,7 @@ public class CooccurrenceController {
                 if (!objectNode.getCategories().isEmpty()) {
                     objectCategory = objectNode.getCategories().get(0); // Getting only the top category on the assumption that it's the most specific one.
                 }
+                logger.debug(String.format("Lookup: (%s, %s, %s)\n", subjectNode.toJSON().toString(), predicate, objectNode.toJSON().toString()));
                 List<ConceptPair> pairs = findConceptPairs(subjectNode.getIds(), subjectCategory, objectNode.getIds(), objectCategory);
                 pairs.forEach(x -> x.setKeys(subjectKey, objectKey, edgeKey));
                 conceptPairs.addAll(pairs);
@@ -503,6 +434,7 @@ public class CooccurrenceController {
     // The query in getHierarchicalCounts goes very slowly with such large numbers, so we only use that method for concepts with descendants.
     // For the concepts with no descendants (which is the majority) we use the simpler and faster getSingleCounts query.
     private List<ConceptPair> findConceptPairs(List<String> subjectCurieList, String subjectCategory, List<String> objectCurieList, String objectCategory) {
+        long t0 = System.currentTimeMillis();
         if ((subjectCurieList == null || subjectCurieList.isEmpty()) && (subjectCategory == null || subjectCategory.isBlank())
                 && (objectCurieList == null || objectCurieList.isEmpty()) && (objectCategory == null || objectCategory.isBlank())) {
             return Collections.emptyList();
@@ -520,19 +452,20 @@ public class CooccurrenceController {
             objectCuries = lookupQueries.getCuriesForCategory(objectCategory);
         }
 
-//        long t0 = System.currentTimeMillis();
+        long t1 = System.currentTimeMillis();
+        logger.debug("Curies retrieved in " + (t1 - t0) + "ms");
 
         Map<String, Map<String, Integer>> topLevelSubjectCounts = lookupQueries.getSingleCounts(subjectCuries);
         Map<String, Map<String, Integer>> topLevelObjectCounts = lookupQueries.getSingleCounts(objectCuries);
 
-//        long t1 = System.currentTimeMillis();
-//        System.out.println("Got single counts: " + (t1 - t0) + "ms");
+        long t2 = System.currentTimeMillis();
+        logger.debug("Single counts retrieved in " + (t2 - t1) + "ms");
 
         Map<String, List<String>> subjectHierarchy = lookupQueries.getDescendantHierarchy(subjectCuries);
         Map<String, List<String>> objectHierarchy = lookupQueries.getDescendantHierarchy(objectCuries);
 
-//        long t2 = System.currentTimeMillis();
-//        System.out.println("Got hierarchies: " + (t2 - t1) + "ms");
+        long t3 = System.currentTimeMillis();
+        logger.debug("Hierarchies retrieved in " + (t3 - t2) + "ms");
 
         Map<String, List<String>> cooccurrences = getPairCounts(subjectHierarchy, objectHierarchy);
         Map<String, Integer> pairCounts = new HashMap<>();
@@ -540,9 +473,14 @@ public class CooccurrenceController {
             pairCounts.put(pairList.getKey(), pairList.getValue().size());
         }
 
+        long t4 = System.currentTimeMillis();
+        logger.debug("Pair counts retrieved in " + (t4 - t3) + "ms");
+
         subjectHierarchyCounts = lookupQueries.getHierchicalCounts(subjectCuries);
         objectHierarchyCounts = lookupQueries.getHierchicalCounts(objectCuries);
 
+        long t5 = System.currentTimeMillis();
+        logger.debug("Hierarchical counts retrieved in " + (t5 - t4) + "ms");
         for (String sub : subjectCuries) {
             for (String obj : objectCuries) {
                 for (String part : documentParts) {

@@ -21,6 +21,7 @@ public class LookupRepository {
                         "WHERE nc.category =:category")
                 .setParameter("category", category)
                 .getResultList();
+        CooccurrenceController.logger.debug(results.size() + " curies in category " + category);
         return results.stream().map(o -> (String) o).collect(Collectors.toList());
     }
 
@@ -52,8 +53,6 @@ public class LookupRepository {
         }
         return cooccurrences;
     }
-
-
     @Cacheable("cooccurrences")
     public Map<String, List<String>> getCooccurrencesByDocumentPart(List<Integer> node1List, List<Integer> node2List, String documentPart) {
 //        System.out.format("%s cooccurrences query with list sizes (%d, %d)\n",
@@ -62,29 +61,29 @@ public class LookupRepository {
             return Collections.emptyMap();
         }
         String abstractQuery = "" +
-                "SELECT concept1_curie, concept2_curie, part, document_hash " +
+                "SELECT concept1_curie, concept2_curie, document_hash " +
                 "FROM concept_pairs_abstract " +
                 "WHERE concept1_id IN (:p1) " +
                 "AND concept2_id IN (:p2) " +
-                "GROUP BY concept1_curie, concept2_curie, part, document_hash";
+                "GROUP BY concept1_curie, concept2_curie, document_hash";
         String titleQuery = "" +
-                "SELECT concept1_curie, concept2_curie, part, document_hash " +
+                "SELECT concept1_curie, concept2_curie, document_hash " +
                 "FROM concept_pairs_title " +
                 "WHERE concept1_id IN (:p1) " +
                 "AND concept2_id IN (:p2) " +
-                "GROUP BY concept1_curie, concept2_curie, part, document_hash";
+                "GROUP BY concept1_curie, concept2_curie, document_hash";
         String articleQuery = "" +
-                "SELECT concept1_curie, concept2_curie, part, document_hash " +
+                "SELECT concept1_curie, concept2_curie, document_hash " +
                 "FROM concept_pairs_article " +
                 "WHERE concept1_id IN (:p1) " +
                 "AND concept2_id IN (:p2) " +
-                "GROUP BY concept1_curie, concept2_curie, part, document_hash";
+                "GROUP BY concept1_curie, concept2_curie, document_hash";
         String sentenceQuery = "" +
-                "SELECT concept1_curie, concept2_curie, part, document_hash " +
+                "SELECT concept1_curie, concept2_curie, document_hash " +
                 "FROM concept_pairs_sentence " +
                 "WHERE concept1_id IN (:p1) " +
                 "AND concept2_id IN (:p2) " +
-                "GROUP BY concept1_curie, concept2_curie, part, document_hash";
+                "GROUP BY concept1_curie, concept2_curie, document_hash";
         String activeQuery;
         switch (documentPart) {
             case "abstract":
@@ -105,8 +104,8 @@ public class LookupRepository {
 //        System.out.format("%s Query Time: %dms\n", documentPart, t2 - t1);
         Map<String, List<String>> cooccurrences = new HashMap<>();
         for (Object[] resultRow : results) {
-            String key = (String) resultRow[0] + (String) resultRow[1] + (String) resultRow[2];
-            String value = (String) resultRow[3];
+            String key = (String) resultRow[0] + (String) resultRow[1] + documentPart;
+            String value = (String) resultRow[2];
             List<String> docs;
             if (cooccurrences.containsKey(key)) {
                 docs = cooccurrences.get(key);
@@ -214,7 +213,7 @@ public class LookupRepository {
                         .setParameter("p1", concept2Sublist)
                         .getResultList();
                 for (Object[] row : reversedResults) {
-                    results.add(new Object[]{row[1], row[0], row[2]});
+                    results.add(new Object[]{row[1], row[0]});
                 }
             }
         }
@@ -226,33 +225,33 @@ public class LookupRepository {
         Map<String, List<List<Integer>>> cooccurrences = new HashMap<>(4);
         String expansionQuery = "SELECT child_id FROM flat_node_hierarchy WHERE parent_id IN (:p)";
         String abstractQuery = "" +
-                "SELECT node1, node2, 'abstract' AS part " +
+                "SELECT node1, node2 AS part " +
                 "FROM abstract_cooccurrences " +
                 "WHERE node1 IN (:p1) AND node2 IN (:p2)";
         String titleQuery = "" +
-                "SELECT node1, node2, 'title' AS part " +
+                "SELECT node1, node2 " +
                 "FROM title_cooccurrences " +
                 "WHERE node1 IN (:p1) AND node2 IN (:p2)";
         String articleQuery = "" +
-                "SELECT node1, node2, 'article' AS part " +
+                "SELECT node1, node2 " +
                 "FROM article_cooccurrences " +
                 "WHERE node1 IN (:p1) AND node2 IN (:p2)";
         String sentenceQuery = "" +
-                "SELECT node1, node2, 'sentence' AS part " +
+                "SELECT node1, node2 " +
                 "FROM sentence_cooccurrences " +
                 "WHERE node1 IN (:p1) AND node2 IN (:p2)";
-        List<Integer> expandedList = session.createNativeQuery(expansionQuery).setParameter("p", concept2List).getResultList();
+//        List<Integer> expandedList = session.createNativeQuery(expansionQuery).setParameter("p", concept2List).getResultList();
 //        long t1 = System.currentTimeMillis();
-        List<Object[]> abstractResults = getCooccurrencesByParts(abstractQuery, concept1List, expandedList);
+        List<Object[]> abstractResults = getCooccurrencesByParts(abstractQuery, concept1List, concept2List);
 //        long t2 = System.currentTimeMillis();
 //        System.out.format("Abstracts (%d): %dms\n", abstractResults.size(), t2 - t1);
-        List<Object[]> titleResults = getCooccurrencesByParts(titleQuery, concept1List, expandedList);
+        List<Object[]> titleResults = getCooccurrencesByParts(titleQuery, concept1List, concept2List);
 //        long t3 = System.currentTimeMillis();
 //        System.out.format("Titles (%d): %dms\n", titleResults.size(), t3 - t2);
-        List<Object[]> articleResults = getCooccurrencesByParts(articleQuery, concept1List, expandedList);
+        List<Object[]> articleResults = getCooccurrencesByParts(articleQuery, concept1List, concept2List);
 //        long t4 = System.currentTimeMillis();
 //        System.out.format("Articles (%d): %dms\n", articleResults.size(), t4 - t3);
-        List<Object[]> sentenceResults = getCooccurrencesByParts(sentenceQuery, concept1List, expandedList);
+        List<Object[]> sentenceResults = getCooccurrencesByParts(sentenceQuery, concept1List, concept2List);
 //        long t5 = System.currentTimeMillis();
 //        System.out.format("Sentence (%d): %dms\n", sentenceResults.size(), t5 - t4);
         cooccurrences.put("abstract", abstractResults.stream().map((row) -> List.of((Integer) row[0], (Integer) row[1])).collect(Collectors.toList()));
@@ -292,9 +291,15 @@ public class LookupRepository {
 
     // returns a Map where the key is concept1_curie + concept2_curie + documentPart and the value is a list of document hashes
     public Map<String, List<String>> getCooccurrencesByParts(List<String> concept1List, List<String> concept2List) {
+        long t1 = System.currentTimeMillis();
+        CooccurrenceController.logger.debug(String.format("Starting getCooccurrencesByParts with (%d, %d) concepts.", concept1List.size(), concept2List.size()));
         int MAX_SUBLIST_SIZE = Short.MAX_VALUE / 2;
         Map<String, List<String>> cooccurrenceMap = new HashMap<>();
         Map<String, List<List<Integer>>> cooccurrentPairs = getCoccurrentNodesByParts(concept1List, concept2List);
+
+        long t2 = System.currentTimeMillis();
+        CooccurrenceController.logger.debug("Got cooccurrent pairs in " + (t2 - t1) + "ms");
+
         for (String documentPart : CooccurrenceController.documentParts) {
             if (!cooccurrentPairs.containsKey(documentPart)) {
                 continue;
@@ -302,17 +307,20 @@ public class LookupRepository {
             List<List<Integer>> pairs = cooccurrentPairs.get(documentPart);
             List<Integer> node1List = pairs.stream().map(pair -> pair.get(0)).distinct().collect(Collectors.toList());
             List<Integer> node2List = pairs.stream().map(pair -> pair.get(1)).distinct().collect(Collectors.toList());
+            CooccurrenceController.logger.debug(String.format("Getting cooccurrences for part: %s with (%d, %d) concepts.", documentPart, node1List.size(), node2List.size()));
             for (int startIndex1 = 0; startIndex1 < node1List.size(); startIndex1 += MAX_SUBLIST_SIZE) {
                 int endIndex1 = Math.min(startIndex1 + MAX_SUBLIST_SIZE, node1List.size());
                 List<Integer> node1Sublist = node1List.subList(startIndex1, endIndex1);
                 for (int startIndex2 = 0; startIndex2 < node2List.size(); startIndex2 += MAX_SUBLIST_SIZE) {
                     int endIndex2 = Math.min(startIndex2 + MAX_SUBLIST_SIZE, node2List.size());
                     List<Integer> node2Sublist = node2List.subList(startIndex2, endIndex2);
+                    long t3 = System.currentTimeMillis();
                     cooccurrenceMap.putAll(getCooccurrencesByDocumentPart(node1Sublist, node2Sublist, documentPart));
+                    CooccurrenceController.logger.debug(String.format("Got %s cooccurrences in %dms", documentPart, System.currentTimeMillis() - t3));
                 }
             }
         }
-//        System.out.format("%d total cooccurrence keys\n", cooccurrenceMap.keySet().size());
+        CooccurrenceController.logger.debug(String.format("%d total cooccurrence keys in %dms", cooccurrenceMap.keySet().size(), System.currentTimeMillis() - t2));
         return cooccurrenceMap;
     }
 
