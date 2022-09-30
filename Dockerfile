@@ -5,4 +5,4 @@ RUN mvn -f /home/app/pom.xml clean install -DskipTests
 
 FROM amazoncorretto:11
 COPY --from=build /home/app/target/*.jar app.jar
-ENTRYPOINT ["java","-XX:MaxRAMPercentage=75","-jar","/app.jar"]
+ENTRYPOINT ["java","-Xmx16G","-jar","/app.jar"]
