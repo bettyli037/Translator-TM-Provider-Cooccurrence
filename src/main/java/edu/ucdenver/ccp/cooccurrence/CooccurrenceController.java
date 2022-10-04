@@ -76,6 +76,7 @@ public class CooccurrenceController {
             return ResponseEntity.unprocessableEntity().body(objectMapper.convertValue(errors, ArrayNode.class));
         }
         QueryGraph queryGraph = QueryGraph.parseJSON(messageNode.get("query_graph"));
+        logger.info(String.format("Starting lookup with %d edges and %d nodes", queryGraph.getEdges().size(), queryGraph.getNodes().size()));
         List<ConceptPair> conceptPairs = getConceptPairs(queryGraph); // This is the actual query portion.
 
         List<String> curies = conceptPairs.stream()
@@ -89,12 +90,14 @@ public class CooccurrenceController {
         List<Result> completedResults = completeResults(resultsList); // Atomic complete_results operation
 
         // With all the information in place, we just pack it up into JSON to respond.
-        ObjectNode responseNode = objectMapper.createObjectNode();
-        responseNode.set("query_graph", queryGraph.toJSON());
-        responseNode.set("knowledge_graph", knowledgeGraph.toJSON());
+        ObjectNode responseMessageNode = objectMapper.createObjectNode();
+        responseMessageNode.set("query_graph", queryGraph.toJSON());
+        responseMessageNode.set("knowledge_graph", knowledgeGraph.toJSON());
         List<JsonNode> jsonResults = completedResults.stream().map(Result::toJSON).collect(Collectors.toList());
-        responseNode.set("results", objectMapper.convertValue(jsonResults, ArrayNode.class));
+        responseMessageNode.set("results", objectMapper.convertValue(jsonResults, ArrayNode.class));
         logger.info("Lookup completed in " + (System.currentTimeMillis() - startTime) + "ms");
+        ObjectNode responseNode = objectMapper.createObjectNode();
+        responseNode.set("message", responseMessageNode);
         return ResponseEntity.ok(responseNode);
     }
 
