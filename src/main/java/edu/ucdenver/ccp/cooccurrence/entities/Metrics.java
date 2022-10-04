@@ -166,7 +166,7 @@ public class Metrics {
         List<Attribute> attributeList = new ArrayList<>();
 
         Attribute count1 = new Attribute();
-        count1.setAttributeTypeId("biolink:tmkp_concept1_count");
+        count1.setAttributeTypeId("biolink:concept_count_subject");
         count1.setValue(singleCount1);
         count1.setValueTypeId("SIO:000794");
         String description = String.format("The number of times concept #1 was observed to occur at the %s level in the documents that were processed", this.documentPart);
@@ -175,7 +175,7 @@ public class Metrics {
         attributeList.add(count1);
 
         Attribute count2 = new Attribute();
-        count2.setAttributeTypeId("biolink:tmkp_concept2_count");
+        count2.setAttributeTypeId("biolink:concept_count_object");
         count2.setValue(singleCount2);
         count2.setValueTypeId("SIO:000794");
         description = String.format("The number of times concept #2 was observed to occur at the %s level in the documents that were processed", this.documentPart);
@@ -184,7 +184,7 @@ public class Metrics {
         attributeList.add(count2);
 
         Attribute pairCountAttribute = new Attribute();
-        pairCountAttribute.setAttributeTypeId("biolink:tmkp_concept_pair_count");
+        pairCountAttribute.setAttributeTypeId("biolink:concept_pair_count");
         pairCountAttribute.setValue(pairCount);
         pairCountAttribute.setValueTypeId("SIO:000794");
         description = String.format("The number of times the concepts of this assertion were observed to cooccur at the %s level in the documents that were processed", this.documentPart);
