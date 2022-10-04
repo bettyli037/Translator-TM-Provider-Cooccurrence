@@ -1,0 +1,2261 @@
+{
+  "url": "https://cooccurrence-p36smkc6hq-uc.a.run.app",
+  "source_type": "original",
+  "infores": "text-mining-provider-cooccurrence",
+  "edges": [
+    {
+      "subject_category": "biolink:AnatomicalEntity",
+      "object_category": "biolink:AnatomicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "UBERON:0005725",
+      "object": "CL:0000006"
+    },
+    {
+      "subject_category": "biolink:AnatomicalEntity",
+      "object_category": "biolink:BiologicalProcess",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "GO:0000023"
+    },
+    {
+      "subject_category": "biolink:AnatomicalEntity",
+      "object_category": "biolink:Cell",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "CL:0000006"
+    },
+    {
+      "subject_category": "biolink:AnatomicalEntity",
+      "object_category": "biolink:CellularComponent",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "GO:0000123"
+    },
+    {
+      "subject_category": "biolink:AnatomicalEntity",
+      "object_category": "biolink:ChemicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "CHEBI:13956"
+    },
+    {
+      "subject_category": "biolink:AnatomicalEntity",
+      "object_category": "biolink:ChemicalMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "CHEBI:16956"
+    },
+    {
+      "subject_category": "biolink:AnatomicalEntity",
+      "object_category": "biolink:ComplexMolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000010",
+      "object": "DRUGBANK:DB09877"
+    },
+    {
+      "subject_category": "biolink:AnatomicalEntity",
+      "object_category": "biolink:Disease",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "HP:0000044"
+    },
+    {
+      "subject_category": "biolink:AnatomicalEntity",
+      "object_category": "biolink:GrossAnatomicalStructure",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "UBERON:0000064"
+    },
+    {
+      "subject_category": "biolink:AnatomicalEntity",
+      "object_category": "biolink:MolecularActivity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "GO:0000009"
+    },
+    {
+      "subject_category": "biolink:AnatomicalEntity",
+      "object_category": "biolink:MolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "CHEBI:22652"
+    },
+    {
+      "subject_category": "biolink:AnatomicalEntity",
+      "object_category": "biolink:NamedThing",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "CHEBI:15889"
+    },
+    {
+      "subject_category": "biolink:AnatomicalEntity",
+      "object_category": "biolink:OrganismTaxon",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "NCBITaxon:100217"
+    },
+    {
+      "subject_category": "biolink:AnatomicalEntity",
+      "object_category": "biolink:Pathway",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "GO:0001973"
+    },
+    {
+      "subject_category": "biolink:AnatomicalEntity",
+      "object_category": "biolink:PhenotypicFeature",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "HP:0000077"
+    },
+    {
+      "subject_category": "biolink:AnatomicalEntity",
+      "object_category": "biolink:Polypeptide",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "CHEBI:25676"
+    },
+    {
+      "subject_category": "biolink:AnatomicalEntity",
+      "object_category": "biolink:Protein",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "CHEBI:38559"
+    },
+    {
+      "subject_category": "biolink:AnatomicalEntity",
+      "object_category": "biolink:SmallMolecule",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "CHEBI:15035"
+    },
+    {
+      "subject_category": "biolink:BiologicalProcess",
+      "object_category": "biolink:AnatomicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000003",
+      "object": "CL:0000025"
+    },
+    {
+      "subject_category": "biolink:BiologicalProcess",
+      "object_category": "biolink:BiologicalProcess",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000003",
+      "object": "GO:0000279"
+    },
+    {
+      "subject_category": "biolink:BiologicalProcess",
+      "object_category": "biolink:Cell",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000003",
+      "object": "CL:0000025"
+    },
+    {
+      "subject_category": "biolink:BiologicalProcess",
+      "object_category": "biolink:CellularComponent",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000003",
+      "object": "GO:0000781"
+    },
+    {
+      "subject_category": "biolink:BiologicalProcess",
+      "object_category": "biolink:ChemicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000003",
+      "object": "CHEBI:10545"
+    },
+    {
+      "subject_category": "biolink:BiologicalProcess",
+      "object_category": "biolink:ChemicalMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000003",
+      "object": "CHEBI:25614"
+    },
+    {
+      "subject_category": "biolink:BiologicalProcess",
+      "object_category": "biolink:ComplexMolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000003",
+      "object": "DRUGBANK:DB09446"
+    },
+    {
+      "subject_category": "biolink:BiologicalProcess",
+      "object_category": "biolink:Disease",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000003",
+      "object": "HP:0000202"
+    },
+    {
+      "subject_category": "biolink:BiologicalProcess",
+      "object_category": "biolink:GrossAnatomicalStructure",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000003",
+      "object": "UBERON:0000002"
+    },
+    {
+      "subject_category": "biolink:BiologicalProcess",
+      "object_category": "biolink:MolecularActivity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000003",
+      "object": "GO:0001671"
+    },
+    {
+      "subject_category": "biolink:BiologicalProcess",
+      "object_category": "biolink:MolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000003",
+      "object": "CHEBI:68664"
+    },
+    {
+      "subject_category": "biolink:BiologicalProcess",
+      "object_category": "biolink:NamedThing",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000003",
+      "object": "CHEBI:10545"
+    },
+    {
+      "subject_category": "biolink:BiologicalProcess",
+      "object_category": "biolink:OrganismTaxon",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000003",
+      "object": "NCBITaxon:10017"
+    },
+    {
+      "subject_category": "biolink:BiologicalProcess",
+      "object_category": "biolink:Pathway",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000003",
+      "object": "GO:0031929"
+    },
+    {
+      "subject_category": "biolink:BiologicalProcess",
+      "object_category": "biolink:PhenotypicFeature",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000003",
+      "object": "HP:0000164"
+    },
+    {
+      "subject_category": "biolink:BiologicalProcess",
+      "object_category": "biolink:Polypeptide",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000003",
+      "object": "DRUGBANK:DB00032"
+    },
+    {
+      "subject_category": "biolink:BiologicalProcess",
+      "object_category": "biolink:Protein",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000003",
+      "object": "DRUGBANK:DB00032"
+    },
+    {
+      "subject_category": "biolink:BiologicalProcess",
+      "object_category": "biolink:SmallMolecule",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000003",
+      "object": "CHEBI:2679"
+    },
+    {
+      "subject_category": "biolink:Cell",
+      "object_category": "biolink:AnatomicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "CL:0000006"
+    },
+    {
+      "subject_category": "biolink:Cell",
+      "object_category": "biolink:BiologicalProcess",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "GO:0000023"
+    },
+    {
+      "subject_category": "biolink:Cell",
+      "object_category": "biolink:Cell",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "CL:0000006"
+    },
+    {
+      "subject_category": "biolink:Cell",
+      "object_category": "biolink:CellularComponent",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "GO:0000123"
+    },
+    {
+      "subject_category": "biolink:Cell",
+      "object_category": "biolink:ChemicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "CHEBI:13956"
+    },
+    {
+      "subject_category": "biolink:Cell",
+      "object_category": "biolink:ChemicalMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "CHEBI:16956"
+    },
+    {
+      "subject_category": "biolink:Cell",
+      "object_category": "biolink:ComplexMolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000010",
+      "object": "DRUGBANK:DB09877"
+    },
+    {
+      "subject_category": "biolink:Cell",
+      "object_category": "biolink:Disease",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "HP:0000044"
+    },
+    {
+      "subject_category": "biolink:Cell",
+      "object_category": "biolink:GrossAnatomicalStructure",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "UBERON:0000064"
+    },
+    {
+      "subject_category": "biolink:Cell",
+      "object_category": "biolink:MolecularActivity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "GO:0000009"
+    },
+    {
+      "subject_category": "biolink:Cell",
+      "object_category": "biolink:MolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "CHEBI:22652"
+    },
+    {
+      "subject_category": "biolink:Cell",
+      "object_category": "biolink:NamedThing",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "CHEBI:15889"
+    },
+    {
+      "subject_category": "biolink:Cell",
+      "object_category": "biolink:OrganismTaxon",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "NCBITaxon:100217"
+    },
+    {
+      "subject_category": "biolink:Cell",
+      "object_category": "biolink:Pathway",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "GO:0001973"
+    },
+    {
+      "subject_category": "biolink:Cell",
+      "object_category": "biolink:PhenotypicFeature",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "HP:0000077"
+    },
+    {
+      "subject_category": "biolink:Cell",
+      "object_category": "biolink:Polypeptide",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "CHEBI:25676"
+    },
+    {
+      "subject_category": "biolink:Cell",
+      "object_category": "biolink:Protein",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "CHEBI:38559"
+    },
+    {
+      "subject_category": "biolink:Cell",
+      "object_category": "biolink:SmallMolecule",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CL:0000006",
+      "object": "CHEBI:15035"
+    },
+    {
+      "subject_category": "biolink:CellularComponent",
+      "object_category": "biolink:AnatomicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000109",
+      "object": "GO:0005622"
+    },
+    {
+      "subject_category": "biolink:CellularComponent",
+      "object_category": "biolink:BiologicalProcess",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000109",
+      "object": "GO:0001171"
+    },
+    {
+      "subject_category": "biolink:CellularComponent",
+      "object_category": "biolink:Cell",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000118",
+      "object": "CL:0000066"
+    },
+    {
+      "subject_category": "biolink:CellularComponent",
+      "object_category": "biolink:CellularComponent",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000109",
+      "object": "GO:0005622"
+    },
+    {
+      "subject_category": "biolink:CellularComponent",
+      "object_category": "biolink:ChemicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000109",
+      "object": "DRUGBANK:DB11017"
+    },
+    {
+      "subject_category": "biolink:CellularComponent",
+      "object_category": "biolink:ChemicalMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000118",
+      "object": "CHEBI:60311"
+    },
+    {
+      "subject_category": "biolink:CellularComponent",
+      "object_category": "biolink:ComplexMolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000785",
+      "object": "DRUGBANK:DB15274"
+    },
+    {
+      "subject_category": "biolink:CellularComponent",
+      "object_category": "biolink:Disease",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000109",
+      "object": "MONDO:0016006"
+    },
+    {
+      "subject_category": "biolink:CellularComponent",
+      "object_category": "biolink:GrossAnatomicalStructure",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000118",
+      "object": "UBERON:0000310"
+    },
+    {
+      "subject_category": "biolink:CellularComponent",
+      "object_category": "biolink:MolecularActivity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000109",
+      "object": "GO:0001055"
+    },
+    {
+      "subject_category": "biolink:CellularComponent",
+      "object_category": "biolink:MolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000118",
+      "object": "CHEBI:60311"
+    },
+    {
+      "subject_category": "biolink:CellularComponent",
+      "object_category": "biolink:NamedThing",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000109",
+      "object": "DRUGBANK:DB11017"
+    },
+    {
+      "subject_category": "biolink:CellularComponent",
+      "object_category": "biolink:OrganismTaxon",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000109",
+      "object": "NCBITaxon:147537"
+    },
+    {
+      "subject_category": "biolink:CellularComponent",
+      "object_category": "biolink:Pathway",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000139",
+      "object": "GO:0007165"
+    },
+    {
+      "subject_category": "biolink:CellularComponent",
+      "object_category": "biolink:PhenotypicFeature",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000502",
+      "object": "HP:0001324"
+    },
+    {
+      "subject_category": "biolink:CellularComponent",
+      "object_category": "biolink:Polypeptide",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000109",
+      "object": "PR:000007163"
+    },
+    {
+      "subject_category": "biolink:CellularComponent",
+      "object_category": "biolink:Protein",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000109",
+      "object": "PR:000007163"
+    },
+    {
+      "subject_category": "biolink:CellularComponent",
+      "object_category": "biolink:SmallMolecule",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000118",
+      "object": "DRUGBANK:DB00171"
+    },
+    {
+      "subject_category": "biolink:ChemicalEntity",
+      "object_category": "biolink:AnatomicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "CL:0000576"
+    },
+    {
+      "subject_category": "biolink:ChemicalEntity",
+      "object_category": "biolink:BiologicalProcess",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "GO:0001501"
+    },
+    {
+      "subject_category": "biolink:ChemicalEntity",
+      "object_category": "biolink:Cell",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "CL:0000576"
+    },
+    {
+      "subject_category": "biolink:ChemicalEntity",
+      "object_category": "biolink:CellularComponent",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10545",
+      "object": "GO:0005575"
+    },
+    {
+      "subject_category": "biolink:ChemicalEntity",
+      "object_category": "biolink:ChemicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "CHEBI:50249"
+    },
+    {
+      "subject_category": "biolink:ChemicalEntity",
+      "object_category": "biolink:ChemicalMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10545",
+      "object": "CHEBI:60027"
+    },
+    {
+      "subject_category": "biolink:ChemicalEntity",
+      "object_category": "biolink:ComplexMolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15379",
+      "object": "DRUGBANK:DB09877"
+    },
+    {
+      "subject_category": "biolink:ChemicalEntity",
+      "object_category": "biolink:Disease",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "MONDO:0005267"
+    },
+    {
+      "subject_category": "biolink:ChemicalEntity",
+      "object_category": "biolink:GrossAnatomicalStructure",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "UBERON:0000479"
+    },
+    {
+      "subject_category": "biolink:ChemicalEntity",
+      "object_category": "biolink:MolecularActivity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10036",
+      "object": "GO:0003824"
+    },
+    {
+      "subject_category": "biolink:ChemicalEntity",
+      "object_category": "biolink:MolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:14321",
+      "object": "CHEBI:64220"
+    },
+    {
+      "subject_category": "biolink:ChemicalEntity",
+      "object_category": "biolink:NamedThing",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "CHEBI:50249"
+    },
+    {
+      "subject_category": "biolink:ChemicalEntity",
+      "object_category": "biolink:OrganismTaxon",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "NCBITaxon:10088"
+    },
+    {
+      "subject_category": "biolink:ChemicalEntity",
+      "object_category": "biolink:Pathway",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:14321",
+      "object": "GO:0007165"
+    },
+    {
+      "subject_category": "biolink:ChemicalEntity",
+      "object_category": "biolink:PhenotypicFeature",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:14321",
+      "object": "HP:0003326"
+    },
+    {
+      "subject_category": "biolink:ChemicalEntity",
+      "object_category": "biolink:Polypeptide",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "PR:000000001"
+    },
+    {
+      "subject_category": "biolink:ChemicalEntity",
+      "object_category": "biolink:Protein",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "PR:000000001"
+    },
+    {
+      "subject_category": "biolink:ChemicalEntity",
+      "object_category": "biolink:SmallMolecule",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "DRUGBANK:DB00266"
+    },
+    {
+      "subject_category": "biolink:ChemicalMixture",
+      "object_category": "biolink:AnatomicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10034",
+      "object": "UBERON:0000014"
+    },
+    {
+      "subject_category": "biolink:ChemicalMixture",
+      "object_category": "biolink:BiologicalProcess",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15959",
+      "object": "GO:0006508"
+    },
+    {
+      "subject_category": "biolink:ChemicalMixture",
+      "object_category": "biolink:Cell",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15959",
+      "object": "CL:0000010"
+    },
+    {
+      "subject_category": "biolink:ChemicalMixture",
+      "object_category": "biolink:CellularComponent",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15959",
+      "object": "GO:0005575"
+    },
+    {
+      "subject_category": "biolink:ChemicalMixture",
+      "object_category": "biolink:ChemicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10034",
+      "object": "DRUGBANK:DB00604"
+    },
+    {
+      "subject_category": "biolink:ChemicalMixture",
+      "object_category": "biolink:ChemicalMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:16539",
+      "object": "CHEBI:2588"
+    },
+    {
+      "subject_category": "biolink:ChemicalMixture",
+      "object_category": "biolink:ComplexMolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:31345",
+      "object": "DRUGBANK:DB09877"
+    },
+    {
+      "subject_category": "biolink:ChemicalMixture",
+      "object_category": "biolink:Disease",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15959",
+      "object": "HP:0001250"
+    },
+    {
+      "subject_category": "biolink:ChemicalMixture",
+      "object_category": "biolink:GrossAnatomicalStructure",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10034",
+      "object": "UBERON:0000014"
+    },
+    {
+      "subject_category": "biolink:ChemicalMixture",
+      "object_category": "biolink:MolecularActivity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15959",
+      "object": "GO:0004180"
+    },
+    {
+      "subject_category": "biolink:ChemicalMixture",
+      "object_category": "biolink:MolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:25614",
+      "object": "DRUGBANK:DB00761"
+    },
+    {
+      "subject_category": "biolink:ChemicalMixture",
+      "object_category": "biolink:NamedThing",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10034",
+      "object": "DRUGBANK:DB00604"
+    },
+    {
+      "subject_category": "biolink:ChemicalMixture",
+      "object_category": "biolink:OrganismTaxon",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15959",
+      "object": "NCBITaxon:10088"
+    },
+    {
+      "subject_category": "biolink:ChemicalMixture",
+      "object_category": "biolink:Pathway",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:16529",
+      "object": "GO:0007165"
+    },
+    {
+      "subject_category": "biolink:ChemicalMixture",
+      "object_category": "biolink:PhenotypicFeature",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:2659",
+      "object": "HP:0002197"
+    },
+    {
+      "subject_category": "biolink:ChemicalMixture",
+      "object_category": "biolink:Polypeptide",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15959",
+      "object": "PR:000003165"
+    },
+    {
+      "subject_category": "biolink:ChemicalMixture",
+      "object_category": "biolink:Protein",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15959",
+      "object": "PR:000003165"
+    },
+    {
+      "subject_category": "biolink:ChemicalMixture",
+      "object_category": "biolink:SmallMolecule",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10034",
+      "object": "DRUGBANK:DB00604"
+    },
+    {
+      "subject_category": "biolink:ComplexMolecularMixture",
+      "object_category": "biolink:AnatomicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:61995",
+      "object": "GO:0016020"
+    },
+    {
+      "subject_category": "biolink:ComplexMolecularMixture",
+      "object_category": "biolink:BiologicalProcess",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:61995",
+      "object": "GO:0006954"
+    },
+    {
+      "subject_category": "biolink:ComplexMolecularMixture",
+      "object_category": "biolink:Cell",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "DRUGBANK:DB09446",
+      "object": "CL:0000084"
+    },
+    {
+      "subject_category": "biolink:ComplexMolecularMixture",
+      "object_category": "biolink:CellularComponent",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:61995",
+      "object": "GO:0016020"
+    },
+    {
+      "subject_category": "biolink:ComplexMolecularMixture",
+      "object_category": "biolink:ChemicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:61995",
+      "object": "CHEBI:37527"
+    },
+    {
+      "subject_category": "biolink:ComplexMolecularMixture",
+      "object_category": "biolink:ChemicalMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "DRUGBANK:DB09446",
+      "object": "CHEBI:60004"
+    },
+    {
+      "subject_category": "biolink:ComplexMolecularMixture",
+      "object_category": "biolink:ComplexMolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "DRUGBANK:DB09877",
+      "object": "DRUGBANK:DB12768"
+    },
+    {
+      "subject_category": "biolink:ComplexMolecularMixture",
+      "object_category": "biolink:Disease",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:61995",
+      "object": "MONDO:0002251"
+    },
+    {
+      "subject_category": "biolink:ComplexMolecularMixture",
+      "object_category": "biolink:GrossAnatomicalStructure",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:61995",
+      "object": "UBERON:0000922"
+    },
+    {
+      "subject_category": "biolink:ComplexMolecularMixture",
+      "object_category": "biolink:MolecularActivity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:61995",
+      "object": "GO:0004607"
+    },
+    {
+      "subject_category": "biolink:ComplexMolecularMixture",
+      "object_category": "biolink:MolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "DRUGBANK:DB09446",
+      "object": "DRUGBANK:DB06724"
+    },
+    {
+      "subject_category": "biolink:ComplexMolecularMixture",
+      "object_category": "biolink:NamedThing",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:61995",
+      "object": "GO:0006954"
+    },
+    {
+      "subject_category": "biolink:ComplexMolecularMixture",
+      "object_category": "biolink:OrganismTaxon",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:61995",
+      "object": "NCBITaxon:8782"
+    },
+    {
+      "subject_category": "biolink:ComplexMolecularMixture",
+      "object_category": "biolink:Pathway",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "DRUGBANK:DB09446",
+      "object": "GO:0007165"
+    },
+    {
+      "subject_category": "biolink:ComplexMolecularMixture",
+      "object_category": "biolink:PhenotypicFeature",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "DRUGBANK:DB09877",
+      "object": "HP:0001581"
+    },
+    {
+      "subject_category": "biolink:ComplexMolecularMixture",
+      "object_category": "biolink:Protein",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:61995",
+      "object": "PR:000004140"
+    },
+    {
+      "subject_category": "biolink:ComplexMolecularMixture",
+      "object_category": "biolink:SmallMolecule",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:61995",
+      "object": "DRUGBANK:DB00162"
+    },
+    {
+      "subject_category": "biolink:Disease",
+      "object_category": "biolink:AnatomicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000027",
+      "object": "GO:0030849"
+    },
+    {
+      "subject_category": "biolink:Disease",
+      "object_category": "biolink:BiologicalProcess",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000044",
+      "object": "GO:0001503"
+    },
+    {
+      "subject_category": "biolink:Disease",
+      "object_category": "biolink:Cell",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000044",
+      "object": "CL:0000006"
+    },
+    {
+      "subject_category": "biolink:Disease",
+      "object_category": "biolink:CellularComponent",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000027",
+      "object": "GO:0030849"
+    },
+    {
+      "subject_category": "biolink:Disease",
+      "object_category": "biolink:ChemicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000044",
+      "object": "CHEBI:46662"
+    },
+    {
+      "subject_category": "biolink:Disease",
+      "object_category": "biolink:ChemicalMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000083",
+      "object": "CHEBI:34762"
+    },
+    {
+      "subject_category": "biolink:Disease",
+      "object_category": "biolink:ComplexMolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000964",
+      "object": "DRUGBANK:DB12768"
+    },
+    {
+      "subject_category": "biolink:Disease",
+      "object_category": "biolink:Disease",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000031",
+      "object": "MONDO:0005550"
+    },
+    {
+      "subject_category": "biolink:Disease",
+      "object_category": "biolink:GrossAnatomicalStructure",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000031",
+      "object": "UBERON:0007021"
+    },
+    {
+      "subject_category": "biolink:Disease",
+      "object_category": "biolink:MolecularActivity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000044",
+      "object": "GO:0004503"
+    },
+    {
+      "subject_category": "biolink:Disease",
+      "object_category": "biolink:MolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000083",
+      "object": "CHEBI:34762"
+    },
+    {
+      "subject_category": "biolink:Disease",
+      "object_category": "biolink:NamedThing",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000031",
+      "object": "UBERON:0007021"
+    },
+    {
+      "subject_category": "biolink:Disease",
+      "object_category": "biolink:OrganismTaxon",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000031",
+      "object": "NCBITaxon:9606"
+    },
+    {
+      "subject_category": "biolink:Disease",
+      "object_category": "biolink:Pathway",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000113",
+      "object": "GO:0019933"
+    },
+    {
+      "subject_category": "biolink:Disease",
+      "object_category": "biolink:PhenotypicFeature",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000044",
+      "object": "HP:0000252"
+    },
+    {
+      "subject_category": "biolink:Disease",
+      "object_category": "biolink:Polypeptide",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000044",
+      "object": "DRUGBANK:DB10415"
+    },
+    {
+      "subject_category": "biolink:Disease",
+      "object_category": "biolink:Protein",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000044",
+      "object": "DRUGBANK:DB10415"
+    },
+    {
+      "subject_category": "biolink:Disease",
+      "object_category": "biolink:SmallMolecule",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000044",
+      "object": "DRUGBANK:DB00007"
+    },
+    {
+      "subject_category": "biolink:GrossAnatomicalStructure",
+      "object_category": "biolink:AnatomicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "UBERON:0000002",
+      "object": "CL:0000010"
+    },
+    {
+      "subject_category": "biolink:GrossAnatomicalStructure",
+      "object_category": "biolink:BiologicalProcess",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "UBERON:0000002",
+      "object": "GO:0000003"
+    },
+    {
+      "subject_category": "biolink:GrossAnatomicalStructure",
+      "object_category": "biolink:Cell",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "UBERON:0000002",
+      "object": "CL:0000010"
+    },
+    {
+      "subject_category": "biolink:GrossAnatomicalStructure",
+      "object_category": "biolink:CellularComponent",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "UBERON:0000002",
+      "object": "GO:0005730"
+    },
+    {
+      "subject_category": "biolink:GrossAnatomicalStructure",
+      "object_category": "biolink:ChemicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "UBERON:0000002",
+      "object": "CHEBI:17996"
+    },
+    {
+      "subject_category": "biolink:GrossAnatomicalStructure",
+      "object_category": "biolink:ChemicalMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "UBERON:0000002",
+      "object": "DRUGBANK:DB00067"
+    },
+    {
+      "subject_category": "biolink:GrossAnatomicalStructure",
+      "object_category": "biolink:ComplexMolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "UBERON:0000004",
+      "object": "DRUGBANK:DB12768"
+    },
+    {
+      "subject_category": "biolink:GrossAnatomicalStructure",
+      "object_category": "biolink:Disease",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "UBERON:0000002",
+      "object": "MONDO:0000402"
+    },
+    {
+      "subject_category": "biolink:GrossAnatomicalStructure",
+      "object_category": "biolink:GrossAnatomicalStructure",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "UBERON:0000002",
+      "object": "UBERON:0000056"
+    },
+    {
+      "subject_category": "biolink:GrossAnatomicalStructure",
+      "object_category": "biolink:MolecularActivity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "UBERON:0000002",
+      "object": "GO:0001635"
+    },
+    {
+      "subject_category": "biolink:GrossAnatomicalStructure",
+      "object_category": "biolink:MolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "UBERON:0000002",
+      "object": "DRUGBANK:DB00067"
+    },
+    {
+      "subject_category": "biolink:GrossAnatomicalStructure",
+      "object_category": "biolink:NamedThing",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "UBERON:0000002",
+      "object": "CHEBI:17996"
+    },
+    {
+      "subject_category": "biolink:GrossAnatomicalStructure",
+      "object_category": "biolink:OrganismTaxon",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "UBERON:0000002",
+      "object": "NCBITaxon:10376"
+    },
+    {
+      "subject_category": "biolink:GrossAnatomicalStructure",
+      "object_category": "biolink:Pathway",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "UBERON:0000006",
+      "object": "GO:0038084"
+    },
+    {
+      "subject_category": "biolink:GrossAnatomicalStructure",
+      "object_category": "biolink:PhenotypicFeature",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "UBERON:0000002",
+      "object": "HP:0000752"
+    },
+    {
+      "subject_category": "biolink:GrossAnatomicalStructure",
+      "object_category": "biolink:Polypeptide",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "UBERON:0000002",
+      "object": "DRUGBANK:DB00034"
+    },
+    {
+      "subject_category": "biolink:GrossAnatomicalStructure",
+      "object_category": "biolink:Protein",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "UBERON:0000002",
+      "object": "DRUGBANK:DB00034"
+    },
+    {
+      "subject_category": "biolink:GrossAnatomicalStructure",
+      "object_category": "biolink:SmallMolecule",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "UBERON:0000002",
+      "object": "CHEBI:17996"
+    },
+    {
+      "subject_category": "biolink:MolecularActivity",
+      "object_category": "biolink:AnatomicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000009",
+      "object": "CL:0000006"
+    },
+    {
+      "subject_category": "biolink:MolecularActivity",
+      "object_category": "biolink:BiologicalProcess",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000009",
+      "object": "GO:0006928"
+    },
+    {
+      "subject_category": "biolink:MolecularActivity",
+      "object_category": "biolink:Cell",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000009",
+      "object": "CL:0000006"
+    },
+    {
+      "subject_category": "biolink:MolecularActivity",
+      "object_category": "biolink:CellularComponent",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000009",
+      "object": "GO:0005618"
+    },
+    {
+      "subject_category": "biolink:MolecularActivity",
+      "object_category": "biolink:ChemicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000009",
+      "object": "DRUGBANK:DB10429"
+    },
+    {
+      "subject_category": "biolink:MolecularActivity",
+      "object_category": "biolink:ChemicalMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000016",
+      "object": "CHEBI:75958"
+    },
+    {
+      "subject_category": "biolink:MolecularActivity",
+      "object_category": "biolink:ComplexMolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000150",
+      "object": "DRUGBANK:DB12768"
+    },
+    {
+      "subject_category": "biolink:MolecularActivity",
+      "object_category": "biolink:Disease",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000016",
+      "object": "HP:0002664"
+    },
+    {
+      "subject_category": "biolink:MolecularActivity",
+      "object_category": "biolink:GrossAnatomicalStructure",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000016",
+      "object": "UBERON:0000062"
+    },
+    {
+      "subject_category": "biolink:MolecularActivity",
+      "object_category": "biolink:MolecularActivity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000016",
+      "object": "GO:0004177"
+    },
+    {
+      "subject_category": "biolink:MolecularActivity",
+      "object_category": "biolink:MolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000048",
+      "object": "DRUGBANK:DB11476"
+    },
+    {
+      "subject_category": "biolink:MolecularActivity",
+      "object_category": "biolink:NamedThing",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000009",
+      "object": "GO:0045055"
+    },
+    {
+      "subject_category": "biolink:MolecularActivity",
+      "object_category": "biolink:OrganismTaxon",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000016",
+      "object": "NCBITaxon:147537"
+    },
+    {
+      "subject_category": "biolink:MolecularActivity",
+      "object_category": "biolink:Pathway",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000121",
+      "object": "GO:0007165"
+    },
+    {
+      "subject_category": "biolink:MolecularActivity",
+      "object_category": "biolink:PhenotypicFeature",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000150",
+      "object": "HP:0032252"
+    },
+    {
+      "subject_category": "biolink:MolecularActivity",
+      "object_category": "biolink:Polypeptide",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000009",
+      "object": "PR:000000001"
+    },
+    {
+      "subject_category": "biolink:MolecularActivity",
+      "object_category": "biolink:Protein",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000009",
+      "object": "PR:000000001"
+    },
+    {
+      "subject_category": "biolink:MolecularActivity",
+      "object_category": "biolink:SmallMolecule",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000009",
+      "object": "DRUGBANK:DB12907"
+    },
+    {
+      "subject_category": "biolink:MolecularMixture",
+      "object_category": "biolink:AnatomicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10034",
+      "object": "UBERON:0000014"
+    },
+    {
+      "subject_category": "biolink:MolecularMixture",
+      "object_category": "biolink:BiologicalProcess",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:16336",
+      "object": "GO:0006954"
+    },
+    {
+      "subject_category": "biolink:MolecularMixture",
+      "object_category": "biolink:Cell",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:16336",
+      "object": "CL:0000034"
+    },
+    {
+      "subject_category": "biolink:MolecularMixture",
+      "object_category": "biolink:CellularComponent",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:16336",
+      "object": "GO:0031012"
+    },
+    {
+      "subject_category": "biolink:MolecularMixture",
+      "object_category": "biolink:ChemicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10034",
+      "object": "DRUGBANK:DB00604"
+    },
+    {
+      "subject_category": "biolink:MolecularMixture",
+      "object_category": "biolink:ChemicalMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:2659",
+      "object": "CHEBI:3309"
+    },
+    {
+      "subject_category": "biolink:MolecularMixture",
+      "object_category": "biolink:ComplexMolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:31345",
+      "object": "DRUGBANK:DB09877"
+    },
+    {
+      "subject_category": "biolink:MolecularMixture",
+      "object_category": "biolink:Disease",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:16336",
+      "object": "HP:0002664"
+    },
+    {
+      "subject_category": "biolink:MolecularMixture",
+      "object_category": "biolink:GrossAnatomicalStructure",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10034",
+      "object": "UBERON:0000014"
+    },
+    {
+      "subject_category": "biolink:MolecularMixture",
+      "object_category": "biolink:MolecularActivity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:16336",
+      "object": "GO:0005488"
+    },
+    {
+      "subject_category": "biolink:MolecularMixture",
+      "object_category": "biolink:MolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:2659",
+      "object": "CHEBI:3309"
+    },
+    {
+      "subject_category": "biolink:MolecularMixture",
+      "object_category": "biolink:NamedThing",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10034",
+      "object": "DRUGBANK:DB00604"
+    },
+    {
+      "subject_category": "biolink:MolecularMixture",
+      "object_category": "biolink:OrganismTaxon",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:16336",
+      "object": "NCBITaxon:10114"
+    },
+    {
+      "subject_category": "biolink:MolecularMixture",
+      "object_category": "biolink:Pathway",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:2659",
+      "object": "GO:0007165"
+    },
+    {
+      "subject_category": "biolink:MolecularMixture",
+      "object_category": "biolink:PhenotypicFeature",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:2659",
+      "object": "HP:0002197"
+    },
+    {
+      "subject_category": "biolink:MolecularMixture",
+      "object_category": "biolink:Polypeptide",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:16336",
+      "object": "PR:000001856"
+    },
+    {
+      "subject_category": "biolink:MolecularMixture",
+      "object_category": "biolink:Protein",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:16336",
+      "object": "PR:000001856"
+    },
+    {
+      "subject_category": "biolink:MolecularMixture",
+      "object_category": "biolink:SmallMolecule",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10034",
+      "object": "DRUGBANK:DB00604"
+    },
+    {
+      "subject_category": "biolink:NamedThing",
+      "object_category": "biolink:AnatomicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10034",
+      "object": "UBERON:0000014"
+    },
+    {
+      "subject_category": "biolink:NamedThing",
+      "object_category": "biolink:BiologicalProcess",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10545",
+      "object": "GO:0000003"
+    },
+    {
+      "subject_category": "biolink:NamedThing",
+      "object_category": "biolink:Cell",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10545",
+      "object": "CL:0000010"
+    },
+    {
+      "subject_category": "biolink:NamedThing",
+      "object_category": "biolink:CellularComponent",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10545",
+      "object": "GO:0005575"
+    },
+    {
+      "subject_category": "biolink:NamedThing",
+      "object_category": "biolink:ChemicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10034",
+      "object": "DRUGBANK:DB00604"
+    },
+    {
+      "subject_category": "biolink:NamedThing",
+      "object_category": "biolink:ChemicalMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10545",
+      "object": "CHEBI:60027"
+    },
+    {
+      "subject_category": "biolink:NamedThing",
+      "object_category": "biolink:ComplexMolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:22586",
+      "object": "DRUGBANK:DB12768"
+    },
+    {
+      "subject_category": "biolink:NamedThing",
+      "object_category": "biolink:Disease",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10545",
+      "object": "HP:0002671"
+    },
+    {
+      "subject_category": "biolink:NamedThing",
+      "object_category": "biolink:GrossAnatomicalStructure",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10034",
+      "object": "UBERON:0000014"
+    },
+    {
+      "subject_category": "biolink:NamedThing",
+      "object_category": "biolink:MolecularActivity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10545",
+      "object": "GO:0016688"
+    },
+    {
+      "subject_category": "biolink:NamedThing",
+      "object_category": "biolink:MolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15428",
+      "object": "CHEBI:53474"
+    },
+    {
+      "subject_category": "biolink:NamedThing",
+      "object_category": "biolink:NamedThing",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10034",
+      "object": "DRUGBANK:DB00604"
+    },
+    {
+      "subject_category": "biolink:NamedThing",
+      "object_category": "biolink:OrganismTaxon",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15428",
+      "object": "NCBITaxon:10090"
+    },
+    {
+      "subject_category": "biolink:NamedThing",
+      "object_category": "biolink:Pathway",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15428",
+      "object": "GO:0007165"
+    },
+    {
+      "subject_category": "biolink:NamedThing",
+      "object_category": "biolink:PhenotypicFeature",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:16991",
+      "object": "HP:0001945"
+    },
+    {
+      "subject_category": "biolink:NamedThing",
+      "object_category": "biolink:Polypeptide",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10545",
+      "object": "CHEBI:16670"
+    },
+    {
+      "subject_category": "biolink:NamedThing",
+      "object_category": "biolink:Protein",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10545",
+      "object": "PR:000003604"
+    },
+    {
+      "subject_category": "biolink:NamedThing",
+      "object_category": "biolink:SmallMolecule",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10034",
+      "object": "DRUGBANK:DB00604"
+    },
+    {
+      "subject_category": "biolink:OrganismTaxon",
+      "object_category": "biolink:AnatomicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "NCBITaxon:1",
+      "object": "CL:0000047"
+    },
+    {
+      "subject_category": "biolink:OrganismTaxon",
+      "object_category": "biolink:BiologicalProcess",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "NCBITaxon:1",
+      "object": "GO:0001171"
+    },
+    {
+      "subject_category": "biolink:OrganismTaxon",
+      "object_category": "biolink:Cell",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "NCBITaxon:1",
+      "object": "CL:0000047"
+    },
+    {
+      "subject_category": "biolink:OrganismTaxon",
+      "object_category": "biolink:CellularComponent",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "NCBITaxon:1",
+      "object": "GO:0005618"
+    },
+    {
+      "subject_category": "biolink:OrganismTaxon",
+      "object_category": "biolink:ChemicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "NCBITaxon:1",
+      "object": "CHEBI:15354"
+    },
+    {
+      "subject_category": "biolink:OrganismTaxon",
+      "object_category": "biolink:ChemicalMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "NCBITaxon:1",
+      "object": "CHEBI:3815"
+    },
+    {
+      "subject_category": "biolink:OrganismTaxon",
+      "object_category": "biolink:ComplexMolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "NCBITaxon:10026",
+      "object": "DRUGBANK:DB12768"
+    },
+    {
+      "subject_category": "biolink:OrganismTaxon",
+      "object_category": "biolink:Disease",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "NCBITaxon:1",
+      "object": "MONDO:0005492"
+    },
+    {
+      "subject_category": "biolink:OrganismTaxon",
+      "object_category": "biolink:GrossAnatomicalStructure",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "NCBITaxon:1",
+      "object": "UBERON:0000006"
+    },
+    {
+      "subject_category": "biolink:OrganismTaxon",
+      "object_category": "biolink:MolecularActivity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "NCBITaxon:1",
+      "object": "GO:0004568"
+    },
+    {
+      "subject_category": "biolink:OrganismTaxon",
+      "object_category": "biolink:MolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "NCBITaxon:1",
+      "object": "CHEBI:86477"
+    },
+    {
+      "subject_category": "biolink:OrganismTaxon",
+      "object_category": "biolink:NamedThing",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "NCBITaxon:1",
+      "object": "CHEBI:15889"
+    },
+    {
+      "subject_category": "biolink:OrganismTaxon",
+      "object_category": "biolink:OrganismTaxon",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "NCBITaxon:1",
+      "object": "NCBITaxon:10240"
+    },
+    {
+      "subject_category": "biolink:OrganismTaxon",
+      "object_category": "biolink:Pathway",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "NCBITaxon:1",
+      "object": "GO:0019722"
+    },
+    {
+      "subject_category": "biolink:OrganismTaxon",
+      "object_category": "biolink:PhenotypicFeature",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "NCBITaxon:10026",
+      "object": "HP:0000777"
+    },
+    {
+      "subject_category": "biolink:OrganismTaxon",
+      "object_category": "biolink:Polypeptide",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "NCBITaxon:1",
+      "object": "CHEBI:48433"
+    },
+    {
+      "subject_category": "biolink:OrganismTaxon",
+      "object_category": "biolink:Protein",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "NCBITaxon:1",
+      "object": "PR:000000019"
+    },
+    {
+      "subject_category": "biolink:OrganismTaxon",
+      "object_category": "biolink:SmallMolecule",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "NCBITaxon:1",
+      "object": "CHEBI:15354"
+    },
+    {
+      "subject_category": "biolink:Pathway",
+      "object_category": "biolink:AnatomicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000075",
+      "object": "CL:0000023"
+    },
+    {
+      "subject_category": "biolink:Pathway",
+      "object_category": "biolink:BiologicalProcess",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000075",
+      "object": "GO:0000279"
+    },
+    {
+      "subject_category": "biolink:Pathway",
+      "object_category": "biolink:Cell",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000075",
+      "object": "CL:0000023"
+    },
+    {
+      "subject_category": "biolink:Pathway",
+      "object_category": "biolink:CellularComponent",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000075",
+      "object": "GO:0000781"
+    },
+    {
+      "subject_category": "biolink:Pathway",
+      "object_category": "biolink:ChemicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000075",
+      "object": "CHEBI:22695"
+    },
+    {
+      "subject_category": "biolink:Pathway",
+      "object_category": "biolink:ChemicalMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000075",
+      "object": "DRUGBANK:DB00815"
+    },
+    {
+      "subject_category": "biolink:Pathway",
+      "object_category": "biolink:ComplexMolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0007165",
+      "object": "DRUGBANK:DB09446"
+    },
+    {
+      "subject_category": "biolink:Pathway",
+      "object_category": "biolink:Disease",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000075",
+      "object": "MONDO:0001056"
+    },
+    {
+      "subject_category": "biolink:Pathway",
+      "object_category": "biolink:GrossAnatomicalStructure",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000075",
+      "object": "UBERON:0000307"
+    },
+    {
+      "subject_category": "biolink:Pathway",
+      "object_category": "biolink:MolecularActivity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000075",
+      "object": "GO:0000150"
+    },
+    {
+      "subject_category": "biolink:Pathway",
+      "object_category": "biolink:MolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000075",
+      "object": "DRUGBANK:DB00815"
+    },
+    {
+      "subject_category": "biolink:Pathway",
+      "object_category": "biolink:NamedThing",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000075",
+      "object": "CHEBI:22695"
+    },
+    {
+      "subject_category": "biolink:Pathway",
+      "object_category": "biolink:OrganismTaxon",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000075",
+      "object": "NCBITaxon:10407"
+    },
+    {
+      "subject_category": "biolink:Pathway",
+      "object_category": "biolink:Pathway",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000077",
+      "object": "GO:0036337"
+    },
+    {
+      "subject_category": "biolink:Pathway",
+      "object_category": "biolink:PhenotypicFeature",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0002224",
+      "object": "HP:0002099"
+    },
+    {
+      "subject_category": "biolink:Pathway",
+      "object_category": "biolink:Polypeptide",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000075",
+      "object": "PR:000000014"
+    },
+    {
+      "subject_category": "biolink:Pathway",
+      "object_category": "biolink:Protein",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000075",
+      "object": "PR:000000014"
+    },
+    {
+      "subject_category": "biolink:Pathway",
+      "object_category": "biolink:SmallMolecule",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "GO:0000075",
+      "object": "DRUGBANK:DB00149"
+    },
+    {
+      "subject_category": "biolink:PhenotypicFeature",
+      "object_category": "biolink:AnatomicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000007",
+      "object": "UBERON:0002113"
+    },
+    {
+      "subject_category": "biolink:PhenotypicFeature",
+      "object_category": "biolink:BiologicalProcess",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000007",
+      "object": "GO:0007605"
+    },
+    {
+      "subject_category": "biolink:PhenotypicFeature",
+      "object_category": "biolink:Cell",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000011",
+      "object": "CL:0000100"
+    },
+    {
+      "subject_category": "biolink:PhenotypicFeature",
+      "object_category": "biolink:CellularComponent",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000011",
+      "object": "GO:0005739"
+    },
+    {
+      "subject_category": "biolink:PhenotypicFeature",
+      "object_category": "biolink:ChemicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000011",
+      "object": "DRUGBANK:DB00083"
+    },
+    {
+      "subject_category": "biolink:PhenotypicFeature",
+      "object_category": "biolink:ChemicalMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000252",
+      "object": "DRUGBANK:DB14098"
+    },
+    {
+      "subject_category": "biolink:PhenotypicFeature",
+      "object_category": "biolink:ComplexMolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000777",
+      "object": "DRUGBANK:DB12768"
+    },
+    {
+      "subject_category": "biolink:PhenotypicFeature",
+      "object_category": "biolink:Disease",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000007",
+      "object": "HP:0000238"
+    },
+    {
+      "subject_category": "biolink:PhenotypicFeature",
+      "object_category": "biolink:GrossAnatomicalStructure",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000007",
+      "object": "UBERON:0002113"
+    },
+    {
+      "subject_category": "biolink:PhenotypicFeature",
+      "object_category": "biolink:MolecularActivity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000011",
+      "object": "GO:0004104"
+    },
+    {
+      "subject_category": "biolink:PhenotypicFeature",
+      "object_category": "biolink:MolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000252",
+      "object": "DRUGBANK:DB14098"
+    },
+    {
+      "subject_category": "biolink:PhenotypicFeature",
+      "object_category": "biolink:NamedThing",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000007",
+      "object": "GO:0007605"
+    },
+    {
+      "subject_category": "biolink:PhenotypicFeature",
+      "object_category": "biolink:OrganismTaxon",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000007",
+      "object": "NCBITaxon:9606"
+    },
+    {
+      "subject_category": "biolink:PhenotypicFeature",
+      "object_category": "biolink:Pathway",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000505",
+      "object": "GO:0007165"
+    },
+    {
+      "subject_category": "biolink:PhenotypicFeature",
+      "object_category": "biolink:PhenotypicFeature",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000007",
+      "object": "HP:0000252"
+    },
+    {
+      "subject_category": "biolink:PhenotypicFeature",
+      "object_category": "biolink:Polypeptide",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000007",
+      "object": "PR:000005262"
+    },
+    {
+      "subject_category": "biolink:PhenotypicFeature",
+      "object_category": "biolink:Protein",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000007",
+      "object": "PR:000005262"
+    },
+    {
+      "subject_category": "biolink:PhenotypicFeature",
+      "object_category": "biolink:SmallMolecule",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "HP:0000011",
+      "object": "DRUGBANK:DB00346"
+    },
+    {
+      "subject_category": "biolink:Polypeptide",
+      "object_category": "biolink:AnatomicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15841",
+      "object": "CL:0000010"
+    },
+    {
+      "subject_category": "biolink:Polypeptide",
+      "object_category": "biolink:BiologicalProcess",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15841",
+      "object": "GO:0007610"
+    },
+    {
+      "subject_category": "biolink:Polypeptide",
+      "object_category": "biolink:Cell",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15841",
+      "object": "CL:0000010"
+    },
+    {
+      "subject_category": "biolink:Polypeptide",
+      "object_category": "biolink:CellularComponent",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15841",
+      "object": "GO:0005634"
+    },
+    {
+      "subject_category": "biolink:Polypeptide",
+      "object_category": "biolink:ChemicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15841",
+      "object": "CHEBI:15355"
+    },
+    {
+      "subject_category": "biolink:Polypeptide",
+      "object_category": "biolink:ChemicalMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:16670",
+      "object": "CHEBI:31355"
+    },
+    {
+      "subject_category": "biolink:Polypeptide",
+      "object_category": "biolink:Disease",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15841",
+      "object": "HP:0002664"
+    },
+    {
+      "subject_category": "biolink:Polypeptide",
+      "object_category": "biolink:GrossAnatomicalStructure",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15841",
+      "object": "UBERON:0000479"
+    },
+    {
+      "subject_category": "biolink:Polypeptide",
+      "object_category": "biolink:MolecularActivity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15841",
+      "object": "GO:0003824"
+    },
+    {
+      "subject_category": "biolink:Polypeptide",
+      "object_category": "biolink:MolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:16670",
+      "object": "CHEBI:31355"
+    },
+    {
+      "subject_category": "biolink:Polypeptide",
+      "object_category": "biolink:NamedThing",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15841",
+      "object": "CL:0000010"
+    },
+    {
+      "subject_category": "biolink:Polypeptide",
+      "object_category": "biolink:OrganismTaxon",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15841",
+      "object": "NCBITaxon:10114"
+    },
+    {
+      "subject_category": "biolink:Polypeptide",
+      "object_category": "biolink:Pathway",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:16670",
+      "object": "GO:0008286"
+    },
+    {
+      "subject_category": "biolink:Polypeptide",
+      "object_category": "biolink:PhenotypicFeature",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:37845",
+      "object": "HP:0000077"
+    },
+    {
+      "subject_category": "biolink:Polypeptide",
+      "object_category": "biolink:Polypeptide",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15841",
+      "object": "CHEBI:16670"
+    },
+    {
+      "subject_category": "biolink:Polypeptide",
+      "object_category": "biolink:Protein",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15841",
+      "object": "PR:000002031"
+    },
+    {
+      "subject_category": "biolink:Polypeptide",
+      "object_category": "biolink:SmallMolecule",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15841",
+      "object": "CHEBI:15355"
+    },
+    {
+      "subject_category": "biolink:Protein",
+      "object_category": "biolink:AnatomicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:37845",
+      "object": "CL:0000025"
+    },
+    {
+      "subject_category": "biolink:Protein",
+      "object_category": "biolink:BiologicalProcess",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:37845",
+      "object": "GO:0000746"
+    },
+    {
+      "subject_category": "biolink:Protein",
+      "object_category": "biolink:Cell",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:37845",
+      "object": "CL:0000025"
+    },
+    {
+      "subject_category": "biolink:Protein",
+      "object_category": "biolink:CellularComponent",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:37845",
+      "object": "GO:0000139"
+    },
+    {
+      "subject_category": "biolink:Protein",
+      "object_category": "biolink:ChemicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:25905",
+      "object": "CHEBI:24621"
+    },
+    {
+      "subject_category": "biolink:Protein",
+      "object_category": "biolink:ChemicalMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:37845",
+      "object": "CHEBI:5291"
+    },
+    {
+      "subject_category": "biolink:Protein",
+      "object_category": "biolink:ComplexMolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "DRUGBANK:DB00086",
+      "object": "DRUGBANK:DB09446"
+    },
+    {
+      "subject_category": "biolink:Protein",
+      "object_category": "biolink:Disease",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:25905",
+      "object": "MONDO:0004375"
+    },
+    {
+      "subject_category": "biolink:Protein",
+      "object_category": "biolink:GrossAnatomicalStructure",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:37845",
+      "object": "UBERON:0000004"
+    },
+    {
+      "subject_category": "biolink:Protein",
+      "object_category": "biolink:MolecularActivity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:25905",
+      "object": "GO:0005179"
+    },
+    {
+      "subject_category": "biolink:Protein",
+      "object_category": "biolink:MolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:37845",
+      "object": "DRUGBANK:DB00761"
+    },
+    {
+      "subject_category": "biolink:Protein",
+      "object_category": "biolink:NamedThing",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:25905",
+      "object": "GO:0005179"
+    },
+    {
+      "subject_category": "biolink:Protein",
+      "object_category": "biolink:OrganismTaxon",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:37845",
+      "object": "NCBITaxon:10116"
+    },
+    {
+      "subject_category": "biolink:Protein",
+      "object_category": "biolink:Pathway",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:37845",
+      "object": "GO:0007173"
+    },
+    {
+      "subject_category": "biolink:Protein",
+      "object_category": "biolink:PhenotypicFeature",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:37845",
+      "object": "HP:0000077"
+    },
+    {
+      "subject_category": "biolink:Protein",
+      "object_category": "biolink:Polypeptide",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:25905",
+      "object": "CHEBI:16670"
+    },
+    {
+      "subject_category": "biolink:Protein",
+      "object_category": "biolink:Protein",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:37845",
+      "object": "DRUGBANK:DB00013"
+    },
+    {
+      "subject_category": "biolink:Protein",
+      "object_category": "biolink:SmallMolecule",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:37845",
+      "object": "CHEBI:17234"
+    },
+    {
+      "subject_category": "biolink:SmallMolecule",
+      "object_category": "biolink:AnatomicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "CL:0000576"
+    },
+    {
+      "subject_category": "biolink:SmallMolecule",
+      "object_category": "biolink:BiologicalProcess",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "GO:0001501"
+    },
+    {
+      "subject_category": "biolink:SmallMolecule",
+      "object_category": "biolink:Cell",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "CL:0000576"
+    },
+    {
+      "subject_category": "biolink:SmallMolecule",
+      "object_category": "biolink:CellularComponent",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:14321",
+      "object": "GO:0009986"
+    },
+    {
+      "subject_category": "biolink:SmallMolecule",
+      "object_category": "biolink:ChemicalEntity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "CHEBI:50249"
+    },
+    {
+      "subject_category": "biolink:SmallMolecule",
+      "object_category": "biolink:ChemicalMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:14321",
+      "object": "CHEBI:64220"
+    },
+    {
+      "subject_category": "biolink:SmallMolecule",
+      "object_category": "biolink:ComplexMolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:15379",
+      "object": "DRUGBANK:DB09877"
+    },
+    {
+      "subject_category": "biolink:SmallMolecule",
+      "object_category": "biolink:Disease",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "MONDO:0005267"
+    },
+    {
+      "subject_category": "biolink:SmallMolecule",
+      "object_category": "biolink:GrossAnatomicalStructure",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "UBERON:0000479"
+    },
+    {
+      "subject_category": "biolink:SmallMolecule",
+      "object_category": "biolink:MolecularActivity",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10036",
+      "object": "GO:0003824"
+    },
+    {
+      "subject_category": "biolink:SmallMolecule",
+      "object_category": "biolink:MolecularMixture",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:14321",
+      "object": "CHEBI:64220"
+    },
+    {
+      "subject_category": "biolink:SmallMolecule",
+      "object_category": "biolink:NamedThing",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "CHEBI:50249"
+    },
+    {
+      "subject_category": "biolink:SmallMolecule",
+      "object_category": "biolink:OrganismTaxon",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "NCBITaxon:10088"
+    },
+    {
+      "subject_category": "biolink:SmallMolecule",
+      "object_category": "biolink:Pathway",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:14321",
+      "object": "GO:0007165"
+    },
+    {
+      "subject_category": "biolink:SmallMolecule",
+      "object_category": "biolink:PhenotypicFeature",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:14321",
+      "object": "HP:0003326"
+    },
+    {
+      "subject_category": "biolink:SmallMolecule",
+      "object_category": "biolink:Polypeptide",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "PR:000000001"
+    },
+    {
+      "subject_category": "biolink:SmallMolecule",
+      "object_category": "biolink:Protein",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "PR:000000001"
+    },
+    {
+      "subject_category": "biolink:SmallMolecule",
+      "object_category": "biolink:SmallMolecule",
+      "predicate": "biolink:occurs_together_in_literature_with",
+      "subject": "CHEBI:10033",
+      "object": "DRUGBANK:DB00266"
+    }
+  ]
+}
