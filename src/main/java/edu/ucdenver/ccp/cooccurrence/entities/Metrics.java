@@ -22,7 +22,11 @@ public class Metrics {
 
     private double normalizedPointwiseMutualInformation;
 
+    private double normalizedPointwiseMutualInformationMaxDenom;
+
     private double mutualDependence;
+
+    private double logFrequencyBiasedMutualDependence;
 
     private String documentPart;
 
@@ -49,7 +53,9 @@ public class Metrics {
         normalizedGoogleDistance = calculateNormalizedGoogleDistance(singleCount1, singleCount2, pairCount, conceptCount);
         pointwiseMutualInformation = calculatePointwiseMutualInformation(singleCount1, singleCount2, pairCount, documentCount);
         normalizedPointwiseMutualInformation = calculateNormalizedPointwiseMutualInformation(singleCount1, singleCount2, pairCount, documentCount);
+        normalizedPointwiseMutualInformationMaxDenom = calculateNormalizedPointwiseMutualInformationMaxDenom(singleCount1, singleCount2, pairCount, documentCount);
         mutualDependence = calculateMutualDependence(singleCount1, singleCount2, pairCount, documentCount);
+        logFrequencyBiasedMutualDependence = calculateLogFrequencyBiasedMutualDependence(singleCount1, singleCount2, pairCount, documentCount);
     }
 
     public void setSingleCount1(int singleCount1) {
@@ -116,6 +122,25 @@ public class Metrics {
         return Math.log(Math.pow(pxy, 2) / (px * py));
     }
 
+    private static double calculateNormalizedPointwiseMutualInformationMaxDenom(int singleCount1, int singleCount2, int pairCount, int totalDocumentCount) {
+        double pmi = calculatePointwiseMutualInformation(singleCount1, singleCount2, pairCount, totalDocumentCount);
+        if (pmi == Double.NEGATIVE_INFINITY) {
+            return -1.0;
+        }
+        double px = (double) singleCount1 / totalDocumentCount;
+        double py = (double) singleCount2 / totalDocumentCount;
+        double offset = 0.000000001;
+        double denominator = -1 * Math.log(Math.max(px, py) + offset);
+        return pmi / denominator;
+    }
+
+    public static double calculateLogFrequencyBiasedMutualDependence(int singleCount1, int singleCount2, int pairCount, int totalDocumentCount) {
+        double md = calculateMutualDependence(singleCount1, singleCount2, pairCount, totalDocumentCount);
+        double pxy = (double) pairCount / (double) totalDocumentCount;
+
+        return md + Math.log(pxy);
+    }
+
     public double getNormalizedGoogleDistance() {
         return normalizedGoogleDistance;
     }
@@ -128,8 +153,16 @@ public class Metrics {
         return normalizedPointwiseMutualInformation;
     }
 
+    public double getNormalizedPointwiseMutualInformationMaxDenom() {
+        return normalizedPointwiseMutualInformationMaxDenom;
+    }
+
     public double getMutualDependence() {
         return mutualDependence;
+    }
+
+    public double getLogFrequencyBiasedMutualDependence() {
+        return logFrequencyBiasedMutualDependence;
     }
 
     public int getSingleCount1() {
@@ -216,6 +249,14 @@ public class Metrics {
         npmi.setAttributeSource("infores:text-mining-provider-cooccurrence");
         attributeList.add(npmi);
 
+        Attribute npmimd = new Attribute();
+        npmimd.setAttributeTypeId("biolink:tmkp_normalized_pointwise_mutual_information_max_denominator");
+        npmimd.setValue(normalizedPointwiseMutualInformationMaxDenom);
+        npmimd.setValueTypeId("SIO:000794");
+        npmimd.setDescription("The normalized pointwise mutual information (max denominator) score for the concepts in this assertion based on their cooccurrence in the documents that were processed");
+        npmimd.setAttributeSource("infores:text-mining-provider-cooccurrence");
+        attributeList.add(npmimd);
+
         Attribute md = new Attribute();
         md.setAttributeTypeId("biolink:tmkp_mutual_dependence");
         md.setValue(mutualDependence);
@@ -223,6 +264,14 @@ public class Metrics {
         md.setDescription("The mutual dependence (PMI^2) score for the concepts in this assertion based on their cooccurrence in the documents that were processed");
         md.setAttributeSource("infores:text-mining-provider-cooccurrence");
         attributeList.add(md);
+
+        Attribute lfbmd = new Attribute();
+        lfbmd.setAttributeTypeId("biolink:tmkp_log_frequency_biased_mutual_dependence");
+        lfbmd.setValue(logFrequencyBiasedMutualDependence);
+        lfbmd.setValueTypeId("SIO:000794");
+        lfbmd.setDescription("The log frequency biased mutual dependence score for the concepts in this assertion based on their cooccurrence in the documents that were processed");
+        lfbmd.setAttributeSource("infores:text-mining-provider-cooccurrence");
+        attributeList.add(lfbmd);
 
         if (this.documentIdList.size() > 0) {
             Attribute supportingDocument = new Attribute();
