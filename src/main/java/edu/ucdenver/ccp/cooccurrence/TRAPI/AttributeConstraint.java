@@ -4,7 +4,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import java.util.List;
+
 public class AttributeConstraint {
+
+    public static final List<String> supportedAttributes = List.of(
+            "biolink:concept_count_subject", "biolink:concept_count_object", "biolink:tmkp_concept_pair_count", "biolink:tmkp_normalized_google_distance",
+            "biolink:tmkp_pointwise_mutual_information", "biolink:tmkp_normalized_pointwise_mutual_information", "biolink:tmkp_mutual_dependence",
+            "biolink:tmkp_normalized_pointwise_mutual_information_max_denominator", "biolink:tmkp_log_frequency_biased_mutual_dependence",
+            "biolink:tmkp_document_part");
     private String id;
     private String name;
     private boolean not;
@@ -12,6 +20,7 @@ public class AttributeConstraint {
     private JsonNode value;
     private String unitId;
     private String unitName;
+    private boolean supported = true;
 
     public AttributeConstraint() {
         this.unitId = null;
@@ -74,6 +83,14 @@ public class AttributeConstraint {
         this.unitName = unitName;
     }
 
+    public void setSupported(boolean isSupported) {
+        this.supported = isSupported;
+    }
+
+    public boolean isSupported() {
+        return this.supported;
+    }
+
     public JsonNode toJSON() {
         ObjectMapper om = new ObjectMapper();
         ObjectNode constraintNode = om.createObjectNode();
@@ -87,6 +104,9 @@ public class AttributeConstraint {
         }
         if (this.getUnitName() != null) {
             constraintNode.put("unit_name", this.getUnitName());
+        }
+        if (this.isNot()) {
+            constraintNode.put("not", true);
         }
         return constraintNode;
     }
@@ -111,6 +131,7 @@ public class AttributeConstraint {
         if(jsonConstraint.hasNonNull("unit_name")) {
             constraint.setUnitId(jsonConstraint.get("unit_name").asText());
         }
+        constraint.setSupported(supportedAttributes.contains(constraint.getId()));
         return constraint;
     }
 

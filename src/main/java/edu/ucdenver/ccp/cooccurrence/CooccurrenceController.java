@@ -76,9 +76,28 @@ public class CooccurrenceController {
             return ResponseEntity.unprocessableEntity().body(objectMapper.convertValue(errors, ArrayNode.class));
         }
         QueryGraph queryGraph = QueryGraph.parseJSON(messageNode.get("query_graph"));
-        logger.info(String.format("Starting lookup with %d edges and %d nodes", queryGraph.getEdges().size(), queryGraph.getNodes().size()));
-        List<ConceptPair> conceptPairs = getConceptPairs(queryGraph); // This is the actual query portion.
 
+        List<AttributeConstraint> unsupportedConstraints = new ArrayList<>();
+        for (Map.Entry<String, QueryEdge> edgeEntry : queryGraph.getEdges().entrySet()) {
+            unsupportedConstraints.addAll(edgeEntry.getValue().getAttributeConstraints().stream().filter(x -> !x.isSupported()).collect(Collectors.toList()));
+        }
+        if (unsupportedConstraints.size() > 0) {
+            ObjectNode errorNode = objectMapper.createObjectNode();
+            errorNode.put("errorCode", "UnsupportedConstraint");
+            errorNode.set("constraints", objectMapper.convertValue(unsupportedConstraints.stream().map(AttributeConstraint::getId).collect(Collectors.toList()), ArrayNode.class));
+            return ResponseEntity.badRequest().body(errorNode);
+        }
+
+        logger.info(String.format("Starting lookup with %d edges and %d nodes", queryGraph.getEdges().size(), queryGraph.getNodes().size()));
+        List<ConceptPair> initialPairs = getConceptPairs(queryGraph); // This is the actual query portion.
+        Map<String, QueryEdge> edgeMap = queryGraph.getEdges();
+        List<ConceptPair> conceptPairs = new ArrayList<>();
+        for (ConceptPair pair : initialPairs) {
+            QueryEdge edge = edgeMap.get(pair.getEdgeKey());
+            if (edge.getAttributeConstraints().size() == 0 || pair.meetsConstraints(edge.getAttributeConstraints())) {
+                conceptPairs.add(pair);
+            }
+        }
         List<String> curies = conceptPairs.stream()
                 .map(cp -> List.of(cp.getSubject(), cp.getObject()))
                 .flatMap(List::stream)
@@ -100,6 +119,7 @@ public class CooccurrenceController {
         responseNode.set("message", responseMessageNode);
         return ResponseEntity.ok(responseNode);
     }
+
 
     @GetMapping("/meta_knowledge_graph")
     public JsonNode getMetaKnowledgeGraph() {

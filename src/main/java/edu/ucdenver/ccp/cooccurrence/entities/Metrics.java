@@ -250,10 +250,10 @@ public class Metrics {
         attributeList.add(npmi);
 
         Attribute npmimd = new Attribute();
-        npmimd.setAttributeTypeId("biolink:tmkp_normalized_pointwise_mutual_information_max_denominator");
+        npmimd.setAttributeTypeId("biolink:tmkp_normalized_pointwise_mutual_information_max");
         npmimd.setValue(normalizedPointwiseMutualInformationMaxDenom);
         npmimd.setValueTypeId("SIO:000794");
-        npmimd.setDescription("The normalized pointwise mutual information (max denominator) score for the concepts in this assertion based on their cooccurrence in the documents that were processed");
+        npmimd.setDescription("A variant of the normalized pointwise mutual information score for the concepts in this assertion based on their cooccurrence in the documents that were processed");
         npmimd.setAttributeSource("infores:text-mining-provider-cooccurrence");
         attributeList.add(npmimd);
 
