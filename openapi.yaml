@@ -18,7 +18,9 @@ info:
     - Text Mining Provider
   x-trapi:
     version: 1.3.0
-    test_data_location: https://raw.githubusercontent.com/UCDenver-ccp/Translator-TM-Provider-Cooccurrence/main/src/test/data/test_triples.json
+    test_data_location:
+      development:
+        url: https://raw.githubusercontent.com/UCDenver-ccp/Translator-TM-Provider-Cooccurrence/main/src/test/data/test_triples.json
     asyncquery: false
     operations:
       - lookup
