@@ -25,6 +25,47 @@ public class LookupRepository {
         return results.stream().map(o -> (String) o).collect(Collectors.toList());
     }
 
+    @Cacheable("categoriesforcuries")
+    public Map<String, List<String>> getCategoriesForCuries(List<String> curies) {
+        List<Object[]> results = session.createNativeQuery("" +
+                        "SELECT n.curie, nc.category " +
+                        "FROM nodes n INNER JOIN node_category nc ON nc.node_id = n.id " +
+                        "WHERE n.curie IN (:curies)")
+                .setParameter("curies", curies)
+                .getResultList();
+        Map<String, List<String>> categoryMap = new HashMap<>();
+        for (Object[] resultRow : results) {
+            String curie = (String) resultRow[0];
+            String category = (String) resultRow[1];
+            List<String> categories;
+            if (categoryMap.containsKey(curie)) {
+                categories = categoryMap.get(curie);
+            } else {
+                categories = new ArrayList<>();
+            }
+            categories.add(category);
+            categoryMap.put(curie, categories);
+        }
+        return categoryMap;
+    }
+
+    @Cacheable("labelsforcuries")
+    public Map<String, String> getLabels(List<String> curies) {
+        List<Object[]> results = session.createNativeQuery("" +
+                        "SELECT curie, label " +
+                        "FROM labels " +
+                        "WHERE curie IN (:curies)")
+                .setParameter("curies", curies)
+                .getResultList();
+        Map<String, String> labelMap = new HashMap<>();
+        for (Object[] resultRow : results) {
+            String curie = (String) resultRow[0];
+            String label = (String) resultRow[1];
+            labelMap.put(curie, label);
+        }
+        return labelMap;
+    }
+
     @Cacheable("cooccurrences")
     public Map<String, List<String>> getPairCounts(List<String> concept1List, List<String> concept2List) {
         if (concept1List.size() == 0 || concept2List.size() == 0) {
