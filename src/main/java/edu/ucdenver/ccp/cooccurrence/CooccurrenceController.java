@@ -26,7 +26,6 @@ public class CooccurrenceController {
     private final NodeRepository nodeRepo;
     private final ObjectMapper objectMapper;
     private final LookupRepository lookupQueries;
-    private final NodeNormalizerService sri;
     public static final List<String> documentParts = List.of("abstract", "title", "sentence", "article");
     private static final Map<String, Integer> documentPartCounts = new HashMap<>();
 
@@ -34,11 +33,10 @@ public class CooccurrenceController {
             "biolink:correlated_with", "biolink:occurs_together_in_literature_with");
     private Map<String, Integer> conceptCounts;
 
-    public CooccurrenceController(NodeRepository repo, LookupRepository impl, NodeNormalizerService sri) {
+    public CooccurrenceController(NodeRepository repo, LookupRepository impl) {
         this.nodeRepo = repo;
         this.objectMapper = new ObjectMapper();
         this.lookupQueries = impl;
-        this.sri = sri;
         conceptCounts = lookupQueries.getConceptCounts();
         for (String part : documentParts) {
             documentPartCounts.put(part, nodeRepo.getDocumentCount(part));
@@ -102,9 +100,11 @@ public class CooccurrenceController {
                 .map(cp -> List.of(cp.getSubject(), cp.getObject()))
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
-        JsonNode normalizedNodes = sri.getNormalizedNodes(curies);
+//        JsonNode normalizedNodes = sri.getNormalizedNodes(curies);
+        Map<String, List<String>> categoryMap = lookupQueries.getCategoriesForCuries(curies);
+        Map<String, String> labelMap = lookupQueries.getLabels(curies);
 
-        KnowledgeGraph knowledgeGraph = buildKnowledgeGraph(conceptPairs, normalizedNodes); // Equivalent to a fill operation.
+        KnowledgeGraph knowledgeGraph = buildKnowledgeGraph(conceptPairs, labelMap, categoryMap); // Equivalent to a fill operation.
         List<Result> resultsList = bindGraphs(queryGraph, knowledgeGraph); // Almost an atomic bind operation
         List<Result> completedResults = completeResults(resultsList); // Atomic complete_results operation
 
@@ -393,12 +393,16 @@ public class CooccurrenceController {
 
     // TODO: look into what does/should happen if the same node name would be added by multiple different query graph sources.
     // Currently the last one would override the others in the KG, which would have implications for node binding (and probably other things).
-    private KnowledgeGraph buildKnowledgeGraph(List<ConceptPair> conceptPairs, JsonNode normalizedNodes) {
+    private KnowledgeGraph buildKnowledgeGraph(List<ConceptPair> conceptPairs, Map<String, String> labelMap, Map<String, List<String>> categoryMap) {
         KnowledgeGraph kg = new KnowledgeGraph();
         for (ConceptPair pair : conceptPairs) {
             KnowledgeEdge edge = new KnowledgeEdge(pair.getSubject(), pair.getObject(), "biolink:occurs_together_in_literature_with", pair.getPairMetrics().toAttributeList());
-            KnowledgeNode subjectNode = new KnowledgeNode(sri.getNodeName(pair.getSubject(), normalizedNodes), sri.getNodeCategories(pair.getSubject(), normalizedNodes));
-            KnowledgeNode objectNode = new KnowledgeNode(sri.getNodeName(pair.getObject(), normalizedNodes), sri.getNodeCategories(pair.getObject(), normalizedNodes));
+            KnowledgeNode subjectNode = new KnowledgeNode(
+                    labelMap.getOrDefault(pair.getSubject(), ""),
+                    categoryMap.getOrDefault(pair.getSubject(), Collections.emptyList()));
+            KnowledgeNode objectNode = new KnowledgeNode(
+                    labelMap.getOrDefault(pair.getObject(), ""),
+                    categoryMap.getOrDefault(pair.getObject(), Collections.emptyList()));
 
             // These are the only way I could think of to know which kedge and knode is connected to which qedge and qnode
             edge.setQueryKey(pair.getEdgeKey());
