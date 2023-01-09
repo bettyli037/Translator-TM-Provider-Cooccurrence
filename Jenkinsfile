@@ -52,6 +52,9 @@ pipeline {
             }
         }
         stage('Deploy to AWS EKS Blue') {
+            agent {
+                label 'translator && ci && deploy'
+            }
             steps {
                 script {
                     configFileProvider([
