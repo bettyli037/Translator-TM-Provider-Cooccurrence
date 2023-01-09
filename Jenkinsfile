@@ -15,7 +15,7 @@ pipeline {
         pollSCM('H/5 * * * *')
     }
     environment {
-        DOCKER_REPO_NAME = "translator-tmkp-cooccurrence"
+        IMAGE_NAME = "853771734544.dkr.ecr.us-east-1.amazonaws.com/translator-tmkp-cooccurrence"
         KUBERNETES_BLUE_CLUSTER_NAME = "translator-eks-ci-blue-cluster"
     }
     stages {
@@ -43,29 +43,25 @@ pipeline {
            when { expression { return env.BUILD == 'true' }}
             steps {
                 script {
-                    docker.build(env.DOCKER_REPO_NAME, "--no-cache ./")
-                    docker.withRegistry('https://853771734544.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:aws-ifx-deploy') {
-                        docker.image(env.DOCKER_REPO_NAME).push("${BUILD_VERSION}")
-                    }
+                    docker.build(env.IMAGE_NAME, "--no-cache ./")
+                    sh '''
+                    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin  853771734544.dkr.ecr.us-east-1.amazonaws.com
+                    '''
+                    docker.image(env.IMAGE_NAME).push("${BUILD_VERSION}")
                 }
             }
         }
         stage('Deploy to AWS EKS Blue') {
             steps {
-                sshagent (credentials: ['labshare-svc']) {
+                script {
                     configFileProvider([
-                    configFile(fileId: 'values-ci.yaml', targetLocation: 'values-ncats.yaml')
+                    configFile(fileId: 'values-ci.yaml', targetLocation: 'values-ncats.yaml'),
+                    configFile(fileId: 'prepare.sh', targetLocation: 'prepare.sh')
                     ]){
-                        withAWS(credentials:'aws-ifx-deploy') {
-                            sh '''
-                            git clone git@github.com:Sphinx-Automation/translator-ops.git 
-                            mkdir deploy 
-                            cp -r translator-ops/ops/tmkp/cooccurrence/* deploy/
-                            mv values-ncats.yaml deploy/
-                            aws --region ${AWS_REGION} eks update-kubeconfig --name ${KUBERNETES_BLUE_CLUSTER_NAME}
-                            cd deploy/ && /bin/bash deploy.sh
-                            '''
-                        }
+                        sh '''
+                        aws --region ${AWS_REGION} eks update-kubeconfig --name ${KUBERNETES_BLUE_CLUSTER_NAME}
+                        /bin/bash prepare.sh
+                        '''
                     }
                 }
             }
