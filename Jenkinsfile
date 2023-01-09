@@ -64,6 +64,12 @@ pipeline {
                         '''
                     }
                 }
+                post {
+                    always {
+                        echo " Clean up the workspace in deploy node!"
+                        cleanWs()
+                    }
+                }
             }
         }
     }
