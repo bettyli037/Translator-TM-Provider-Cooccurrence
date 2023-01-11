@@ -401,12 +401,73 @@ public class LookupRepository {
     }
 
     @Cacheable("concepts")
-    Map<String, Integer> getConceptCounts() {
+    public Map<String, Integer> getConceptCounts() {
         List<Object[]> results = session.createNativeQuery("SELECT document_part, COUNT(DISTINCT(curie)) " +
                 "FROM concept_counts " +
                 "GROUP BY document_part").getResultList();
         Map<String, Integer> countMap = new HashMap<>();
         results.forEach(row -> countMap.put((String) row[0], ((BigInteger) row[1]).intValue()));
         return countMap;
+    }
+
+    // The concept_synonyms table contains zero-to-many "equivalent identifiers" from SRI's Node Normalizer for every identifier used in Text Mined Cooccurrence
+    // (zero because some don't have an entry in NN). By convention the column curie1 contains the curies used by nodes identified by Text Mining and curie2
+    // contains the equivalent identifiers. There are ~20k equivalent identifiers that map to more than one TM curie, so this method returns a list of TM curies
+    // for every curie provided.
+    public Map<String, List<String>> getTextMinedCuriesMap(List<String> curies) {
+        List<Object[]> results = session.createNativeQuery(
+                "SELECT curie1, curie2 " +
+                "FROM concept_synonyms " +
+                "WHERE curie2 IN (:curies)")
+                .setParameter("curies", curies)
+                .getResultList();
+        Map<String, List<String>> synonymMap = new HashMap<>(curies.size());
+        for (Object[] row : results) {
+            String tmCurie = (String) row[0];
+            String synonymCurie = (String) row[1];
+            List<String> tmCurieList;
+            if (synonymMap.containsKey(synonymCurie)) {
+                tmCurieList = synonymMap.get(synonymCurie);
+            } else {
+                tmCurieList = new ArrayList<>();
+            }
+            tmCurieList.add(tmCurie);
+            synonymMap.put(synonymCurie, tmCurieList);
+        }
+        return synonymMap;
+    }
+
+    // This is similar to getTextMinedCuriesMap in design and purpose. In cases where it is not important to know which input curie matches which TM curie this
+    // method avoids the extra steps of pulling every curie into a list.
+    public List<String> getTextMinedCuriesList(List<String> curies) {
+        return session.createNativeQuery(
+                        "SELECT curie1 " +
+                                "FROM concept_synonyms " +
+                                "WHERE curie2 IN (:curies)")
+                .setParameter("curies", curies)
+                .getResultList();
+    }
+
+    @Cacheable("node_curies")
+    public List<String> getTextMinedCuries() {
+        return session.createNativeQuery("SELECT curie FROM nodes").getResultList();
+    }
+
+    public void addSynonyms(List<List<String>> synonymsList) {
+        StringBuilder insertBuilder = new StringBuilder("INSERT INTO concept_synonyms VALUES ");
+        for (int i = 0; i < synonymsList.size(); i++) {
+            insertBuilder.append(String.format("(:a%d, :b%d)", i, i));
+            if (i < synonymsList.size() - 1) {
+                insertBuilder.append(",");
+            }
+        }
+        System.out.println(insertBuilder.toString());
+        Query insertQuery = session.createNativeQuery(insertBuilder.toString());
+        for (int i = 0; i < synonymsList.size(); i++) {
+            List<String> synonymPair = synonymsList.get(i);
+            insertQuery.setParameter("a" + i, synonymPair.get(0));
+            insertQuery.setParameter("b" + i, synonymPair.get(1));
+        }
+        insertQuery.executeUpdate();
     }
 }
