@@ -17,6 +17,7 @@ pipeline {
     environment {
         IMAGE_NAME = "853771734544.dkr.ecr.us-east-1.amazonaws.com/translator-tmkp-cooccurrence"
         KUBERNETES_BLUE_CLUSTER_NAME = "translator-eks-ci-blue-cluster"
+        DEPLOY_ENV="ci"
     }
     stages {
         stage('Build Version'){
@@ -64,6 +65,8 @@ pipeline {
                         sh '''
                         aws --region ${AWS_REGION} eks update-kubeconfig --name ${KUBERNETES_BLUE_CLUSTER_NAME}
                         /bin/bash prepare.sh
+                        cd translator-ops/ops/tmkp/cooccurrence/
+                        /bin/bash deploy.sh
                         '''
                     }
                 }
