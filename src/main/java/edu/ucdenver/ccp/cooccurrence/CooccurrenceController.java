@@ -26,6 +26,7 @@ public class CooccurrenceController {
     private final NodeRepository nodeRepo;
     private final ObjectMapper objectMapper;
     private final LookupRepository lookupQueries;
+    private final NodeNormalizerService sri;
     public static final List<String> documentParts = List.of("abstract", "title", "sentence", "article");
     private static final Map<String, Integer> documentPartCounts = new HashMap<>();
 
@@ -33,10 +34,11 @@ public class CooccurrenceController {
             "biolink:correlated_with", "biolink:occurs_together_in_literature_with");
     private Map<String, Integer> conceptCounts;
 
-    public CooccurrenceController(NodeRepository repo, LookupRepository impl) {
+    public CooccurrenceController(NodeRepository repo, LookupRepository impl, NodeNormalizerService sri) {
         this.nodeRepo = repo;
         this.objectMapper = new ObjectMapper();
         this.lookupQueries = impl;
+        this.sri = sri;
         conceptCounts = lookupQueries.getConceptCounts();
         for (String part : documentParts) {
             documentPartCounts.put(part, nodeRepo.getDocumentCount(part));
@@ -44,6 +46,13 @@ public class CooccurrenceController {
     }
 
     // region: Endpoints
+
+    @GetMapping("/test")
+    public JsonNode testNN() {
+        List<String> curies = lookupQueries.getTextMinedCuries();
+        return sri.getNormalizedNodes(curies);
+    }
+
     @GetMapping("/refresh")
     public JsonNode getRefresh() {
         conceptCounts = lookupQueries.getConceptCounts();
@@ -470,13 +479,17 @@ public class CooccurrenceController {
         boolean subjectCategoryQuery = subjectCurieList == null || subjectCurieList.isEmpty();
         boolean objectCategoryQuery = objectCurieList == null || objectCurieList.isEmpty();
         Map<String, Map<String, Integer>> subjectHierarchyCounts, objectHierarchyCounts;
-        List<String> subjectCuries = subjectCurieList;
-        List<String> objectCuries = objectCurieList;
+        List<String> subjectCuries;
+        List<String> objectCuries;
         if (subjectCategoryQuery) {
             subjectCuries = lookupQueries.getCuriesForCategory(subjectCategory);
+        } else {
+            subjectCuries = getTextMinedCuries(subjectCurieList);
         }
         if (objectCategoryQuery) {
             objectCuries = lookupQueries.getCuriesForCategory(objectCategory);
+        } else {
+            objectCuries = getTextMinedCuries(objectCurieList);
         }
 
         long t1 = System.currentTimeMillis();
@@ -545,6 +558,59 @@ public class CooccurrenceController {
             }
         }
         return conceptPairs;
+    }
+
+    // The goal here is to translate as many incoming curies as possible to the curies used in the text mined database.
+    private List<String> getTextMinedCuries(List<String> queryCuriesList) {
+//        List<String> textMinedCuriesList = lookupQueries.getTextMinedCuriesList(queryCuriesList);
+        logger.info("Starting curie(s)");
+        logger.info(String.join(",", queryCuriesList));
+        // The first step is to get those curies that are already known synonyms of TM curies
+        Map<String, List<String>> textMinedCuriesMap = lookupQueries.getTextMinedCuriesMap(queryCuriesList);
+        List<String> textMinedCuriesList = new ArrayList<>(queryCuriesList.size());
+        List<String> unmatchedQueryCuries = new ArrayList<>();
+        for (String queryCurie : queryCuriesList) {
+            if (textMinedCuriesMap.containsKey(queryCurie)) {
+                textMinedCuriesList.addAll(textMinedCuriesMap.get(queryCurie));
+            } else {
+                unmatchedQueryCuries.add(queryCurie);
+            }
+        }
+        // If anything doesn't match in the synonym table we check Node Normalizer (because NN is apparently not symmetrical).
+        if (unmatchedQueryCuries.size() > 0) {
+            logger.info("Trying SRI NN");
+            List<List<String>> newSynonymsList = new ArrayList<>();
+            List<String> allTextMinedCuries = lookupQueries.getTextMinedCuries();
+            JsonNode nnJSON = sri.getNormalizedNodes(unmatchedQueryCuries);
+            logger.info(nnJSON.toPrettyString());
+            for (String curie : unmatchedQueryCuries) {
+                logger.info("Trying for " + curie);
+                boolean foundInNN = false;
+                List<String> synonyms = sri.getNodeSynonyms(curie, nnJSON);
+                if (synonyms.size() > 0) {
+                    logger.info("NN curie(s)");
+                    logger.info(String.join(",", synonyms));
+                    for (String synonym : synonyms) {
+                        if (allTextMinedCuries.contains(synonym)) {
+                            logger.info(synonym + " is in TM");
+                            foundInNN = true;
+                            textMinedCuriesList.add(synonym);
+                            newSynonymsList.add(List.of(synonym, curie));
+                        }
+                    }
+                } else {
+                    logger.info("No synonyms found");
+                }
+                if (foundInNN) { // If the NN lookup found matching curies we add those synonyms into the table for next time.
+                    lookupQueries.addSynonyms(newSynonymsList);
+                } else { // Otherwise just add the original curie back into the list to be queried.
+                    textMinedCuriesList.add(curie); // TODO: decide if it would be better just to skip curies that don't exist in the TM nodes
+                }
+            }
+        }
+        logger.info("Resulting curie(s)");
+        logger.info(String.join(",", textMinedCuriesList));
+        return textMinedCuriesList;
     }
 
     private Map<String, List<String>> getPairCounts(Map<String, List<String>> subjectHierarchy, Map<String, List<String>> objectHierarchy) {
