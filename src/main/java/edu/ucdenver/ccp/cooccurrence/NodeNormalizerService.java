@@ -51,11 +51,9 @@ public class NodeNormalizerService {
                     .block();
         } catch (WebClientRequestException wex) {
             System.out.println("Request issue");
-//            wex.printStackTrace();
             return objectMapper.createObjectNode();
         } catch (WebClientResponseException wex) {
             System.out.println("Response issue");
-//            wex.printStackTrace();
             return objectMapper.createObjectNode();
         }
     }
