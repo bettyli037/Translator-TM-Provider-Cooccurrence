@@ -563,8 +563,8 @@ public class CooccurrenceController {
     // The goal here is to translate as many incoming curies as possible to the curies used in the text mined database.
     private List<String> getTextMinedCuries(List<String> queryCuriesList) {
 //        List<String> textMinedCuriesList = lookupQueries.getTextMinedCuriesList(queryCuriesList);
-        logger.info("Starting curie(s)");
-        logger.info(String.join(",", queryCuriesList));
+        logger.debug("Starting curie(s)");
+        logger.debug(String.join(",", queryCuriesList));
         // The first step is to get those curies that are already known synonyms of TM curies
         Map<String, List<String>> textMinedCuriesMap = lookupQueries.getTextMinedCuriesMap(queryCuriesList);
         List<String> textMinedCuriesList = new ArrayList<>(queryCuriesList.size());
@@ -578,28 +578,28 @@ public class CooccurrenceController {
         }
         // If anything doesn't match in the synonym table we check Node Normalizer (because NN is apparently not symmetrical).
         if (unmatchedQueryCuries.size() > 0) {
-            logger.info("Trying SRI NN");
+            logger.debug("Trying SRI NN");
             List<List<String>> newSynonymsList = new ArrayList<>();
             List<String> allTextMinedCuries = lookupQueries.getTextMinedCuries();
             JsonNode nnJSON = sri.getNormalizedNodes(unmatchedQueryCuries);
-            logger.info(nnJSON.toPrettyString());
+            logger.debug(nnJSON.toPrettyString());
             for (String curie : unmatchedQueryCuries) {
-                logger.info("Trying for " + curie);
+                logger.debug("Trying for " + curie);
                 boolean foundInNN = false;
                 List<String> synonyms = sri.getNodeSynonyms(curie, nnJSON);
                 if (synonyms.size() > 0) {
-                    logger.info("NN curie(s)");
-                    logger.info(String.join(",", synonyms));
+                    logger.debug("NN curie(s)");
+                    logger.debug(String.join(",", synonyms));
                     for (String synonym : synonyms) {
                         if (allTextMinedCuries.contains(synonym)) {
-                            logger.info(synonym + " is in TM");
+                            logger.debug(synonym + " is in TM");
                             foundInNN = true;
                             textMinedCuriesList.add(synonym);
                             newSynonymsList.add(List.of(synonym, curie));
                         }
                     }
                 } else {
-                    logger.info("No synonyms found");
+                    logger.debug("No synonyms found");
                 }
                 if (foundInNN) { // If the NN lookup found matching curies we add those synonyms into the table for next time.
                     lookupQueries.addSynonyms(newSynonymsList);
@@ -608,15 +608,13 @@ public class CooccurrenceController {
                 }
             }
         }
-        logger.info("Resulting curie(s)");
-        logger.info(String.join(",", textMinedCuriesList));
+        logger.debug("Resulting curie(s)");
+        logger.debug(String.join(",", textMinedCuriesList));
         return textMinedCuriesList;
     }
 
     private Map<String, List<String>> getPairCounts(Map<String, List<String>> subjectHierarchy, Map<String, List<String>> objectHierarchy) {
-//        long t1 = System.currentTimeMillis();
         Map<String, List<String>> cooccurrences = lookupQueries.getCooccurrencesByParts(new ArrayList<>(subjectHierarchy.keySet()), new ArrayList<>(objectHierarchy.keySet()));
-//        long t2 = System.currentTimeMillis();
         // region: Create Dictionary for Pair Counts
         Map<String, Set<String>> documentDictionary = new HashMap<>();
         Set<String> completedKeys = new HashSet<>();
@@ -688,12 +686,6 @@ public class CooccurrenceController {
             }
         }
         // endregion
-//        Map<String, Integer> pairCounts = new HashMap<>();
-//        for (Map.Entry<String, Set<String>> pairList : documentDictionary.entrySet()) {
-//            pairCounts.put(pairList.getKey(), pairList.getValue().size());
-//        }
-//        long t3 = System.currentTimeMillis();
-//        System.out.format("Time to get cooccurrences: %d\tTime to create dictionary: %d\n", t2 - t1, t3 - t2);
         return cooccurrences;
     }
 
