@@ -2,6 +2,7 @@ package edu.ucdenver.ccp.cooccurrence;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.math.BigInteger;
@@ -453,6 +454,7 @@ public class LookupRepository {
         return session.createNativeQuery("SELECT curie FROM nodes").getResultList();
     }
 
+    @Transactional
     public void addSynonyms(List<List<String>> synonymsList) {
         StringBuilder insertBuilder = new StringBuilder("INSERT INTO concept_synonyms VALUES ");
         for (int i = 0; i < synonymsList.size(); i++) {
