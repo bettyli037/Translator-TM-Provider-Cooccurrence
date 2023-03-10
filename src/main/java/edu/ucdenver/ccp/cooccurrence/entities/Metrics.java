@@ -198,6 +198,27 @@ public class Metrics {
     public List<Attribute> toAttributeList() {
         List<Attribute> attributeList = new ArrayList<>();
 
+        Attribute primaryKnowledgeSource = new Attribute();
+        primaryKnowledgeSource.setAttributeTypeId("biolink:primary_knowledge_source");
+        primaryKnowledgeSource.setValue("infores:text-mining-provider-cooccurrence");
+        primaryKnowledgeSource.setValueTypeId("biolink:InformationResource");
+        primaryKnowledgeSource.setAttributeSource("infores:text-mining-provider-cooccurrence");
+        attributeList.add(primaryKnowledgeSource);
+
+        Attribute supportingDataSource = new Attribute();
+        supportingDataSource.setAttributeTypeId("biolink:supporting_data_source");
+        supportingDataSource.setValue("infores:pubmed");
+        supportingDataSource.setValueTypeId("biolink:InformationResource");
+        supportingDataSource.setAttributeSource("infores:text-mining-provider-cooccurrence");
+        attributeList.add(supportingDataSource);
+
+        Attribute documentZone = new Attribute();
+        documentZone.setAttributeTypeId("biolink:supporting_text_located_in");
+        documentZone.setValue(this.documentPart);
+        documentZone.setValueTypeId("IAO_0000314");
+        documentZone.setAttributeSource("infores:pubmed");
+        attributeList.add(documentZone);
+
         Attribute count1 = new Attribute();
         count1.setAttributeTypeId("biolink:concept_count_subject");
         count1.setValue(singleCount1);
