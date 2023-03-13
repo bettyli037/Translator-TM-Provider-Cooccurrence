@@ -405,7 +405,11 @@ public class CooccurrenceController {
     private KnowledgeGraph buildKnowledgeGraph(List<ConceptPair> conceptPairs, Map<String, String> labelMap, Map<String, List<String>> categoryMap) {
         KnowledgeGraph kg = new KnowledgeGraph();
         for (ConceptPair pair : conceptPairs) {
-            KnowledgeEdge edge = new KnowledgeEdge(pair.getSubject(), pair.getObject(), "biolink:occurs_together_in_literature_with", pair.getPairMetrics().toAttributeList());
+            List<Attribute> attributeList = pair.toAttributeList();
+            if (attributeList.size() == 0) {
+                continue;
+            }
+            KnowledgeEdge edge = new KnowledgeEdge(pair.getSubject(), pair.getObject(), "biolink:occurs_together_in_literature_with", attributeList);
             KnowledgeNode subjectNode = new KnowledgeNode(
                     labelMap.getOrDefault(pair.getSubject(), ""),
                     categoryMap.getOrDefault(pair.getSubject(), Collections.emptyList()));
@@ -418,7 +422,7 @@ public class CooccurrenceController {
             subjectNode.setQueryKey(pair.getSubjectKey());
             objectNode.setQueryKey(pair.getObjectKey());
 
-            kg.addEdge(pair.getSubject() + "_" + pair.getObject() + "_" + pair.getPart(), edge);
+            kg.addEdge(pair.getSubject() + "_" + pair.getObject(), edge);
             kg.addNode(pair.getSubject(), subjectNode);
             kg.addNode(pair.getObject(), objectNode);
         }
@@ -523,10 +527,10 @@ public class CooccurrenceController {
         logger.debug("Hierarchical counts retrieved in " + (t5 - t4) + "ms");
         for (String sub : subjectCuries) {
             for (String obj : objectCuries) {
+                ConceptPair pair = new ConceptPair(sub, obj);
                 for (String part : documentParts) {
                     if (pairCounts.containsKey(sub + obj + part)) {
                         int pairCount = pairCounts.get(sub + obj + part);
-                        ConceptPair pair = new ConceptPair(sub, obj, part, BigInteger.valueOf(pairCount));
                         int totalSubjectCount;
                         if (subjectHierarchyCounts.containsKey(sub) &&
                                 subjectHierarchyCounts.get(sub).containsKey(part) &&
@@ -551,9 +555,9 @@ public class CooccurrenceController {
                         Metrics metrics = new Metrics(totalSubjectCount, totalObjectCount, pairCount, conceptCounts.getOrDefault(part, 0),
                                 documentPartCounts.getOrDefault(part, 0), part);
                         metrics.setDocumentIdList(cooccurrences.get(sub + obj + part).stream().map(hash -> hash.split("_")[0]).collect(Collectors.toList()));
-                        pair.setPairMetrics(metrics);
-                        conceptPairs.add(pair);
+                        pair.setPairMetrics(part, metrics);
                     }
+                    conceptPairs.add(pair);
                 }
             }
         }

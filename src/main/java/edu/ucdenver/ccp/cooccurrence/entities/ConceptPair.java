@@ -3,31 +3,33 @@ package edu.ucdenver.ccp.cooccurrence.entities;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import edu.ucdenver.ccp.cooccurrence.TRAPI.Attribute;
 import edu.ucdenver.ccp.cooccurrence.TRAPI.AttributeConstraint;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class ConceptPair {
 
     private String subject;
     private String object;
-    private int pairCount;
-    private String documentHash;
     private String part;
-    private String category;
     private String subjectKey;
     private String objectKey;
     private String edgeKey;
 
     private Metrics pairMetrics;
 
-    public ConceptPair(String subject, String object, String part, BigInteger pairCount) {
+    private final Map<String, Metrics> metricsMap;
+
+    public ConceptPair(String subject, String object) {
         this.subject = subject;
         this.object = object;
-        this.part = part;
-        this.pairCount = pairCount.intValue();
+        this.metricsMap = new HashMap<>(4);
     }
 
     public String getSubject() {
@@ -46,21 +48,6 @@ public class ConceptPair {
         this.object = concept;
     }
 
-    public int getPairCount() {
-        return pairCount;
-    }
-
-    public void setPairCount(int pairCount) {
-        this.pairCount = pairCount;
-    }
-
-    public String getDocumentHash() {
-        return documentHash;
-    }
-
-    public void setDocumentHash(String documentHash) {
-        this.documentHash = documentHash;
-    }
 
     public String getPart() {
         return part;
@@ -70,13 +57,6 @@ public class ConceptPair {
         this.part = part;
     }
 
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
 
     public void setKeys(String subjectKey, String objectKey, String edgeKey) {
         this.subjectKey = subjectKey;
@@ -102,6 +82,14 @@ public class ConceptPair {
 
     public void setPairMetrics(Metrics pairMetrics) {
         this.pairMetrics = pairMetrics;
+    }
+
+    public Metrics getPairMetrics(String documentPart) {
+        return this.metricsMap.getOrDefault(documentPart, null);
+    }
+
+    public void setPairMetrics(String documentPart, Metrics pairMetrics) {
+        this.metricsMap.put(documentPart, pairMetrics);
     }
 
     public boolean meetsConstraints(List<AttributeConstraint> constraintList) {
@@ -238,6 +226,21 @@ public class ConceptPair {
         }
     }
 
+    public List<Attribute> toAttributeList() {
+        List<Attribute> attributeList = new ArrayList<>(metricsMap.size());
+        for (Map.Entry<String, Metrics> metricsEntry : metricsMap.entrySet()) {
+            Attribute metricsAttribute = new Attribute();
+            metricsAttribute.setAttributeTypeId("biolink:supporting_study_result");
+            metricsAttribute.setAttributeSource("infores:text-mining-provider-cooccurrence");
+            List<Attribute> subAttributesList = metricsEntry.getValue().toAttributeList();
+            if (subAttributesList.size() == 0) {
+                continue;
+            }
+            subAttributesList.forEach(metricsAttribute::addAttribute);
+            attributeList.add(metricsAttribute);
+        }
+        return attributeList;
+    }
 
     public JsonNode toJson() {
         ObjectMapper mapper = new ObjectMapper();
