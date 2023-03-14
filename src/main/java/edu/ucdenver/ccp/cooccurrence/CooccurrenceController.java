@@ -101,7 +101,18 @@ public class CooccurrenceController {
         List<ConceptPair> conceptPairs = new ArrayList<>();
         for (ConceptPair pair : initialPairs) {
             QueryEdge edge = edgeMap.get(pair.getEdgeKey());
-            if (edge.getAttributeConstraints().size() == 0 || pair.meetsConstraints(edge.getAttributeConstraints())) {
+            if (edge.getAttributeConstraints().size() > 0) {
+                ConceptPair constrainedConceptPair = pair;
+                for (AttributeConstraint constraint : edge.getAttributeConstraints()) {
+                    constrainedConceptPair = constrainedConceptPair.satisfyConstraint(constraint);
+                    if (constrainedConceptPair == null) {
+                        break;
+                    }
+                }
+                if (constrainedConceptPair != null) {
+                    conceptPairs.add(constrainedConceptPair);
+                }
+            } else {
                 conceptPairs.add(pair);
             }
         }

@@ -32,6 +32,15 @@ public class ConceptPair {
         this.metricsMap = new HashMap<>(4);
     }
 
+    public ConceptPair(String subject, String object, String subjectKey, String objectKey, String edgeKey) {
+        this.subject = subject;
+        this.object = object;
+        this.subjectKey = subjectKey;
+        this.objectKey = objectKey;
+        this.edgeKey = edgeKey;
+        this.metricsMap = new HashMap<>(4);
+    }
+
     public String getSubject() {
         return subject;
     }
@@ -92,48 +101,75 @@ public class ConceptPair {
         this.metricsMap.put(documentPart, pairMetrics);
     }
 
+    // This method removes parts from the metricsMap that do not satisfy the given constraint.
+    // If none of the metrics meet the constraints, this returns null
+    public ConceptPair satisfyConstraint(AttributeConstraint constraint) {
+        System.out.println("Starting satisfyConstraint");
+        ConceptPair constrainedConceptPair = new ConceptPair(this.subject, this.object, this.subjectKey, this.objectKey, this.edgeKey);
+        int partsCount = 0;
+        System.out.println(metricsMap.keySet());
+        for (String part : metricsMap.keySet()) {
+            System.out.println(part);
+            if (meetsConstraint(constraint, part)) {
+                partsCount++;
+                constrainedConceptPair.setPairMetrics(part, metricsMap.get(part));
+            }
+        }
+        if (partsCount == 0) {
+            return null;
+        }
+        return constrainedConceptPair;
+    }
+
     public boolean meetsConstraints(List<AttributeConstraint> constraintList) {
         boolean overallPass = false;
         for (AttributeConstraint constraint : constraintList) {
-            overallPass = overallPass || meetsConstraint(constraint);
+            for (String part : metricsMap.keySet()) {
+                overallPass = overallPass || meetsConstraint(constraint, part);
+                if (!overallPass) {
+                    return false;
+                }
+            }
         }
         return overallPass;
     }
 
-    private boolean meetsConstraint(AttributeConstraint constraint) {
+    private boolean meetsConstraint(AttributeConstraint constraint, String part) {
         if (!AttributeConstraint.supportedAttributes.contains(constraint.getId())) {
             return false;
         }
+        System.out.println("Checking constraint in " + part);
         boolean isList = constraint.getValue().isArray(), isNot = constraint.isNot();
         String attributeString = null, constraintString;
         double attributeValue, constraintValue;
+        Metrics metrics = this.metricsMap.get(part);
         switch (constraint.getId()) {
             case "biolink:concept_count_subject":
-                attributeValue = this.pairMetrics.getSingleCount1();
+                attributeValue = metrics.getSingleCount1();
                 break;
             case "biolink:concept_count_object":
-                attributeValue = this.pairMetrics.getSingleCount2();
+                attributeValue = metrics.getSingleCount2();
                 break;
             case "biolink:tmkp_concept_pair_count":
-                attributeValue = this.pairMetrics.getPairCount();
+                attributeValue = metrics.getPairCount();
                 break;
             case "biolink:tmkp_normalized_google_distance":
-                attributeValue = this.pairMetrics.getNormalizedGoogleDistance();
+                attributeValue = metrics.getNormalizedGoogleDistance();
                 break;
             case "biolink:tmkp_pointwise_mutual_information":
-                attributeValue = this.pairMetrics.getPointwiseMutualInformation();
+                attributeValue = metrics.getPointwiseMutualInformation();
                 break;
             case "biolink:tmkp_normalized_pointwise_mutual_information":
-                attributeValue = this.pairMetrics.getNormalizedPointwiseMutualInformation();
+                attributeValue = metrics.getNormalizedPointwiseMutualInformation();
                 break;
             case "biolink:tmkp_mutual_dependence":
-                attributeValue = this.pairMetrics.getMutualDependence();
+                attributeValue = metrics.getMutualDependence();
                 break;
             case "biolink:tmkp_normalized_pointwise_mutual_information_max_denominator":
-                attributeValue = this.pairMetrics.getNormalizedPointwiseMutualInformationMaxDenom();
+                attributeValue = metrics.getNormalizedPointwiseMutualInformationMaxDenom();
                 break;
             case "biolink:tmkp_log_frequency_biased_mutual_dependence":
-                attributeValue = this.pairMetrics.getLogFrequencyBiasedMutualDependence();
+                attributeValue = metrics.getLogFrequencyBiasedMutualDependence();
                 break;
             case "biolink:tmkp_document_part":
                 attributeValue = Double.NEGATIVE_INFINITY;
