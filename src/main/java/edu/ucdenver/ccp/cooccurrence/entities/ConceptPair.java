@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import edu.ucdenver.ccp.cooccurrence.TRAPI.Attribute;
 import edu.ucdenver.ccp.cooccurrence.TRAPI.AttributeConstraint;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,13 +16,9 @@ public class ConceptPair {
 
     private String subject;
     private String object;
-    private String part;
     private String subjectKey;
     private String objectKey;
     private String edgeKey;
-
-    private Metrics pairMetrics;
-
     private final Map<String, Metrics> metricsMap;
 
     public ConceptPair(String subject, String object) {
@@ -57,16 +52,6 @@ public class ConceptPair {
         this.object = concept;
     }
 
-
-    public String getPart() {
-        return part;
-    }
-
-    public void setPart(String part) {
-        this.part = part;
-    }
-
-
     public void setKeys(String subjectKey, String objectKey, String edgeKey) {
         this.subjectKey = subjectKey;
         this.objectKey = objectKey;
@@ -85,14 +70,6 @@ public class ConceptPair {
         return edgeKey;
     }
 
-    public Metrics getPairMetrics() {
-        return pairMetrics;
-    }
-
-    public void setPairMetrics(Metrics pairMetrics) {
-        this.pairMetrics = pairMetrics;
-    }
-
     public Metrics getPairMetrics(String documentPart) {
         return this.metricsMap.getOrDefault(documentPart, null);
     }
@@ -104,12 +81,9 @@ public class ConceptPair {
     // This method removes parts from the metricsMap that do not satisfy the given constraint.
     // If none of the metrics meet the constraints, this returns null
     public ConceptPair satisfyConstraint(AttributeConstraint constraint) {
-        System.out.println("Starting satisfyConstraint");
         ConceptPair constrainedConceptPair = new ConceptPair(this.subject, this.object, this.subjectKey, this.objectKey, this.edgeKey);
         int partsCount = 0;
-        System.out.println(metricsMap.keySet());
         for (String part : metricsMap.keySet()) {
-            System.out.println(part);
             if (meetsConstraint(constraint, part)) {
                 partsCount++;
                 constrainedConceptPair.setPairMetrics(part, metricsMap.get(part));
@@ -121,24 +95,13 @@ public class ConceptPair {
         return constrainedConceptPair;
     }
 
-    public boolean meetsConstraints(List<AttributeConstraint> constraintList) {
-        boolean overallPass = false;
-        for (AttributeConstraint constraint : constraintList) {
-            for (String part : metricsMap.keySet()) {
-                overallPass = overallPass || meetsConstraint(constraint, part);
-                if (!overallPass) {
-                    return false;
-                }
-            }
-        }
-        return overallPass;
-    }
-
     private boolean meetsConstraint(AttributeConstraint constraint, String part) {
         if (!AttributeConstraint.supportedAttributes.contains(constraint.getId())) {
             return false;
         }
-        System.out.println("Checking constraint in " + part);
+        if (!this.metricsMap.containsKey(part)) {
+            return false;
+        }
         boolean isList = constraint.getValue().isArray(), isNot = constraint.isNot();
         String attributeString = null, constraintString;
         double attributeValue, constraintValue;
@@ -171,29 +134,23 @@ public class ConceptPair {
             case "biolink:tmkp_log_frequency_biased_mutual_dependence":
                 attributeValue = metrics.getLogFrequencyBiasedMutualDependence();
                 break;
-            case "biolink:tmkp_document_part":
-                attributeValue = Double.NEGATIVE_INFINITY;
-                attributeString = this.part;
-                break;
             default:
                 attributeValue = Double.NEGATIVE_INFINITY;
         }
         // None of the attributes are list-valued, so if the constraint is a list and the operator is "===" the comparison is necessarily false
         if (isList) {
             for (JsonNode item : constraint.getValue()) {
-                if (constraint.getId().equals("biolink:tmkp_document_part")) {
-                    // biolink:tmkp_document_part is currently the only string attribute, so we handle it specially
+                if (constraint.getId().equals("biolink:supporting_text_located_in")) {
+                    // biolink:supporting_text_located_in is currently the only string attribute, so we handle it specially
                     constraintString = item.asText();
                     boolean comparisonResult = false;
-                    if (attributeString != null) {
-                        if (constraint.getOperator().equals("==")) {
-                            comparisonResult = attributeString.equals(constraintString);
-                        } else if (constraint.getOperator().equals("matches")) {
-                            comparisonResult = Pattern.matches(constraintString, attributeString);
-                        }
-                        if ((!isNot && comparisonResult) || (isNot && !comparisonResult)) {
-                            return true;
-                        }
+                    if (constraint.getOperator().equals("==")) {
+                        comparisonResult = part.equals(constraintString);
+                    } else if (constraint.getOperator().equals("matches")) {
+                        comparisonResult = Pattern.matches(constraintString, part);
+                    }
+                    if ((!isNot && comparisonResult) || (isNot && !comparisonResult)) {
+                        return true;
                     }
                 } else {
                     constraintValue = item.asDouble();
@@ -217,21 +174,18 @@ public class ConceptPair {
             return false;
         } else {
             boolean comparisonResult = false;
-            if (constraint.getId().equals("biolink:tmkp_document_part")) {
-                // biolink:tmkp_document_part is currently the only string attribute, so we handle it specially
+            if (constraint.getId().equals("biolink:supporting_text_located_in")) {
+                // biolink:supporting_text_located_in is currently the only string attribute, so we handle it specially
                 constraintString = constraint.getValue().asText();
-                if (attributeString == null) {
-                    return false;
-                }
                 switch (constraint.getOperator()) {
                     case "==":
-                        comparisonResult = attributeString.equals(constraintString);
+                        comparisonResult = part.equals(constraintString);
                         break;
                     case "===":
-                        comparisonResult = attributeString.equals(constraintString) && constraint.getValue().isTextual();
+                        comparisonResult = part.equals(constraintString) && constraint.getValue().isTextual();
                         break;
                     case "matches":
-                        comparisonResult = Pattern.matches(constraintString, attributeString);
+                        comparisonResult = Pattern.matches(constraintString, part);
                         break;
                 }
                 return (!isNot && comparisonResult) || (isNot && !comparisonResult);
@@ -286,10 +240,11 @@ public class ConceptPair {
         node.put("object", this.object);
         node.put("q_object", this.objectKey);
         node.put("q_edge", this.edgeKey);
-        node.put("document_part", this.part);
-        if (pairMetrics != null) {
-            node.set("metrics", pairMetrics.toJSON());
+        ObjectNode metricsNode = mapper.createObjectNode();
+        for (Map.Entry<String, Metrics> entry : this.metricsMap.entrySet()) {
+            metricsNode.set(entry.getKey(), entry.getValue().toJSON());
         }
+        node.set("metrics", metricsNode);
         return node;
     }
 
