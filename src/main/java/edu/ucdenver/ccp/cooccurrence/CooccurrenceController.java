@@ -101,7 +101,18 @@ public class CooccurrenceController {
         List<ConceptPair> conceptPairs = new ArrayList<>();
         for (ConceptPair pair : initialPairs) {
             QueryEdge edge = edgeMap.get(pair.getEdgeKey());
-            if (edge.getAttributeConstraints().size() == 0 || pair.meetsConstraints(edge.getAttributeConstraints())) {
+            if (edge.getAttributeConstraints().size() > 0) {
+                ConceptPair constrainedConceptPair = pair;
+                for (AttributeConstraint constraint : edge.getAttributeConstraints()) {
+                    constrainedConceptPair = constrainedConceptPair.satisfyConstraint(constraint);
+                    if (constrainedConceptPair == null) {
+                        break;
+                    }
+                }
+                if (constrainedConceptPair != null) {
+                    conceptPairs.add(constrainedConceptPair);
+                }
+            } else {
                 conceptPairs.add(pair);
             }
         }
@@ -191,30 +202,54 @@ public class CooccurrenceController {
         if (errors.size() > 0) {
             return ResponseEntity.unprocessableEntity().body(objectMapper.convertValue(errors, ArrayNode.class));
         }
-        JsonNode nodes = messageNode.get("knowledge_graph").get("nodes");
-        ObjectNode newEdgesNode = objectMapper.createObjectNode();
-        List<String> concepts = new ArrayList<>();
-        ArrayNode newEdgeBindings = objectMapper.createArrayNode();
-        for (Iterator<String> iter = nodes.fieldNames(); iter.hasNext(); ) {
-            concepts.add(iter.next());
+        KnowledgeGraph knowledgeGraph = KnowledgeGraph.parseJSON(messageNode.get("knowledge_graph"));
+        List<Result> results = new ArrayList<>();
+        Iterator<JsonNode> resultsIterator = messageNode.get("results").elements();
+        while (resultsIterator.hasNext()) {
+            results.add(Result.parseJSON(resultsIterator.next()));
         }
-        for (List<String> pair : getAllConceptPairs(concepts)) {
+        List<String> curies = new ArrayList<>(knowledgeGraph.getNodes().keySet());
+
+        for (List<String> pair : getAllConceptPairs(curies)) {
             String s = pair.get(0);
             String o = pair.get(1);
-
+            logger.debug("Checking concept pair (" + s + ", " + o + ")");
+            ConceptPair conceptPair = new ConceptPair(s, o);
+            boolean hasMetrics = false;
             for (String part : documentParts) {
                 Metrics cooccurrenceMetrics = getMetrics(s, o, part);
                 if (cooccurrenceMetrics.getPairCount() != 0 && !Double.isNaN(cooccurrenceMetrics.getNormalizedGoogleDistance())) {
-                    String edgeID = s + "_" + o + "_" + part;
-                    ObjectNode binding = objectMapper.createObjectNode();
-                    binding.put("id", edgeID);
-                    newEdgeBindings.add(binding);
-                    JsonNode newEdge = createEdgeNode(edgeID, s, o, part, cooccurrenceMetrics);
-                    newEdgesNode.set(edgeID, newEdge);
+                    conceptPair.setPairMetrics(part, cooccurrenceMetrics);
+                    hasMetrics = true;
+                    logger.debug("Metrics added");
+                }
+            }
+            if (!hasMetrics) {
+                continue;
+            }
+            String edgeId = s + "_" + o;
+            KnowledgeEdge edge = new KnowledgeEdge(conceptPair.getSubject(), conceptPair.getObject(),
+                    "biolink:occurs_together_in_literature_with", conceptPair.toAttributeList());
+            knowledgeGraph.addEdge(edgeId, edge);
+            logger.debug("Added edge " + edgeId);
+            for (Result result : results) {
+                if (result.bindsNodeCurie(s) && result.bindsNodeCurie(o)) {
+                    logger.debug("Result binds (" + s + ", " + o + ")");
+                    EdgeBinding edgeBinding = new EdgeBinding();
+                    edgeBinding.setId(edgeId);
+                    result.addEdgeBinding("", edgeBinding);
                 }
             }
         }
-        JsonNode responseNode = objectMapper.createObjectNode().set("message", updateMessageNode(requestNode, newEdgesNode, newEdgeBindings));
+        ObjectNode responseMessageNode = objectMapper.createObjectNode();
+        responseMessageNode.set("query_graph", messageNode.get("query_graph"));
+        responseMessageNode.set("knowledge_graph", knowledgeGraph.toJSON());
+        ArrayNode resultsNode = objectMapper.createArrayNode();
+        for (Result result : results) {
+            resultsNode.add(result.toJSON());
+        }
+        responseMessageNode.set("results", resultsNode);
+        JsonNode responseNode = objectMapper.createObjectNode().set("message", responseMessageNode);
         logger.info("Overlay completed in " + (System.currentTimeMillis() - startTime) + "ms");
         return ResponseEntity.ok(responseNode);
     }
@@ -233,22 +268,28 @@ public class CooccurrenceController {
             Result result = new Result();
             String queryGraphEdgeLabel = edgeEntry.getValue().getQueryKey();
             String knowledgeGraphEdgeLabel = edgeEntry.getKey();
+            EdgeBinding edgeBinding = new EdgeBinding();
+            edgeBinding.setId(knowledgeGraphEdgeLabel);
             if (queryEdgeMap.containsKey(queryGraphEdgeLabel)) {
-                result.addEdgeBinding(queryGraphEdgeLabel, knowledgeGraphEdgeLabel);
+                result.addEdgeBinding(queryGraphEdgeLabel, edgeBinding);
             }
 
             String knowledgeGraphSubjectLabel = edgeEntry.getValue().getSubject();
             KnowledgeNode subject = knowledgeNodeMap.get(knowledgeGraphSubjectLabel);
             String queryGraphSubjectLabel = subject.getQueryKey();
+            NodeBinding subjectNodeBinding = new NodeBinding();
+            subjectNodeBinding.setId(knowledgeGraphSubjectLabel);
             if (queryNodeMap.containsKey(queryGraphSubjectLabel)) {
-                result.addNodeBinding(queryGraphSubjectLabel, knowledgeGraphSubjectLabel);
+                result.addNodeBinding(queryGraphSubjectLabel, subjectNodeBinding);
             }
 
             String knowledgeGraphObjectLabel = edgeEntry.getValue().getObject();
             KnowledgeNode object = knowledgeNodeMap.get(knowledgeGraphObjectLabel);
             String queryGraphObjectLabel = object.getQueryKey();
+            NodeBinding objectNodeBinding = new NodeBinding();
+            objectNodeBinding.setId(knowledgeGraphObjectLabel);
             if (queryNodeMap.containsKey(queryGraphObjectLabel)) {
-                result.addNodeBinding(queryGraphObjectLabel, knowledgeGraphObjectLabel);
+                result.addNodeBinding(queryGraphObjectLabel, objectNodeBinding);
             }
             results.add(result);
         }
@@ -259,13 +300,13 @@ public class CooccurrenceController {
         List<Result> outputList = new ArrayList<>();
         for (int i = 0; i < inputList.size(); i++) {
             Result first = inputList.get(i);
-            Map<String, Set<String>> firstEdges = first.getEdgeBindings();
-            Map<String, Set<String>> firstNodes = first.getNodeBindings();
+            Map<String, List<EdgeBinding>> firstEdges = first.getEdgeBindings();
+            Map<String, List<NodeBinding>> firstNodes = first.getNodeBindings();
             List<Integer> mergeIndices = new ArrayList<>();
             for (int j = i + 1; j < inputList.size(); j++) {
                 Result second = inputList.get(j);
-                Map<String, Set<String>> secondEdges = second.getEdgeBindings();
-                Map<String, Set<String>> secondNodes = second.getNodeBindings();
+                Map<String, List<EdgeBinding>> secondEdges = second.getEdgeBindings();
+                Map<String, List<NodeBinding>> secondNodes = second.getNodeBindings();
                 if (firstEdges.keySet().equals(secondEdges.keySet())
                         && firstNodes.keySet().equals(secondNodes.keySet())) {
                     boolean isMergeable = true;
@@ -281,10 +322,10 @@ public class CooccurrenceController {
                 }
             }
             if (mergeIndices.size() > 0) {
-                Map<String, Set<String>> nodeMap = new HashMap<>(firstNodes);
-                Map<String, Set<String>> edgeMap = new HashMap<>(firstEdges);
+                Map<String, List<NodeBinding>> nodeMap = new HashMap<>(firstNodes);
+                Map<String, List<EdgeBinding>> edgeMap = new HashMap<>(firstEdges);
                 for (Integer index : mergeIndices) {
-                    Map<String, Set<String>> secondEdges = inputList.get(index).getEdgeBindings();
+                    Map<String, List<EdgeBinding>> secondEdges = inputList.get(index).getEdgeBindings();
                     for (String edgeKey : edgeMap.keySet()) {
                         edgeMap.get(edgeKey).addAll(secondEdges.get(edgeKey));
                     }
@@ -301,39 +342,7 @@ public class CooccurrenceController {
 
     // endregion
 
-    // TODO: Use the TRAPI POJOs here instead of the hacked-together stuff currently in place
     //region Just Overlay Stuff
-
-    private JsonNode createEdgeNode(String edgeID, String concept1, String concept2, String documentPart, Metrics cooccurrenceMetrics) {
-        ObjectNode newEdge = objectMapper.createObjectNode();
-        ObjectNode edgeAttributes = objectMapper.createObjectNode();
-        newEdge.put("subject", concept1);
-        newEdge.put("object", concept2);
-        newEdge.put("predicate", "biolink:occurs_together_in_literature_with");
-        edgeAttributes.put("attribute_type_id", "biolink:supporting_study_result");
-        edgeAttributes.put("value", "tmkp:" + edgeID);
-        edgeAttributes.put("value_type_id", "biolink:AbstractLevelConceptCooccurrenceAnalysisResult");
-        String description;
-        switch (documentPart) {
-            case "sentence":
-                description = "a single result from computing cooccurrence metrics between two concepts that cooccur at the sentence level";
-                break;
-            case "title":
-                description = "a single result from computing cooccurrence metrics between two concepts that cooccur in the document title";
-                break;
-            case "abstract":
-                description = "a single result from computing cooccurrence metrics between two concepts that cooccur in the abstract";
-                break;
-            default:
-                description = "a single result from computing cooccurrence metrics between two concepts that cooccur in a document";
-        }
-
-        edgeAttributes.put("description", description);
-        edgeAttributes.put("attribute_source", "infores:text-mining-provider-cooccurrence");
-        edgeAttributes.set("attributes", cooccurrenceMetrics.toJSONArray());
-        newEdge.set("attributes", edgeAttributes);
-        return newEdge;
-    }
 
     private Metrics getMetrics(String concept1, String concept2, String part) {
         int singleCount1, singleCount2, pairCount, totalConceptCount, totalDocumentCount;
@@ -344,41 +353,13 @@ public class CooccurrenceController {
         singleCount2 = singleCountsMap.getOrDefault(concept2, Collections.emptyMap()).getOrDefault(part, 0);
         // TODO: Make a single concept pair version of getCooccurrences
         Map<String, List<String>> cooccurrences = lookupQueries.getPairCounts(Collections.singletonList(concept1), Collections.singletonList(concept2));
-        pairCount = cooccurrences.getOrDefault(concept1 + concept2 + part, Collections.emptyList()).size();
-        return new Metrics(singleCount1, singleCount2, pairCount, totalConceptCount, totalDocumentCount, part);
-    }
-
-    private JsonNode updateMessageNode(JsonNode messageNode, JsonNode newEdges, ArrayNode newEdgeBindings) {
-        ObjectMapper om = new ObjectMapper();
-        ObjectNode updatedNode = om.createObjectNode();
-        ObjectNode knowledgeGraph = om.createObjectNode();
-        JsonNode nodes = messageNode.get("message").get("knowledge_graph").get("nodes").deepCopy();
-        ObjectNode edges = messageNode.get("message").get("knowledge_graph").get("edges").deepCopy();
-        for (Iterator<Map.Entry<String, JsonNode>> it = newEdges.fields(); it.hasNext(); ) {
-            Map.Entry<String, JsonNode> edge = it.next();
-            edges.set(edge.getKey(), edge.getValue());
+        List<String> documents = cooccurrences.getOrDefault(concept1 + concept2 + part, Collections.emptyList());
+        pairCount = documents.size();
+        Metrics metrics = new Metrics(singleCount1, singleCount2, pairCount, totalConceptCount, totalDocumentCount, part);
+        if (pairCount > 0) {
+            metrics.setDocumentIdList(documents.stream().map(hash -> hash.split("_")[0]).collect(Collectors.toList()));
         }
-        knowledgeGraph.set("nodes", nodes);
-        knowledgeGraph.set("edges", edges);
-        JsonNode queryGraph = messageNode.get("message").get("query_graph").deepCopy();
-        updatedNode.set("query_graph", queryGraph);
-        updatedNode.set("knowledge_graph", knowledgeGraph);
-        if (newEdgeBindings.isEmpty()) {
-            JsonNode results = messageNode.get("message").get("results").deepCopy();
-            updatedNode.set("results", results);
-        } else {
-            // Note: making the dangerous assumption that there is exactly one object in the results array
-            ArrayNode resultsArray = om.createArrayNode();
-            ObjectNode results = om.createObjectNode();
-            JsonNode nodeBindings = messageNode.get("message").get("results").get(0).get("node_bindings").deepCopy();
-            ObjectNode edgeBindings = messageNode.get("message").get("results").get(0).get("edge_bindings").deepCopy();
-            edgeBindings.set("", newEdgeBindings);
-            results.set("node_bindings", nodeBindings);
-            results.set("edge_bindings", edgeBindings);
-            resultsArray.add(results);
-            updatedNode.set("results", resultsArray);
-        }
-        return updatedNode;
+        return metrics;
     }
 
     private List<List<String>> getAllConceptPairs(List<String> concepts) {
@@ -405,7 +386,11 @@ public class CooccurrenceController {
     private KnowledgeGraph buildKnowledgeGraph(List<ConceptPair> conceptPairs, Map<String, String> labelMap, Map<String, List<String>> categoryMap) {
         KnowledgeGraph kg = new KnowledgeGraph();
         for (ConceptPair pair : conceptPairs) {
-            KnowledgeEdge edge = new KnowledgeEdge(pair.getSubject(), pair.getObject(), "biolink:occurs_together_in_literature_with", pair.getPairMetrics().toAttributeList());
+            List<Attribute> attributeList = pair.toAttributeList();
+            if (attributeList.size() == 0) {
+                continue;
+            }
+            KnowledgeEdge edge = new KnowledgeEdge(pair.getSubject(), pair.getObject(), "biolink:occurs_together_in_literature_with", attributeList);
             KnowledgeNode subjectNode = new KnowledgeNode(
                     labelMap.getOrDefault(pair.getSubject(), ""),
                     categoryMap.getOrDefault(pair.getSubject(), Collections.emptyList()));
@@ -418,7 +403,7 @@ public class CooccurrenceController {
             subjectNode.setQueryKey(pair.getSubjectKey());
             objectNode.setQueryKey(pair.getObjectKey());
 
-            kg.addEdge(pair.getSubject() + "_" + pair.getObject() + "_" + pair.getPart(), edge);
+            kg.addEdge(pair.getSubject() + "_" + pair.getObject(), edge);
             kg.addNode(pair.getSubject(), subjectNode);
             kg.addNode(pair.getObject(), objectNode);
         }
@@ -523,10 +508,10 @@ public class CooccurrenceController {
         logger.debug("Hierarchical counts retrieved in " + (t5 - t4) + "ms");
         for (String sub : subjectCuries) {
             for (String obj : objectCuries) {
+                ConceptPair pair = new ConceptPair(sub, obj);
                 for (String part : documentParts) {
                     if (pairCounts.containsKey(sub + obj + part)) {
                         int pairCount = pairCounts.get(sub + obj + part);
-                        ConceptPair pair = new ConceptPair(sub, obj, part, BigInteger.valueOf(pairCount));
                         int totalSubjectCount;
                         if (subjectHierarchyCounts.containsKey(sub) &&
                                 subjectHierarchyCounts.get(sub).containsKey(part) &&
@@ -551,9 +536,9 @@ public class CooccurrenceController {
                         Metrics metrics = new Metrics(totalSubjectCount, totalObjectCount, pairCount, conceptCounts.getOrDefault(part, 0),
                                 documentPartCounts.getOrDefault(part, 0), part);
                         metrics.setDocumentIdList(cooccurrences.get(sub + obj + part).stream().map(hash -> hash.split("_")[0]).collect(Collectors.toList()));
-                        pair.setPairMetrics(metrics);
-                        conceptPairs.add(pair);
+                        pair.setPairMetrics(part, metrics);
                     }
+                    conceptPairs.add(pair);
                 }
             }
         }

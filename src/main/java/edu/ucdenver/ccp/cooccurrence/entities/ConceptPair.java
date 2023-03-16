@@ -3,31 +3,37 @@ package edu.ucdenver.ccp.cooccurrence.entities;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import edu.ucdenver.ccp.cooccurrence.TRAPI.Attribute;
 import edu.ucdenver.ccp.cooccurrence.TRAPI.AttributeConstraint;
 
-import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class ConceptPair {
 
     private String subject;
     private String object;
-    private int pairCount;
-    private String documentHash;
-    private String part;
-    private String category;
     private String subjectKey;
     private String objectKey;
     private String edgeKey;
+    private final Map<String, Metrics> metricsMap;
 
-    private Metrics pairMetrics;
-
-    public ConceptPair(String subject, String object, String part, BigInteger pairCount) {
+    public ConceptPair(String subject, String object) {
         this.subject = subject;
         this.object = object;
-        this.part = part;
-        this.pairCount = pairCount.intValue();
+        this.metricsMap = new HashMap<>(4);
+    }
+
+    public ConceptPair(String subject, String object, String subjectKey, String objectKey, String edgeKey) {
+        this.subject = subject;
+        this.object = object;
+        this.subjectKey = subjectKey;
+        this.objectKey = objectKey;
+        this.edgeKey = edgeKey;
+        this.metricsMap = new HashMap<>(4);
     }
 
     public String getSubject() {
@@ -44,38 +50,6 @@ public class ConceptPair {
 
     public void setObject(String concept) {
         this.object = concept;
-    }
-
-    public int getPairCount() {
-        return pairCount;
-    }
-
-    public void setPairCount(int pairCount) {
-        this.pairCount = pairCount;
-    }
-
-    public String getDocumentHash() {
-        return documentHash;
-    }
-
-    public void setDocumentHash(String documentHash) {
-        this.documentHash = documentHash;
-    }
-
-    public String getPart() {
-        return part;
-    }
-
-    public void setPart(String part) {
-        this.part = part;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
     }
 
     public void setKeys(String subjectKey, String objectKey, String edgeKey) {
@@ -96,60 +70,69 @@ public class ConceptPair {
         return edgeKey;
     }
 
-    public Metrics getPairMetrics() {
-        return pairMetrics;
+    public Metrics getPairMetrics(String documentPart) {
+        return this.metricsMap.getOrDefault(documentPart, null);
     }
 
-    public void setPairMetrics(Metrics pairMetrics) {
-        this.pairMetrics = pairMetrics;
+    public void setPairMetrics(String documentPart, Metrics pairMetrics) {
+        this.metricsMap.put(documentPart, pairMetrics);
     }
 
-    public boolean meetsConstraints(List<AttributeConstraint> constraintList) {
-        boolean overallPass = false;
-        for (AttributeConstraint constraint : constraintList) {
-            overallPass = overallPass || meetsConstraint(constraint);
+    // This method removes parts from the metricsMap that do not satisfy the given constraint.
+    // If none of the metrics meet the constraints, this returns null
+    public ConceptPair satisfyConstraint(AttributeConstraint constraint) {
+        ConceptPair constrainedConceptPair = new ConceptPair(this.subject, this.object, this.subjectKey, this.objectKey, this.edgeKey);
+        int partsCount = 0;
+        for (String part : metricsMap.keySet()) {
+            if (meetsConstraint(constraint, part)) {
+                partsCount++;
+                constrainedConceptPair.setPairMetrics(part, metricsMap.get(part));
+            }
         }
-        return overallPass;
+        if (partsCount == 0) {
+            return null;
+        }
+        return constrainedConceptPair;
     }
 
-    private boolean meetsConstraint(AttributeConstraint constraint) {
+    private boolean meetsConstraint(AttributeConstraint constraint, String part) {
         if (!AttributeConstraint.supportedAttributes.contains(constraint.getId())) {
+            return false;
+        }
+        if (!this.metricsMap.containsKey(part)) {
             return false;
         }
         boolean isList = constraint.getValue().isArray(), isNot = constraint.isNot();
         String attributeString = null, constraintString;
         double attributeValue, constraintValue;
+        Metrics metrics = this.metricsMap.get(part);
         switch (constraint.getId()) {
             case "biolink:concept_count_subject":
-                attributeValue = this.pairMetrics.getSingleCount1();
+                attributeValue = metrics.getSingleCount1();
                 break;
             case "biolink:concept_count_object":
-                attributeValue = this.pairMetrics.getSingleCount2();
+                attributeValue = metrics.getSingleCount2();
                 break;
             case "biolink:tmkp_concept_pair_count":
-                attributeValue = this.pairMetrics.getPairCount();
+                attributeValue = metrics.getPairCount();
                 break;
             case "biolink:tmkp_normalized_google_distance":
-                attributeValue = this.pairMetrics.getNormalizedGoogleDistance();
+                attributeValue = metrics.getNormalizedGoogleDistance();
                 break;
             case "biolink:tmkp_pointwise_mutual_information":
-                attributeValue = this.pairMetrics.getPointwiseMutualInformation();
+                attributeValue = metrics.getPointwiseMutualInformation();
                 break;
             case "biolink:tmkp_normalized_pointwise_mutual_information":
-                attributeValue = this.pairMetrics.getNormalizedPointwiseMutualInformation();
+                attributeValue = metrics.getNormalizedPointwiseMutualInformation();
                 break;
             case "biolink:tmkp_mutual_dependence":
-                attributeValue = this.pairMetrics.getMutualDependence();
+                attributeValue = metrics.getMutualDependence();
                 break;
             case "biolink:tmkp_normalized_pointwise_mutual_information_max_denominator":
-                attributeValue = this.pairMetrics.getNormalizedPointwiseMutualInformationMaxDenom();
+                attributeValue = metrics.getNormalizedPointwiseMutualInformationMaxDenom();
                 break;
             case "biolink:tmkp_log_frequency_biased_mutual_dependence":
-                attributeValue = this.pairMetrics.getLogFrequencyBiasedMutualDependence();
-                break;
-            case "biolink:tmkp_document_part":
-                attributeValue = Double.NEGATIVE_INFINITY;
-                attributeString = this.part;
+                attributeValue = metrics.getLogFrequencyBiasedMutualDependence();
                 break;
             default:
                 attributeValue = Double.NEGATIVE_INFINITY;
@@ -157,19 +140,17 @@ public class ConceptPair {
         // None of the attributes are list-valued, so if the constraint is a list and the operator is "===" the comparison is necessarily false
         if (isList) {
             for (JsonNode item : constraint.getValue()) {
-                if (constraint.getId().equals("biolink:tmkp_document_part")) {
-                    // biolink:tmkp_document_part is currently the only string attribute, so we handle it specially
+                if (constraint.getId().equals("biolink:supporting_text_located_in")) {
+                    // biolink:supporting_text_located_in is currently the only string attribute, so we handle it specially
                     constraintString = item.asText();
                     boolean comparisonResult = false;
-                    if (attributeString != null) {
-                        if (constraint.getOperator().equals("==")) {
-                            comparisonResult = attributeString.equals(constraintString);
-                        } else if (constraint.getOperator().equals("matches")) {
-                            comparisonResult = Pattern.matches(constraintString, attributeString);
-                        }
-                        if ((!isNot && comparisonResult) || (isNot && !comparisonResult)) {
-                            return true;
-                        }
+                    if (constraint.getOperator().equals("==")) {
+                        comparisonResult = part.equals(constraintString);
+                    } else if (constraint.getOperator().equals("matches")) {
+                        comparisonResult = Pattern.matches(constraintString, part);
+                    }
+                    if ((!isNot && comparisonResult) || (isNot && !comparisonResult)) {
+                        return true;
                     }
                 } else {
                     constraintValue = item.asDouble();
@@ -193,21 +174,18 @@ public class ConceptPair {
             return false;
         } else {
             boolean comparisonResult = false;
-            if (constraint.getId().equals("biolink:tmkp_document_part")) {
-                // biolink:tmkp_document_part is currently the only string attribute, so we handle it specially
+            if (constraint.getId().equals("biolink:supporting_text_located_in")) {
+                // biolink:supporting_text_located_in is currently the only string attribute, so we handle it specially
                 constraintString = constraint.getValue().asText();
-                if (attributeString == null) {
-                    return false;
-                }
                 switch (constraint.getOperator()) {
                     case "==":
-                        comparisonResult = attributeString.equals(constraintString);
+                        comparisonResult = part.equals(constraintString);
                         break;
                     case "===":
-                        comparisonResult = attributeString.equals(constraintString) && constraint.getValue().isTextual();
+                        comparisonResult = part.equals(constraintString) && constraint.getValue().isTextual();
                         break;
                     case "matches":
-                        comparisonResult = Pattern.matches(constraintString, attributeString);
+                        comparisonResult = Pattern.matches(constraintString, part);
                         break;
                 }
                 return (!isNot && comparisonResult) || (isNot && !comparisonResult);
@@ -238,6 +216,21 @@ public class ConceptPair {
         }
     }
 
+    public List<Attribute> toAttributeList() {
+        List<Attribute> attributeList = new ArrayList<>(metricsMap.size());
+        for (Map.Entry<String, Metrics> metricsEntry : metricsMap.entrySet()) {
+            Attribute metricsAttribute = new Attribute();
+            metricsAttribute.setAttributeTypeId("biolink:has_supporting_study_result");
+            metricsAttribute.setAttributeSource("infores:text-mining-provider-cooccurrence");
+            List<Attribute> subAttributesList = metricsEntry.getValue().toAttributeList();
+            if (subAttributesList.size() == 0) {
+                continue;
+            }
+            subAttributesList.forEach(metricsAttribute::addAttribute);
+            attributeList.add(metricsAttribute);
+        }
+        return attributeList;
+    }
 
     public JsonNode toJson() {
         ObjectMapper mapper = new ObjectMapper();
@@ -247,10 +240,11 @@ public class ConceptPair {
         node.put("object", this.object);
         node.put("q_object", this.objectKey);
         node.put("q_edge", this.edgeKey);
-        node.put("document_part", this.part);
-        if (pairMetrics != null) {
-            node.set("metrics", pairMetrics.toJSON());
+        ObjectNode metricsNode = mapper.createObjectNode();
+        for (Map.Entry<String, Metrics> entry : this.metricsMap.entrySet()) {
+            metricsNode.set(entry.getKey(), entry.getValue().toJSON());
         }
+        node.set("metrics", metricsNode);
         return node;
     }
 

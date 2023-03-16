@@ -12,7 +12,7 @@ public class AttributeConstraint {
             "biolink:concept_count_subject", "biolink:concept_count_object", "biolink:tmkp_concept_pair_count", "biolink:tmkp_normalized_google_distance",
             "biolink:tmkp_pointwise_mutual_information", "biolink:tmkp_normalized_pointwise_mutual_information", "biolink:tmkp_mutual_dependence",
             "biolink:tmkp_normalized_pointwise_mutual_information_max_denominator", "biolink:tmkp_log_frequency_biased_mutual_dependence",
-            "biolink:tmkp_document_part");
+            "biolink:supporting_text_located_in");
     private String id;
     private String name;
     private boolean not;
@@ -129,7 +129,7 @@ public class AttributeConstraint {
             constraint.setUnitId(jsonConstraint.get("unit_id").asText());
         }
         if(jsonConstraint.hasNonNull("unit_name")) {
-            constraint.setUnitId(jsonConstraint.get("unit_name").asText());
+            constraint.setUnitName(jsonConstraint.get("unit_name").asText());
         }
         constraint.setSupported(supportedAttributes.contains(constraint.getId()));
         return constraint;
