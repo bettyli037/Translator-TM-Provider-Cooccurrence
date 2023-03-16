@@ -296,7 +296,7 @@ public class Metrics {
 
         if (this.documentIdList.size() > 0) {
             Attribute supportingDocument = new Attribute();
-            supportingDocument.setAttributeTypeId("biolink:supporting_document");
+            supportingDocument.setAttributeTypeId("biolink:publications");
             supportingDocument.setValue(String.join("|", documentIdList.subList(0, Math.min(50, documentIdList.size()))));
             supportingDocument.setValueTypeId("biolink:Publication");
             description = String.format("The documents where the concepts of this assertion were observed to cooccur at the %s level.", this.documentPart);
@@ -306,70 +306,5 @@ public class Metrics {
         }
 
         return attributeList;
-    }
-
-    public ArrayNode toJSONArray() {
-        ObjectMapper om = new ObjectMapper();
-        ArrayNode attributesNode = om.createArrayNode();
-        ObjectNode count1Node = om.createObjectNode();
-        ObjectNode count2Node = om.createObjectNode();
-        ObjectNode pairNode = om.createObjectNode();
-        ObjectNode ngdNode = om.createObjectNode();
-        ObjectNode pmiNode = om.createObjectNode();
-        ObjectNode npmiNode = om.createObjectNode();
-        ObjectNode mdNode = om.createObjectNode();
-        count1Node.put("attribute_type_id", "biolink:tmkp_concept1_count");
-        count1Node.put("value", singleCount1);
-        count1Node.put("value_type_id", "SIO:000794");
-        String description = String.format("The number of times concept #1 was observed to occur at the %s level in the documents that were processed", this.documentPart);
-        count1Node.put("description", description);
-        count1Node.put("attribute_source", "infores:text-mining-provider-cooccurrence");
-
-        count2Node.put("attribute_type_id", "biolink:tmkp_concept2_count");
-        count2Node.put("value", singleCount2);
-        count2Node.put("value_type_id", "SIO:000794");
-        description = String.format("The number of times concept #2 was observed to occur at the %s level in the documents that were processed", this.documentPart);
-        count2Node.put("description", description);
-        count2Node.put("attribute_source", "infores:text-mining-provider-cooccurrence");
-
-        pairNode.put("attribute_type_id", "biolink:tmkp_concept_pair_count");
-        pairNode.put("value", pairCount);
-        pairNode.put("value_type_id", "SIO:000794");
-        description = String.format("The number of times the concepts of this assertion were observed to cooccur at the %s level in the documents that were processed", this.documentPart);
-        pairNode.put("description", description);
-        pairNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
-
-        ngdNode.put("attribute_type_id", "biolink:tmkp_normalized_google_distance");
-        ngdNode.put("value", normalizedGoogleDistance);
-        ngdNode.put("value_type_id", "SIO:000794");
-        ngdNode.put("description", "The normalized google distance score for the concepts in this assertion based on their cooccurrence in the documents that were processed");
-        ngdNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
-
-        pmiNode.put("attribute_type_id", "biolink:tmkp_pointwise_mutual_information");
-        pmiNode.put("value", pointwiseMutualInformation);
-        pmiNode.put("value_type_id", "SIO:000794");
-        pmiNode.put("description", "The pointwise mutual information score for the concepts in this assertion based on their cooccurrence in the documents that were processed");
-        pmiNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
-
-        npmiNode.put("attribute_type_id", "biolink:tmkp_normalized_pointwise_mutual_information");
-        npmiNode.put("value", normalizedPointwiseMutualInformation);
-        npmiNode.put("value_type_id", "SIO:000794");
-        npmiNode.put("description", "The normalized pointwise mutual information score for the concepts in this assertion based on their cooccurrence in the documents that were processed");
-        npmiNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
-
-        mdNode.put("attribute_type_id", "biolink:tmkp_mutual_dependence");
-        mdNode.put("value", mutualDependence);
-        mdNode.put("value_type_id", "SIO:000794");
-        mdNode.put("description", "The mutual dependence (PMI^2) score for the concepts in this assertion based on their cooccurrence in the documents that were processed");
-        mdNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
-
-        attributesNode.add(count1Node);
-        attributesNode.add(count2Node);
-        attributesNode.add(pairNode);
-        attributesNode.add(ngdNode);
-        attributesNode.add(pmiNode);
-        attributesNode.add(npmiNode);
-        attributesNode.add(mdNode);
-        return attributesNode;
     }
 }

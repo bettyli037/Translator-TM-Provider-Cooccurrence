@@ -220,7 +220,7 @@ public class ConceptPair {
         List<Attribute> attributeList = new ArrayList<>(metricsMap.size());
         for (Map.Entry<String, Metrics> metricsEntry : metricsMap.entrySet()) {
             Attribute metricsAttribute = new Attribute();
-            metricsAttribute.setAttributeTypeId("biolink:supporting_study_result");
+            metricsAttribute.setAttributeTypeId("biolink:has_supporting_study_result");
             metricsAttribute.setAttributeSource("infores:text-mining-provider-cooccurrence");
             List<Attribute> subAttributesList = metricsEntry.getValue().toAttributeList();
             if (subAttributesList.size() == 0) {

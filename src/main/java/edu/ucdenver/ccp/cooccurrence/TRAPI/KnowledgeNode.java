@@ -6,14 +6,21 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class KnowledgeNode {
     private String name;
     private List<String> categories;
     private List<Attribute> attributes;
-
     private String queryKey;
+
+    public KnowledgeNode() {
+        this.name = "";
+        this.categories = new ArrayList<>();
+        this.attributes = new ArrayList<>();
+        this.queryKey = "";
+    }
 
     public KnowledgeNode(String name, List<String> categories) {
         this.name = name;
@@ -37,12 +44,20 @@ public class KnowledgeNode {
         this.categories = categories;
     }
 
+    public void addCategory(String category) {
+        this.categories.add(category);
+    }
+
     public List<Attribute> getAttributes() {
         return attributes;
     }
 
     public void setAttributes(List<Attribute> attributes) {
         this.attributes = attributes;
+    }
+
+    public void addAttribute(Attribute attribute) {
+        this.attributes.add(attribute);
     }
 
     public String getQueryKey() {
@@ -68,5 +83,27 @@ public class KnowledgeNode {
             nodeNode.set("attributes", attributesNode);
         }
         return nodeNode;
+    }
+
+    public static KnowledgeNode parseJSON(JsonNode jsonKNode) {
+        KnowledgeNode node = new KnowledgeNode();
+        if (jsonKNode.hasNonNull("name")) {
+            node.setName(jsonKNode.get("name").asText());
+        }
+        if (jsonKNode.hasNonNull("categories") && jsonKNode.get("categories").isArray()) {
+            Iterator<JsonNode> cats = jsonKNode.get("categories").elements();
+            while (cats.hasNext()) {
+                JsonNode categoryNode = cats.next();
+                node.addCategory(categoryNode.asText());
+            }
+        }
+        if (jsonKNode.hasNonNull("attributes") && jsonKNode.get("attributes").isArray()) {
+            Iterator<JsonNode> attributesIterator = jsonKNode.get("attributes").elements();
+            while (attributesIterator.hasNext()) {
+                JsonNode attributeNode = attributesIterator.next();
+                node.addAttribute(Attribute.parseJSON(attributeNode));
+            }
+        }
+        return node;
     }
 }

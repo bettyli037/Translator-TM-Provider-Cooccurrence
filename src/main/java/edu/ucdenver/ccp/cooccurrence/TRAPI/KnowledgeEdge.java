@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class KnowledgeEdge {
@@ -14,8 +15,16 @@ public class KnowledgeEdge {
     private String predicate;
     private List<Attribute> attributes;
     private List<Qualifier> qualifiers;
-
     private String queryKey;
+
+    public KnowledgeEdge() {
+        this.subject = "";
+        this.object = "";
+        this.predicate = "";
+        this.attributes = new ArrayList<>();
+        this.qualifiers = new ArrayList<>();
+        this.queryKey = "";
+    }
 
     public KnowledgeEdge(String subject, String object, String predicate, List<Attribute> attributes) {
         this.subject = subject;
@@ -57,12 +66,20 @@ public class KnowledgeEdge {
         this.attributes = attributes;
     }
 
+    public void addAttribute(Attribute attribute) {
+        this.attributes.add(attribute);
+    }
+
     public List<Qualifier> getQualifiers() {
         return qualifiers;
     }
 
     public void setQualifiers(List<Qualifier> qualifiers) {
         this.qualifiers = qualifiers;
+    }
+
+    public void addQualifier(Qualifier qualifier) {
+        this.qualifiers.add(qualifier);
     }
 
     public String getQueryKey() {
@@ -94,5 +111,34 @@ public class KnowledgeEdge {
             edgeNode.set("qualifiers", qualifiersNode);
         }
         return edgeNode;
+    }
+    public static KnowledgeEdge parseJSON(JsonNode jsonKEdge) {
+        if (!jsonKEdge.hasNonNull("subject") || !jsonKEdge.hasNonNull("object")) {
+            return null;
+        }
+        KnowledgeEdge edge = new KnowledgeEdge();
+        edge.setSubject(jsonKEdge.get("subject").asText());
+        edge.setObject(jsonKEdge.get("object").asText());
+        if (jsonKEdge.hasNonNull("predicate")) {
+            edge.setPredicate(jsonKEdge.get("predicate").asText());
+        }
+
+        if (jsonKEdge.hasNonNull("attributes") && jsonKEdge.get("attributes").isArray()) {
+            JsonNode attributesNode = jsonKEdge.get("attributes");
+            Iterator<JsonNode> attributesIterator = attributesNode.elements();
+            while (attributesIterator.hasNext()) {
+                edge.addAttribute(Attribute.parseJSON(attributesIterator.next()));
+            }
+        }
+
+        if (jsonKEdge.hasNonNull("qualifiers") && jsonKEdge.get("qualifiers").isArray()) {
+            JsonNode qualifiersNode = jsonKEdge.get("qualifiers");
+            Iterator<JsonNode> qualifiersIterator = qualifiersNode.elements();
+            while (qualifiersIterator.hasNext()) {
+                edge.addQualifier(Qualifier.parseJSON(qualifiersIterator.next()));
+            }
+        }
+
+        return edge;
     }
 }
