@@ -353,41 +353,13 @@ public class CooccurrenceController {
         singleCount2 = singleCountsMap.getOrDefault(concept2, Collections.emptyMap()).getOrDefault(part, 0);
         // TODO: Make a single concept pair version of getCooccurrences
         Map<String, List<String>> cooccurrences = lookupQueries.getPairCounts(Collections.singletonList(concept1), Collections.singletonList(concept2));
-        pairCount = cooccurrences.getOrDefault(concept1 + concept2 + part, Collections.emptyList()).size();
-        return new Metrics(singleCount1, singleCount2, pairCount, totalConceptCount, totalDocumentCount, part);
-    }
-
-    private JsonNode updateMessageNode(JsonNode messageNode, JsonNode newEdges, ArrayNode newEdgeBindings) {
-        ObjectMapper om = new ObjectMapper();
-        ObjectNode updatedNode = om.createObjectNode();
-        ObjectNode knowledgeGraph = om.createObjectNode();
-        JsonNode nodes = messageNode.get("message").get("knowledge_graph").get("nodes").deepCopy();
-        ObjectNode edges = messageNode.get("message").get("knowledge_graph").get("edges").deepCopy();
-        for (Iterator<Map.Entry<String, JsonNode>> it = newEdges.fields(); it.hasNext(); ) {
-            Map.Entry<String, JsonNode> edge = it.next();
-            edges.set(edge.getKey(), edge.getValue());
+        List<String> documents = cooccurrences.getOrDefault(concept1 + concept2 + part, Collections.emptyList());
+        pairCount = documents.size();
+        Metrics metrics = new Metrics(singleCount1, singleCount2, pairCount, totalConceptCount, totalDocumentCount, part);
+        if (pairCount > 0) {
+            metrics.setDocumentIdList(documents.stream().map(hash -> hash.split("_")[0]).collect(Collectors.toList()));
         }
-        knowledgeGraph.set("nodes", nodes);
-        knowledgeGraph.set("edges", edges);
-        JsonNode queryGraph = messageNode.get("message").get("query_graph").deepCopy();
-        updatedNode.set("query_graph", queryGraph);
-        updatedNode.set("knowledge_graph", knowledgeGraph);
-        if (newEdgeBindings.isEmpty()) {
-            JsonNode results = messageNode.get("message").get("results").deepCopy();
-            updatedNode.set("results", results);
-        } else {
-            // Note: making the dangerous assumption that there is exactly one object in the results array
-            ArrayNode resultsArray = om.createArrayNode();
-            ObjectNode results = om.createObjectNode();
-            JsonNode nodeBindings = messageNode.get("message").get("results").get(0).get("node_bindings").deepCopy();
-            ObjectNode edgeBindings = messageNode.get("message").get("results").get(0).get("edge_bindings").deepCopy();
-            edgeBindings.set("", newEdgeBindings);
-            results.set("node_bindings", nodeBindings);
-            results.set("edge_bindings", edgeBindings);
-            resultsArray.add(results);
-            updatedNode.set("results", resultsArray);
-        }
-        return updatedNode;
+        return metrics;
     }
 
     private List<List<String>> getAllConceptPairs(List<String> concepts) {
