@@ -218,10 +218,23 @@ public class ConceptPair {
 
     public List<Attribute> toAttributeList() {
         List<Attribute> attributeList = new ArrayList<>(metricsMap.size());
+
+        Attribute primaryKnowledgeSource = new Attribute();
+        primaryKnowledgeSource.setAttributeTypeId("biolink:primary_knowledge_source");
+        primaryKnowledgeSource.setValue("infores:text-mining-provider-cooccurrence");
+        primaryKnowledgeSource.setValueTypeId("biolink:InformationResource");
+        primaryKnowledgeSource.setAttributeSource("infores:text-mining-provider-cooccurrence");
+        attributeList.add(primaryKnowledgeSource);
+
         for (Map.Entry<String, Metrics> metricsEntry : metricsMap.entrySet()) {
             Attribute metricsAttribute = new Attribute();
             metricsAttribute.setAttributeTypeId("biolink:has_supporting_study_result");
             metricsAttribute.setAttributeSource("infores:text-mining-provider-cooccurrence");
+            String location = "article " + metricsEntry.getKey() + "s";
+            if (metricsEntry.getKey().equals("article")) {
+                location = "articles";
+            }
+            metricsAttribute.setValue("cooccurrence of" + this.subject + " and " + this.object + " in " + location);
             List<Attribute> subAttributesList = metricsEntry.getValue().toAttributeList();
             if (subAttributesList.size() == 0) {
                 continue;
