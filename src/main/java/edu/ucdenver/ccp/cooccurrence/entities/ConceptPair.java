@@ -234,7 +234,7 @@ public class ConceptPair {
             if (metricsEntry.getKey().equals("article")) {
                 location = "articles";
             }
-            metricsAttribute.setValue("cooccurrence of" + this.subject + " and " + this.object + " in " + location);
+            metricsAttribute.setValue("cooccurrence of " + this.subject + " and " + this.object + " in " + location);
             List<Attribute> subAttributesList = metricsEntry.getValue().toAttributeList();
             if (subAttributesList.size() == 0) {
                 continue;
