@@ -198,13 +198,6 @@ public class Metrics {
     public List<Attribute> toAttributeList() {
         List<Attribute> attributeList = new ArrayList<>();
 
-        Attribute primaryKnowledgeSource = new Attribute();
-        primaryKnowledgeSource.setAttributeTypeId("biolink:primary_knowledge_source");
-        primaryKnowledgeSource.setValue("infores:text-mining-provider-cooccurrence");
-        primaryKnowledgeSource.setValueTypeId("biolink:InformationResource");
-        primaryKnowledgeSource.setAttributeSource("infores:text-mining-provider-cooccurrence");
-        attributeList.add(primaryKnowledgeSource);
-
         Attribute supportingDataSource = new Attribute();
         supportingDataSource.setAttributeTypeId("biolink:supporting_data_source");
         supportingDataSource.setValue("infores:pubmed");
