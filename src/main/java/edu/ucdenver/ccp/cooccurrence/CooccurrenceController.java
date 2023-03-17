@@ -120,11 +120,11 @@ public class CooccurrenceController {
                 .map(cp -> List.of(cp.getSubject(), cp.getObject()))
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
-//        JsonNode normalizedNodes = sri.getNormalizedNodes(curies);
+        JsonNode normalizedNodes = sri.getNormalizedNodes(curies);
         Map<String, List<String>> categoryMap = lookupQueries.getCategoriesForCuries(curies);
         Map<String, String> labelMap = lookupQueries.getLabels(curies);
 
-        KnowledgeGraph knowledgeGraph = buildKnowledgeGraph(conceptPairs, labelMap, categoryMap); // Equivalent to a fill operation.
+        KnowledgeGraph knowledgeGraph = buildKnowledgeGraph(conceptPairs, labelMap, categoryMap, normalizedNodes); // Equivalent to a fill operation.
         List<Result> resultsList = bindGraphs(queryGraph, knowledgeGraph); // Almost an atomic bind operation
         List<Result> completedResults = completeResults(resultsList); // Atomic complete_results operation
 
@@ -383,20 +383,52 @@ public class CooccurrenceController {
 
     // TODO: look into what does/should happen if the same node name would be added by multiple different query graph sources.
     // Currently the last one would override the others in the KG, which would have implications for node binding (and probably other things).
-    private KnowledgeGraph buildKnowledgeGraph(List<ConceptPair> conceptPairs, Map<String, String> labelMap, Map<String, List<String>> categoryMap) {
+    private KnowledgeGraph buildKnowledgeGraph(List<ConceptPair> conceptPairs, Map<String, String> labelMap, Map<String, List<String>> categoryMap, JsonNode normalizedNodes) {
         KnowledgeGraph kg = new KnowledgeGraph();
         for (ConceptPair pair : conceptPairs) {
             List<Attribute> attributeList = pair.toAttributeList();
             if (attributeList.size() == 0) {
                 continue;
             }
+            String subjectLabel = labelMap.getOrDefault(pair.getSubject(), "");
+            String objectLabel = labelMap.getOrDefault(pair.getObject(), "");
+            List<String> subjectCategoryList = categoryMap.getOrDefault(pair.getSubject(), new ArrayList<>());
+            List<String> objectCategoryList = categoryMap.getOrDefault(pair.getObject(), new ArrayList<>());
+            if (subjectLabel.isEmpty()) {
+                if (normalizedNodes.hasNonNull(pair.getSubject()) && normalizedNodes.get(pair.getSubject()).hasNonNull("id") &&
+                        normalizedNodes.get(pair.getSubject()).get("id").hasNonNull("label")) {
+                    subjectLabel = normalizedNodes.get(pair.getSubject()).get("id").get("label").asText();
+                }
+            }
+            if (objectLabel.isEmpty()) {
+                if (normalizedNodes.hasNonNull(pair.getObject()) && normalizedNodes.get(pair.getObject()).hasNonNull("id") &&
+                        normalizedNodes.get(pair.getObject()).get("id").hasNonNull("label")) {
+                    objectLabel = normalizedNodes.get(pair.getObject()).get("id").get("label").asText();
+                }
+            }
+            if (subjectCategoryList.size() == 0) {
+                if (normalizedNodes.hasNonNull(pair.getSubject()) && normalizedNodes.get(pair.getSubject()).hasNonNull("type") &&
+                        normalizedNodes.get(pair.getSubject()).get("type").isArray()) {
+                    Iterator<JsonNode> cats = normalizedNodes.get(pair.getSubject()).get("type").elements();
+                    while (cats.hasNext()) {
+                        JsonNode categoryNode = cats.next();
+                        subjectCategoryList.add(categoryNode.asText());
+                    }
+                }
+            }
+            if (objectCategoryList.size() == 0) {
+                if (normalizedNodes.hasNonNull(pair.getObject()) && normalizedNodes.get(pair.getObject()).hasNonNull("type") &&
+                        normalizedNodes.get(pair.getObject()).get("type").isArray()) {
+                    Iterator<JsonNode> cats = normalizedNodes.get(pair.getObject()).get("type").elements();
+                    while (cats.hasNext()) {
+                        JsonNode categoryNode = cats.next();
+                        objectCategoryList.add(categoryNode.asText());
+                    }
+                }
+            }
             KnowledgeEdge edge = new KnowledgeEdge(pair.getSubject(), pair.getObject(), "biolink:occurs_together_in_literature_with", attributeList);
-            KnowledgeNode subjectNode = new KnowledgeNode(
-                    labelMap.getOrDefault(pair.getSubject(), ""),
-                    categoryMap.getOrDefault(pair.getSubject(), Collections.emptyList()));
-            KnowledgeNode objectNode = new KnowledgeNode(
-                    labelMap.getOrDefault(pair.getObject(), ""),
-                    categoryMap.getOrDefault(pair.getObject(), Collections.emptyList()));
+            KnowledgeNode subjectNode = new KnowledgeNode(subjectLabel, subjectCategoryList);
+            KnowledgeNode objectNode = new KnowledgeNode(objectLabel, objectCategoryList);
 
             // These are the only way I could think of to know which kedge and knode is connected to which qedge and qnode
             edge.setQueryKey(pair.getEdgeKey());
