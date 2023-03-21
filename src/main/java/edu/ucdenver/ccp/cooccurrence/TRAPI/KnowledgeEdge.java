@@ -113,15 +113,13 @@ public class KnowledgeEdge {
         return edgeNode;
     }
     public static KnowledgeEdge parseJSON(JsonNode jsonKEdge) {
-        if (!jsonKEdge.hasNonNull("subject") || !jsonKEdge.hasNonNull("object")) {
+        if (!jsonKEdge.hasNonNull("subject") || !jsonKEdge.hasNonNull("object") || !jsonKEdge.hasNonNull("predicate")) {
             return null;
         }
         KnowledgeEdge edge = new KnowledgeEdge();
         edge.setSubject(jsonKEdge.get("subject").asText());
         edge.setObject(jsonKEdge.get("object").asText());
-        if (jsonKEdge.hasNonNull("predicate")) {
-            edge.setPredicate(jsonKEdge.get("predicate").asText());
-        }
+        edge.setPredicate(jsonKEdge.get("predicate").asText());
 
         if (jsonKEdge.hasNonNull("attributes") && jsonKEdge.get("attributes").isArray()) {
             JsonNode attributesNode = jsonKEdge.get("attributes");
