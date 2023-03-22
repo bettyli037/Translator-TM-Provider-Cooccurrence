@@ -82,8 +82,18 @@ public class CooccurrenceController {
             logger.debug(StringUtils.join(errors, "|"));
             return ResponseEntity.unprocessableEntity().body(objectMapper.convertValue(errors, ArrayNode.class));
         }
-        QueryGraph queryGraph = QueryGraph.parseJSON(messageNode.get("query_graph"));
 
+        Map<String, JsonNode> otherAttributes = new HashMap<>();
+        Iterator<String> keyIterator = requestNode.fieldNames();
+        while (keyIterator.hasNext()) {
+            String key = keyIterator.next();
+            if (key.equals("message")) {
+                continue;
+            }
+            otherAttributes.put(key, requestNode.get(key));
+        }
+
+        QueryGraph queryGraph = QueryGraph.parseJSON(messageNode.get("query_graph"));
         List<AttributeConstraint> unsupportedConstraints = new ArrayList<>();
         for (Map.Entry<String, QueryEdge> edgeEntry : queryGraph.getEdges().entrySet()) {
             unsupportedConstraints.addAll(edgeEntry.getValue().getAttributeConstraints().stream().filter(x -> !x.isSupported()).collect(Collectors.toList()));
@@ -137,6 +147,9 @@ public class CooccurrenceController {
         logger.info("Lookup completed in " + (System.currentTimeMillis() - startTime) + "ms");
         ObjectNode responseNode = objectMapper.createObjectNode();
         responseNode.set("message", responseMessageNode);
+        for (Map.Entry<String, JsonNode> attribute : otherAttributes.entrySet()) {
+            responseNode.set(attribute.getKey(), attribute.getValue());
+        }
         return ResponseEntity.ok(responseNode);
     }
 
@@ -202,6 +215,17 @@ public class CooccurrenceController {
         if (errors.size() > 0) {
             return ResponseEntity.unprocessableEntity().body(objectMapper.convertValue(errors, ArrayNode.class));
         }
+
+        Map<String, JsonNode> otherAttributes = new HashMap<>();
+        Iterator<String> keyIterator = requestNode.fieldNames();
+        while (keyIterator.hasNext()) {
+            String key = keyIterator.next();
+            if (key.equals("message")) {
+                continue;
+            }
+            otherAttributes.put(key, requestNode.get(key));
+        }
+
         KnowledgeGraph knowledgeGraph = KnowledgeGraph.parseJSON(messageNode.get("knowledge_graph"));
         List<Result> results = new ArrayList<>();
         Iterator<JsonNode> resultsIterator = messageNode.get("results").elements();
@@ -249,7 +273,10 @@ public class CooccurrenceController {
             resultsNode.add(result.toJSON());
         }
         responseMessageNode.set("results", resultsNode);
-        JsonNode responseNode = objectMapper.createObjectNode().set("message", responseMessageNode);
+        ObjectNode responseNode = objectMapper.createObjectNode().set("message", responseMessageNode);
+        for (Map.Entry<String, JsonNode> attribute : otherAttributes.entrySet()) {
+            responseNode.set(attribute.getKey(), attribute.getValue());
+        }
         logger.info("Overlay completed in " + (System.currentTimeMillis() - startTime) + "ms");
         return ResponseEntity.ok(responseNode);
     }
@@ -387,7 +414,7 @@ public class CooccurrenceController {
         KnowledgeGraph kg = new KnowledgeGraph();
         for (ConceptPair pair : conceptPairs) {
             List<Attribute> attributeList = pair.toAttributeList();
-            if (attributeList.size() == 0) {
+            if (attributeList.size() < 2) {
                 continue;
             }
             String subjectLabel = labelMap.getOrDefault(pair.getSubject(), "");
@@ -579,7 +606,6 @@ public class CooccurrenceController {
 
     // The goal here is to translate as many incoming curies as possible to the curies used in the text mined database.
     private List<String> getTextMinedCuries(List<String> queryCuriesList) {
-//        List<String> textMinedCuriesList = lookupQueries.getTextMinedCuriesList(queryCuriesList);
         logger.debug("Starting curie(s)");
         logger.debug(String.join(",", queryCuriesList));
         // The first step is to get those curies that are already known synonyms of TM curies
