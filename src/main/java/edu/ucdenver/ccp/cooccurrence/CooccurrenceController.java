@@ -136,13 +136,13 @@ public class CooccurrenceController {
 
         KnowledgeGraph knowledgeGraph = buildKnowledgeGraph(conceptPairs, labelMap, categoryMap, normalizedNodes); // Equivalent to a fill operation.
         List<Result> resultsList = bindGraphs(queryGraph, knowledgeGraph); // Almost an atomic bind operation
-        List<Result> completedResults = completeResults(resultsList); // Atomic complete_results operation
+//        List<Result> completedResults = completeResults(resultsList); // Atomic complete_results operation
 
         // With all the information in place, we just pack it up into JSON to respond.
         ObjectNode responseMessageNode = objectMapper.createObjectNode();
         responseMessageNode.set("query_graph", queryGraph.toJSON());
         responseMessageNode.set("knowledge_graph", knowledgeGraph.toJSON());
-        List<JsonNode> jsonResults = completedResults.stream().map(Result::toJSON).collect(Collectors.toList());
+        List<JsonNode> jsonResults = resultsList.stream().map(Result::toJSON).collect(Collectors.toList());
         responseMessageNode.set("results", objectMapper.convertValue(jsonResults, ArrayNode.class));
         logger.info("Lookup completed in " + (System.currentTimeMillis() - startTime) + "ms");
         ObjectNode responseNode = objectMapper.createObjectNode();
@@ -230,7 +230,10 @@ public class CooccurrenceController {
         List<Result> results = new ArrayList<>();
         Iterator<JsonNode> resultsIterator = messageNode.get("results").elements();
         while (resultsIterator.hasNext()) {
-            results.add(Result.parseJSON(resultsIterator.next()));
+            Result result = Result.parseJSON(resultsIterator.next());
+            if (result != null) {
+                results.add(result);
+            }
         }
         List<String> curies = new ArrayList<>(knowledgeGraph.getNodes().keySet());
 
@@ -259,9 +262,12 @@ public class CooccurrenceController {
             for (Result result : results) {
                 if (result.bindsNodeCurie(s) && result.bindsNodeCurie(o)) {
                     logger.debug("Result binds (" + s + ", " + o + ")");
+                    Analysis analysis = new Analysis();
+                    analysis.setReasonerId("infores:text-mining-provider-cooccurrence");
                     EdgeBinding edgeBinding = new EdgeBinding();
                     edgeBinding.setId(edgeId);
-                    result.addEdgeBinding("", edgeBinding);
+                    analysis.addEdgeBinding("", edgeBinding);
+                    result.addAnalysis(analysis);
                 }
             }
         }
@@ -293,12 +299,15 @@ public class CooccurrenceController {
         Map<String, KnowledgeNode> knowledgeNodeMap = kGraph.getNodes();
         for (Map.Entry<String, KnowledgeEdge> edgeEntry : kGraph.getEdges().entrySet()) {
             Result result = new Result();
+            Analysis analysis = new Analysis();
+            analysis.setReasonerId("infores:text-mining-provider-cooccurrence");
             String queryGraphEdgeLabel = edgeEntry.getValue().getQueryKey();
             String knowledgeGraphEdgeLabel = edgeEntry.getKey();
             EdgeBinding edgeBinding = new EdgeBinding();
             edgeBinding.setId(knowledgeGraphEdgeLabel);
             if (queryEdgeMap.containsKey(queryGraphEdgeLabel)) {
-                result.addEdgeBinding(queryGraphEdgeLabel, edgeBinding);
+                analysis.addEdgeBinding(queryGraphEdgeLabel, edgeBinding);
+                result.addAnalysis(analysis);
             }
 
             String knowledgeGraphSubjectLabel = edgeEntry.getValue().getSubject();
@@ -323,6 +332,7 @@ public class CooccurrenceController {
         return results;
     }
 
+/*
     private List<Result> completeResults(List<Result> inputList) {
         List<Result> outputList = new ArrayList<>();
         for (int i = 0; i < inputList.size(); i++) {
@@ -366,7 +376,7 @@ public class CooccurrenceController {
         }
         return inputList;
     }
-
+*/
     // endregion
 
     //region Just Overlay Stuff

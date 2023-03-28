@@ -12,7 +12,7 @@ public class Analysis {
     private String reasonerId;
     private Double score;
     private String scoringMethod;
-    private final Map<String, EdgeBinding> edgeBindings;
+    private final Map<String, List<EdgeBinding>> edgeBindings;
     private final List<AuxiliaryGraph> supportGraphs;
     private final List<Attribute> attributes;
     private final Map<String, JsonNode> additionalProperties;
@@ -52,12 +52,15 @@ public class Analysis {
         this.scoringMethod = scoringMethod;
     }
 
-    public Map<String, EdgeBinding> getEdgeBindings() {
+    public Map<String, List<EdgeBinding>> getEdgeBindings() {
         return edgeBindings;
     }
 
     public void addEdgeBinding(String key, EdgeBinding value) {
-        edgeBindings.put(key, value);
+        if (!edgeBindings.containsKey(key)) {
+            edgeBindings.put(key, new ArrayList<>());
+        }
+        edgeBindings.get(key).add(value);
     }
 
     public List<AuxiliaryGraph> getSupportGraphs() {
@@ -90,8 +93,14 @@ public class Analysis {
         ObjectNode json = om.createObjectNode();
         json.put("reasoner_id", this.reasonerId);
         ObjectNode edgeBindingsNode = om.createObjectNode();
-        for (Map.Entry<String, EdgeBinding> binding : this.edgeBindings.entrySet()) {
-            edgeBindingsNode.set(binding.getKey(), binding.getValue().toJSON());
+        for (Map.Entry<String, List<EdgeBinding>> binding : this.edgeBindings.entrySet()) {
+            System.out.println(binding.getKey());
+            System.out.println(binding.getValue());
+            ArrayNode bindings = om.createArrayNode();
+            for (EdgeBinding edgeBinding : binding.getValue()) {
+                bindings.add(edgeBinding.toJSON());
+            }
+            edgeBindingsNode.set(binding.getKey(), bindings);
         }
         json.set("edge_bindings", edgeBindingsNode);
         if (this.score != null) {
@@ -133,7 +142,12 @@ public class Analysis {
         Iterator<String> keyIterator = edgeNode.fieldNames();
         while (keyIterator.hasNext()) {
             String key = keyIterator.next();
-            analysis.addEdgeBinding(key, EdgeBinding.parseJSON(edgeNode.get(key)));
+            JsonNode edges = edgeNode.get(key);
+            Iterator<JsonNode> edgesIterator = edges.elements();
+            while (edgesIterator.hasNext()) {
+                EdgeBinding edgeBinding = EdgeBinding.parseJSON(edgesIterator.next());
+                analysis.addEdgeBinding(key, edgeBinding);
+            }
         }
 
         if (json.hasNonNull("support_graphs") && json.get("support_graphs").isArray()) {
