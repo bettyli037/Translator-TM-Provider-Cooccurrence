@@ -467,6 +467,11 @@ public class CooccurrenceController {
             KnowledgeNode subjectNode = new KnowledgeNode(subjectLabel, subjectCategoryList);
             KnowledgeNode objectNode = new KnowledgeNode(objectLabel, objectCategoryList);
 
+            RetrievalSource source = new RetrievalSource();
+            source.setResource("infores:text-mining-provider-cooccurrence");
+            source.setResourceRole("primary_knowledge_source");
+            edge.addSource(source);
+
             // These are the only way I could think of to know which kedge and knode is connected to which qedge and qnode
             edge.setQueryKey(pair.getEdgeKey());
             subjectNode.setQueryKey(pair.getSubjectKey());

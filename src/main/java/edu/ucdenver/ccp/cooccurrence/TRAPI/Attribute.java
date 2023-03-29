@@ -98,7 +98,8 @@ public class Attribute {
     }
 
     public JsonNode toJSON() {
-        ObjectNode attributeNode = (new ObjectMapper()).createObjectNode();
+        ObjectMapper om = new ObjectMapper();
+        ObjectNode attributeNode = om.createObjectNode();
         attributeNode.put("attribute_type_id", this.attributeTypeId);
         if (this.originalAttributeName != null) {
             attributeNode.put("original_attribute_name", this.originalAttributeName);
@@ -115,6 +116,8 @@ public class Attribute {
             attributeNode.put("value", (Double) this.value);
         } else if (this.value instanceof Boolean) {
             attributeNode.put("value", (Boolean) this.value);
+        } else if (this.value instanceof List) {
+            attributeNode.set("value", om.valueToTree(this.value));
         }
         if (this.valueTypeId != null) {
             attributeNode.put("value_type_id", this.valueTypeId);
