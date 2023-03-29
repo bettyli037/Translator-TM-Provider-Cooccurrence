@@ -290,7 +290,7 @@ public class Metrics {
         if (this.documentIdList.size() > 0) {
             Attribute supportingDocument = new Attribute();
             supportingDocument.setAttributeTypeId("biolink:publications");
-            supportingDocument.setValue(String.join("|", documentIdList.subList(0, Math.min(50, documentIdList.size()))));
+            supportingDocument.setValue(documentIdList);
             supportingDocument.setValueTypeId("biolink:Publication");
             description = String.format("The documents where the concepts of this assertion were observed to cooccur at the %s level.", this.documentPart);
             supportingDocument.setDescription(description);
