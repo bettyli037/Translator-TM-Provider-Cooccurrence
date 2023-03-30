@@ -109,6 +109,7 @@ public class CooccurrenceController {
         List<ConceptPair> initialPairs = getConceptPairs(queryGraph); // This is the actual query portion.
         Map<String, QueryEdge> edgeMap = queryGraph.getEdges();
         List<ConceptPair> conceptPairs = new ArrayList<>();
+        // Remove partial results that do not satisfy attribute constraints, if any
         for (ConceptPair pair : initialPairs) {
             QueryEdge edge = edgeMap.get(pair.getEdgeKey());
             if (edge.getAttributeConstraints().size() > 0) {
@@ -257,6 +258,10 @@ public class CooccurrenceController {
             String edgeId = s + "_" + o;
             KnowledgeEdge edge = new KnowledgeEdge(conceptPair.getSubject(), conceptPair.getObject(),
                     "biolink:occurs_together_in_literature_with", conceptPair.toAttributeList());
+            RetrievalSource source = new RetrievalSource();
+            source.setResource("infores:text-mining-provider-cooccurrence");
+            source.setResourceRole("primary_knowledge_source");
+            edge.addSource(source);
             knowledgeGraph.addEdge(edgeId, edge);
             logger.debug("Added edge " + edgeId);
             for (Result result : results) {
