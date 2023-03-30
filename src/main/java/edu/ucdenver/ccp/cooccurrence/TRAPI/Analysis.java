@@ -94,8 +94,6 @@ public class Analysis {
         json.put("reasoner_id", this.reasonerId);
         ObjectNode edgeBindingsNode = om.createObjectNode();
         for (Map.Entry<String, List<EdgeBinding>> binding : this.edgeBindings.entrySet()) {
-            System.out.println(binding.getKey());
-            System.out.println(binding.getValue());
             ArrayNode bindings = om.createArrayNode();
             for (EdgeBinding edgeBinding : binding.getValue()) {
                 bindings.add(edgeBinding.toJSON());

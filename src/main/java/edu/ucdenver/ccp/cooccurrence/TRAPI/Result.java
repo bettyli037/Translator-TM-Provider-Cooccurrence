@@ -119,7 +119,6 @@ public class Result {
         Iterator<JsonNode> analysesIterator = resultNode.get("analyses").elements();
         while (analysesIterator.hasNext()) {
             JsonNode nextAnalysis = analysesIterator.next();
-            System.out.println(nextAnalysis);
             Analysis attribute = Analysis.parseJSON(nextAnalysis);
             if (attribute != null) {
                 result.addAnalysis(attribute);

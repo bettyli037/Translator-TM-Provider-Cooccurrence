@@ -442,7 +442,6 @@ public class LookupRepository {
                 insertBuilder.append(",");
             }
         }
-        System.out.println(insertBuilder.toString());
         Query insertQuery = session.createNativeQuery(insertBuilder.toString());
         for (int i = 0; i < synonymsList.size(); i++) {
             List<String> synonymPair = synonymsList.get(i);
