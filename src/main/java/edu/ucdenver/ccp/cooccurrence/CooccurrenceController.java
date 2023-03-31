@@ -33,6 +33,8 @@ public class CooccurrenceController {
             "biolink:correlated_with", "biolink:occurs_together_in_literature_with");
     private Map<String, Integer> conceptCounts;
 
+    private final int NN_BATCH_SIZE = 1000;
+
     public CooccurrenceController(NodeRepository repo, LookupRepository impl, NodeNormalizerService sri) {
         this.nodeRepo = repo;
         this.objectMapper = new ObjectMapper();
@@ -49,7 +51,7 @@ public class CooccurrenceController {
     @GetMapping("/test")
     public JsonNode testNN() {
         List<String> curies = lookupQueries.getTextMinedCuries();
-        return sri.getNormalizedNodes(curies);
+        return sri.getNormalizedNodesInBatches(curies, NN_BATCH_SIZE);
     }
 
     @GetMapping("/refresh")
@@ -130,7 +132,7 @@ public class CooccurrenceController {
                 .map(cp -> List.of(cp.getSubject(), cp.getObject()))
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
-        JsonNode normalizedNodes = sri.getNormalizedNodes(curies);
+        JsonNode normalizedNodes = sri.getNormalizedNodesInBatches(curies, NN_BATCH_SIZE);
         Map<String, List<String>> categoryMap = lookupQueries.getCategoriesForCuries(curies);
         Map<String, String> labelMap = lookupQueries.getLabels(curies);
 
@@ -176,13 +178,71 @@ public class CooccurrenceController {
             nodeMetadataNode.set(categoryEntry.getKey(), entry);
         }
 
+        ArrayNode edgeMetaAttributeArray = objectMapper.createArrayNode();
+
+        ObjectNode partNode = objectMapper.createObjectNode();
+        partNode.put("attribute_type_id", "biolink:supporting_text_located_in");
+        partNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
+        partNode.put("constraint_use", true);
+        partNode.put("constraint_name", "biolink:supporting_text_located_in");
+        edgeMetaAttributeArray.add(partNode);
+
+        ObjectNode subjectNode = objectMapper.createObjectNode();
+        subjectNode.put("attribute_type_id", "biolink:concept_count_subject");
+        subjectNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
+        subjectNode.put("constraint_use", true);
+        subjectNode.put("constraint_name", "biolink:concept_count_subject");
+        edgeMetaAttributeArray.add(subjectNode);
+
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("attribute_type_id", "biolink:concept_count_object");
+        objectNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
+        objectNode.put("constraint_use", true);
+        objectNode.put("constraint_name", "biolink:concept_count_object");
+        edgeMetaAttributeArray.add(objectNode);
+
+        ObjectNode pairNode = objectMapper.createObjectNode();
+        pairNode.put("attribute_type_id", "biolink:concept_pair_count");
+        pairNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
+        pairNode.put("constraint_use", true);
+        pairNode.put("constraint_name", "biolink:concept_pair_count");
+        edgeMetaAttributeArray.add(pairNode);
+
+        ObjectNode ngdNode = objectMapper.createObjectNode();
+        ngdNode.put("attribute_type_id", "biolink:tmkp_normalized_google_distance");
+        ngdNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
+        ngdNode.put("constraint_use", true);
+        ngdNode.put("constraint_name", "biolink:tmkp_normalized_google_distance");
+        edgeMetaAttributeArray.add(ngdNode);
+
+        ObjectNode npmiMaxNode = objectMapper.createObjectNode();
+        npmiMaxNode.put("attribute_type_id", "biolink:tmkp_normalized_pointwise_mutual_information_max");
+        npmiMaxNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
+        npmiMaxNode.put("constraint_use", true);
+        npmiMaxNode.put("constraint_name", "biolink:tmkp_normalized_pointwise_mutual_information_max");
+        edgeMetaAttributeArray.add(npmiMaxNode);
+
+        ObjectNode mdNode = objectMapper.createObjectNode();
+        mdNode.put("attribute_type_id", "biolink:tmkp_mutual_dependence");
+        mdNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
+        mdNode.put("constraint_use", true);
+        mdNode.put("constraint_name", "biolink:tmkp_mutual_dependence");
+        edgeMetaAttributeArray.add(mdNode);
+
+        ObjectNode lfbmdNode = objectMapper.createObjectNode();
+        lfbmdNode.put("attribute_type_id", "biolink:tmkp_log_frequency_biased_mutual_dependence");
+        lfbmdNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
+        lfbmdNode.put("constraint_use", true);
+        lfbmdNode.put("constraint_name", "biolink:tmkp_log_frequency_biased_mutual_dependence");
+        edgeMetaAttributeArray.add(lfbmdNode);
+
         ArrayNode edgeMetadataArray = objectMapper.createArrayNode();
         for (EdgeMetadata em : edgeMetadata) {
             ObjectNode entry = objectMapper.createObjectNode();
             entry.put("subject", em.getSubject());
             entry.put("object", em.getObject());
             entry.put("predicate", em.getPredicate());
-            entry.set("attributes", objectMapper.nullNode());
+            entry.set("attributes", edgeMetaAttributeArray);
             edgeMetadataArray.add(entry);
         }
 
@@ -644,7 +704,7 @@ public class CooccurrenceController {
             logger.debug("Trying SRI NN");
             List<List<String>> newSynonymsList = new ArrayList<>();
             List<String> allTextMinedCuries = lookupQueries.getTextMinedCuries();
-            JsonNode nnJSON = sri.getNormalizedNodes(unmatchedQueryCuries);
+            JsonNode nnJSON = sri.getNormalizedNodesInBatches(unmatchedQueryCuries, NN_BATCH_SIZE);
             logger.debug(nnJSON.toPrettyString());
             for (String curie : unmatchedQueryCuries) {
                 logger.debug("Trying for " + curie);
