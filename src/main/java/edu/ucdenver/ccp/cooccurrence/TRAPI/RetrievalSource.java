@@ -9,7 +9,7 @@ import java.util.*;
 public class RetrievalSource {
     private String resource;
     private String resourceRole;
-    private final List<String> upstreamResources;
+    private final List<String> upstreamResourceIds;
     private final List<String> sourceRecordUrls;
     private final Map<String, JsonNode> additionalProperties;
 
@@ -17,7 +17,7 @@ public class RetrievalSource {
     public RetrievalSource() {
         resource = "";
         resourceRole = "";
-        upstreamResources = new ArrayList<>();
+        upstreamResourceIds = new ArrayList<>();
         sourceRecordUrls = new ArrayList<>();
         additionalProperties = new HashMap<>();
     }
@@ -38,8 +38,8 @@ public class RetrievalSource {
         this.resourceRole = resourceRole;
     }
 
-    public List<String> getUpstreamResources() {
-        return upstreamResources;
+    public List<String> getUpstreamResourceIds() {
+        return upstreamResourceIds;
     }
 
     public List<String> getSourceRecordUrls() {
@@ -50,8 +50,8 @@ public class RetrievalSource {
         return additionalProperties;
     }
 
-    public void addUpstreamResource(String upstreamResource) {
-        upstreamResources.add(upstreamResource);
+    public void addUpstreamResourceId(String upstreamResourceId) {
+        upstreamResourceIds.add(upstreamResourceId);
     }
 
     public void addSourceRecordUrl(String sourceRecordUrl) {
@@ -67,10 +67,10 @@ public class RetrievalSource {
     public JsonNode toJSON() {
         ObjectMapper om = new ObjectMapper();
         ObjectNode edgeNode = om.createObjectNode();
-        edgeNode.put("resource", this.resource);
+        edgeNode.put("resource_id", this.resource);
         edgeNode.put("resource_role", this.resourceRole);
-        if (this.upstreamResources.size() > 0) {
-            edgeNode.set("upstream_resources", om.valueToTree(this.upstreamResources));
+        if (this.upstreamResourceIds.size() > 0) {
+            edgeNode.set("upstream_resource_ids", om.valueToTree(this.upstreamResourceIds));
         }
         if (this.sourceRecordUrls.size() > 0) {
             edgeNode.set("source_record_urls", om.valueToTree(this.sourceRecordUrls));
@@ -81,11 +81,11 @@ public class RetrievalSource {
         return edgeNode;
     }
     public static RetrievalSource parseJSON(JsonNode json) {
-        if (!json.hasNonNull("resource") || !json.hasNonNull("resource_role")) {
+        if (!json.hasNonNull("resource_id") || !json.hasNonNull("resource_role")) {
             return null;
         }
         RetrievalSource retrievalSource = new RetrievalSource();
-        retrievalSource.setResource(json.get("resource").asText());
+        retrievalSource.setResource(json.get("resource_id").asText());
         retrievalSource.setResourceRole(json.get("resource_role").asText());
 
         Iterator<String> keyIterator = json.fieldNames();

@@ -9,7 +9,7 @@ import java.util.*;
 
 public class Analysis {
     // region Properties
-    private String reasonerId;
+    private String resourceId;
     private Double score;
     private String scoringMethod;
     private final Map<String, List<EdgeBinding>> edgeBindings;
@@ -21,19 +21,19 @@ public class Analysis {
 
     // region Boilerplate
     public Analysis() {
-        reasonerId = "";
+        resourceId = "";
         edgeBindings = new HashMap<>();
         supportGraphs = new ArrayList<>();
         attributes = new ArrayList<>();
         additionalProperties = new HashMap<>();
     }
 
-    public String getReasonerId() {
-        return reasonerId;
+    public String getResourceId() {
+        return resourceId;
     }
 
-    public void setReasonerId(String reasonerId) {
-        this.reasonerId = reasonerId;
+    public void setResourceId(String resourceId) {
+        this.resourceId = resourceId;
     }
 
     public Double getScore() {
@@ -91,7 +91,7 @@ public class Analysis {
     public JsonNode toJSON() {
         ObjectMapper om = new ObjectMapper();
         ObjectNode json = om.createObjectNode();
-        json.put("reasoner_id", this.reasonerId);
+        json.put("resource_id", this.resourceId);
         ObjectNode edgeBindingsNode = om.createObjectNode();
         for (Map.Entry<String, List<EdgeBinding>> binding : this.edgeBindings.entrySet()) {
             ArrayNode bindings = om.createArrayNode();
@@ -130,11 +130,11 @@ public class Analysis {
     }
 
     public static Analysis parseJSON(JsonNode json) {
-        if (!json.hasNonNull("reasoner_id") || !json.hasNonNull("edge_bindings")) {
+        if (!json.hasNonNull("resource_id") || !json.hasNonNull("edge_bindings")) {
             return null;
         }
         Analysis analysis = new Analysis();
-        analysis.setReasonerId(json.get("reasoner_id").asText());
+        analysis.setResourceId(json.get("resource_id").asText());
 
         JsonNode edgeNode = json.get("edge_bindings");
         Iterator<String> keyIterator = edgeNode.fieldNames();
@@ -171,7 +171,7 @@ public class Analysis {
         keyIterator = json.fieldNames();
         while (keyIterator.hasNext()) {
             String key = keyIterator.next();
-            if (key.equals("reasoner_id") || key.equals("edge_bindings") || key.equals("support_graphs") || key.equals("attributes")) {
+            if (key.equals("resource_id") || key.equals("edge_bindings") || key.equals("support_graphs") || key.equals("attributes")) {
                 continue;
             }
             analysis.addAdditionalProperty(key, json.get(key));

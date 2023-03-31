@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -209,6 +208,7 @@ public class CooccurrenceController {
         JsonNode messageNode = requestNode.get("message");
         Validator validator = new Validator();
         Set<ValidationMessage> errors = validator.validateInput(messageNode.get("query_graph"));
+//        Set<ValidationMessage> errors = validator.validateMessage(messageNode);
         if (errors.size() > 0) {
             return ResponseEntity.unprocessableEntity().body(objectMapper.convertValue(errors, ArrayNode.class));
         }
@@ -268,7 +268,7 @@ public class CooccurrenceController {
                 if (result.bindsNodeCurie(s) && result.bindsNodeCurie(o)) {
                     logger.debug("Result binds (" + s + ", " + o + ")");
                     Analysis analysis = new Analysis();
-                    analysis.setReasonerId("infores:text-mining-provider-cooccurrence");
+                    analysis.setResourceId("infores:text-mining-provider-cooccurrence");
                     EdgeBinding edgeBinding = new EdgeBinding();
                     edgeBinding.setId(edgeId);
                     analysis.addEdgeBinding("", edgeBinding);
@@ -305,7 +305,7 @@ public class CooccurrenceController {
         for (Map.Entry<String, KnowledgeEdge> edgeEntry : kGraph.getEdges().entrySet()) {
             Result result = new Result();
             Analysis analysis = new Analysis();
-            analysis.setReasonerId("infores:text-mining-provider-cooccurrence");
+            analysis.setResourceId("infores:text-mining-provider-cooccurrence");
             String queryGraphEdgeLabel = edgeEntry.getValue().getQueryKey();
             String knowledgeGraphEdgeLabel = edgeEntry.getKey();
             EdgeBinding edgeBinding = new EdgeBinding();
