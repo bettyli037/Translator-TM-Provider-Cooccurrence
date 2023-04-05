@@ -83,7 +83,8 @@ public class CooccurrenceController {
             logger.debug(StringUtils.join(errors, "|"));
             return ResponseEntity.unprocessableEntity().body(objectMapper.convertValue(errors, ArrayNode.class));
         }
-
+        // TRAPI specs allow several named properties as well as additional properties, but we only care about "message" so the rest just get passed along.
+        // TODO: make use of the log_level property
         Map<String, JsonNode> otherAttributes = new HashMap<>();
         Iterator<String> keyIterator = requestNode.fieldNames();
         while (keyIterator.hasNext()) {
@@ -156,6 +157,7 @@ public class CooccurrenceController {
     }
 
 
+    // TODO: add a TRAPI class for the MetaKnowledgeGraph and associated subclasses
     @GetMapping("/meta_knowledge_graph")
     public JsonNode getMetaKnowledgeGraph() {
         long startTime = System.currentTimeMillis();
@@ -242,7 +244,9 @@ public class CooccurrenceController {
             entry.put("subject", em.getSubject());
             entry.put("object", em.getObject());
             entry.put("predicate", em.getPredicate());
+            entry.set("knowledge_types", objectMapper.nullNode());
             entry.set("attributes", edgeMetaAttributeArray);
+            entry.set("qualifiers", objectMapper.nullNode());
             edgeMetadataArray.add(entry);
         }
 
