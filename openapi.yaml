@@ -17,7 +17,7 @@ info:
     team:
     - Text Mining Provider
   x-trapi:
-    version: 1.3.0
+    version: 1.4.0
     test_data_location:
       development:
         url: https://raw.githubusercontent.com/UCDenver-ccp/Translator-TM-Provider-Cooccurrence/main/src/test/data/test_triples.json
@@ -90,28 +90,37 @@ paths:
                     "message": {
                       "query_graph": {
                         "nodes": {
-                          "test_ms": {
-                            "id": "MS:1"
+                          "ms": {
+                            "id": "MONDO:0005301"
                           },
-                          "small_molecule": {
-                            "category": "biolink:TinyMolecule"
+                          "ce": {
+                            "category": "biolink:ChemicalEntity"
                           }
                         },
                         "edges": {
-                          "cooccurs": {
-                            "subject": "small_molecule",
-                            "predicate": "biolink:occurs_together_in_literature_with",
-                            "object": "test_ms"
+                          "treats": {
+                            "subject": "ce",
+                            "predicate": "biolink:treats",
+                            "object": "ms"
                           }
                         }
                       },
                       "knowledge_graph": {
                         "nodes": {
-                          "DRUGBANK:DB01294": {
-                            "name": "Bismuth;2-oxidobenzoate;hydroxide",
+                          "MONDO:0005301": {
+                            "name": "multiple sclerosis",
                             "categories": [
-                              "biolink:MolecularMixture",
-                              "biolink:ChemicalMixture",
+                              "biolink:Disease",
+                              "biolink:DiseaseOrPhenotypicFeature",
+                              "biolink:ThingWithTaxon",
+                              "biolink:BiologicalEntity",
+                              "biolink:NamedThing",
+                              "biolink:Entity"
+                            ]
+                          },
+                          "DRUGBANK:DB12016": {
+                            "name": "PONESIMOD",
+                            "categories": [
                               "biolink:ChemicalEntity",
                               "biolink:PhysicalEssence",
                               "biolink:ChemicalOrDrugOrTreatment",
@@ -122,11 +131,11 @@ paths:
                               "biolink:PhysicalEssenceOrOccurrent"
                             ]
                           },
-                          "DRUGBANK:DB09338": {
-                            "name": "[3-[[2-(Carboxymethoxy)benzoyl]amino]-2-methoxypropyl]hydroxymercury(II)",
+                          "DRUGBANK:DB05266": {
+                            "name": "Ibudilast",
                             "categories": [
-                              "biolink:MolecularMixture",
-                              "biolink:ChemicalMixture",
+                              "biolink:SmallMolecule",
+                              "biolink:MolecularEntity",
                               "biolink:ChemicalEntity",
                               "biolink:PhysicalEssence",
                               "biolink:ChemicalOrDrugOrTreatment",
@@ -137,26 +146,11 @@ paths:
                               "biolink:PhysicalEssenceOrOccurrent"
                             ]
                           },
-                          "DRUGBANK:DB00761": {
-                            "name": "Potassium chloride",
+                          "DRUGBANK:DB11811": {
+                            "name": "Arhalofenate",
                             "categories": [
-                              "biolink:MolecularMixture",
-                              "biolink:ChemicalMixture",
-                              "biolink:ChemicalEntity",
-                              "biolink:PhysicalEssence",
-                              "biolink:ChemicalOrDrugOrTreatment",
-                              "biolink:ChemicalEntityOrGeneOrGeneProduct",
-                              "biolink:ChemicalEntityOrProteinOrPolypeptide",
-                              "biolink:NamedThing",
-                              "biolink:Entity",
-                              "biolink:PhysicalEssenceOrOccurrent"
-                            ]
-                          },
-                          "CHEBI:28741": {
-                            "name": "Sodium fluoride",
-                            "categories": [
-                              "biolink:MolecularMixture",
-                              "biolink:ChemicalMixture",
+                              "biolink:SmallMolecule",
+                              "biolink:MolecularEntity",
                               "biolink:ChemicalEntity",
                               "biolink:PhysicalEssence",
                               "biolink:ChemicalOrDrugOrTreatment",
@@ -168,32 +162,146 @@ paths:
                             ]
                           }
                         },
-                        "edges": {}
+                        "edges": {
+                          "2fa653819ad7c4d42e49aced752e4b466e5cd7951b2ed30975f9ab13acc4d862-treats": {
+                            "subject": "DRUGBANK:DB05266",
+                            "object": "MONDO:0005301",
+                            "predicate": "biolink:treats",
+                            "sources": [
+                              {
+                                "resource_id": "infores:text-mining-provider-targeted",
+                                "resource_role": "primary_knowledge_source"
+                              }
+                            ]
+                          },
+                          "0e8611560575e6c2238927d2e92fef1ac019ec2c72549f743a6888978195085b-treats": {
+                            "subject": "DRUGBANK:DB12016",
+                            "object": "MONDO:0005301",
+                            "predicate": "biolink:treats",
+                            "sources": [
+                              {
+                                "resource_id": "infores:text-mining-provider-targeted",
+                                "resource_role": "primary_knowledge_source"
+                              }
+                            ]
+                          },
+                          "10795307c2b0b57ed52b81ba171edc470109e6fcc7b59371bd2ced0261c1f3b9-treats": {
+                            "subject": "DRUGBANK:DB11811",
+                            "object": "MONDO:0005301",
+                            "predicate": "biolink:treats",
+                            "sources": [
+                              {
+                                "resource_id": "infores:text-mining-provider-targeted",
+                                "resource_role": "primary_knowledge_source"
+                              }
+                            ]
+                          }
+                        }
                       },
                       "results": [
                         {
                           "node_bindings": {
-                            "n02": [
+                            "ms": [
                               {
-                                "id": "UBERON:0002384"
+                                "id": "MONDO:0005301"
                               }
                             ],
-                            "n00": [
+                            "ce": [
                               {
-                                "id": "DRUGBANK:DB13620"
+                                "id": "DRUGBANK:DB05266"
                               }
                             ]
                           },
-                          "edge_bindings": {
-                            "e00": [
+                          "analyses": [
+                            {
+                              "resource_id": "infores:text-mining-provider-targeted",
+                              "edge_bindings": {
+                                "treats": [
+                                  {
+                                    "id": "2fa653819ad7c4d42e49aced752e4b466e5cd7951b2ed30975f9ab13acc4d862-treats"
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "node_bindings": {
+                            "ms": [
                               {
-                                "id": "UBERON:0002384_DRUGBANK:DB13620_abstract"
-                              },
+                                "id": "MONDO:0005301"
+                              }
+                            ],
+                            "ce": [
                               {
-                                "id": "UBERON:0002384_DRUGBANK:DB13620_article"
+                                "id": "DRUGBANK:DB12016"
                               }
                             ]
-                          }
+                          },
+                          "analyses": [
+                            {
+                              "resource_id": "infores:text-mining-provider-targeted",
+                              "edge_bindings": {
+                                "treats": [
+                                  {
+                                    "id": "0e8611560575e6c2238927d2e92fef1ac019ec2c72549f743a6888978195085b-treats"
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "node_bindings": {
+                            "ms": [
+                              {
+                                "id": "MONDO:0005301"
+                              }
+                            ],
+                            "ce": [
+                              {
+                                "id": "DRUGBANK:DB12016"
+                              }
+                            ]
+                          },
+                          "analyses": [
+                            {
+                              "resource_id": "infores:text-mining-provider-targeted",
+                              "edge_bindings": {
+                                "treats": [
+                                  {
+                                    "id": "0e8611560575e6c2238927d2e92fef1ac019ec2c72549f743a6888978195085b-treats"
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "node_bindings": {
+                            "ms": [
+                              {
+                                "id": "MONDO:0005301"
+                              }
+                            ],
+                            "ce": [
+                              {
+                                "id": "DRUGBANK:DB11811"
+                              }
+                            ]
+                          },
+                          "analyses": [
+                            {
+                              "resource_id": "infores:text-mining-provider-targeted",
+                              "edge_bindings": {
+                                "treats": [
+                                  {
+                                    "id": "10795307c2b0b57ed52b81ba171edc470109e6fcc7b59371bd2ced0261c1f3b9-treats"
+                                  }
+                                ]
+                              }
+                            }
+                          ]
                         }
                       ]
                     }
@@ -285,90 +393,216 @@ paths:
 components:
   schemas:
     Attribute:
-      additionalProperties: false
-      description: Node/edge attribute.
-      properties:
-        name:
-          nullable: true
-          title: Name
-          type: string
-        source:
-          nullable: true
-          title: Source
-          type: string
-        type:
-          allOf:
-          - $ref: '#/components/schemas/CURIE'
-          title: type
-        url:
-          nullable: true
-          title: Url
-          type: string
-        value:
-          title: value
-      required:
-      - type
-      - value
-      title: Attribute
       type: object
-    BiolinkEntity:
-      description: Biolink entity.
-      pattern: ^biolink:[A-Z][a-zA-Z]*$
-      title: biolink entity
-      type: string
-    BiolinkPredicate:
-      description: Biolink predicate.
-      pattern: ^biolink:[a-z][a-z_]*$
-      title: biolink predicate
-      type: string
-    CURIE:
-      description: Compact URI.
-      title: CURIE
-      type: string
-    Edge:
-      additionalProperties: false
-      description: Knowledge graph edge.
+      description: >-
+        Generic attribute for a node or an edge that expands the key-value
+        pair concept by including fields for additional metadata. These fields
+        can be used to describe the source of the statement made in a key-value
+        pair of the attribute object, or describe the attribute's value itself
+        including its semantic type, or a url providing additional information
+        about it. An attribute may be further qualified with sub-attributes
+        (for example to provide confidence intervals on a value).
       properties:
+        attribute_type_id:
+          $ref: '#/components/schemas/CURIE'
+          description: >-
+            The 'key' of the attribute object, holding a CURIE of an ontology
+            property defining the attribute (preferably the CURIE of a
+            Biolink association slot). This property captures the relationship
+            asserted to hold between the value of the attribute, and the node
+            or edge from  which it hangs. For example, that a value of
+            '0.000153' represents a p-value supporting an edge, or that
+            a value of 'ChEMBL' represents the original source of the knowledge
+            expressed in the edge.
+          example: biolink:synonym
+        original_attribute_name:
+          type: string
+          description: >-
+            The term used by the original source of an attribute to describe
+            the meaning or significance of the value it captures. This may be
+            a column name in a source tsv file, or a key in a source json
+            document for the field in the data that held the attribute's
+            value. Capturing this information  where possible lets us preserve
+            what the original source said. Note that the data type is string'
+            but the contents of the field could also be a CURIE of a third
+            party ontology term.
+          example: p-value
+          nullable: true
+        value:
+          description: >-
+            Value of the attribute. May be any data type, including a list.
+          example: 0.000153
+        value_type_id:
+          oneOf:
+            - $ref: '#/components/schemas/CURIE'
+          description: >-
+            CURIE describing the semantic type of an  attribute's value. Use
+            a Biolink class if possible, otherwise a term from an external
+            ontology. If a suitable CURIE/identifier does not exist, enter a
+            descriptive phrase here and submit the new type for consideration
+            by the appropriate authority.
+          example: EDAM:data_1187
+          nullable: true
+        attribute_source:
+          type: string
+          description: >-
+            The source of the core assertion made by the key-value pair of an
+            attribute object. Use a CURIE or namespace designator for this
+            resource where possible.
+          example: UniProtKB
+          nullable: true
+        value_url:
+          type: string
+          description: >-
+            Human-consumable URL linking to a web document that provides
+            additional information about an  attribute's value (not the node
+            or the edge fom which it hangs).
+          example: https://pubmed.ncbi.nlm.nih.gov/32529952
+          nullable: true
+        description:
+          type: string
+          description: >-
+            Human-readable description for the attribute and its value.
+          example: Assertion Authored By Dr. Trans L. Ator
+          nullable: true
         attributes:
+          type: array
+          description: >-
+            A list of attributes providing further information about the
+            parent attribute (for example to provide provenance
+            information about the parent attribute).
           items:
             $ref: '#/components/schemas/Attribute'
           nullable: true
-          title: Attributes
-          type: array
-        object:
-          allOf:
-          - $ref: '#/components/schemas/CURIE'
-          title: object node id
-        predicate:
-          allOf:
-          - $ref: '#/components/schemas/BiolinkPredicate'
-          nullable: true
-          title: Predicate
-        relation:
-          nullable: true
-          title: Relation
-          type: string
-        subject:
-          allOf:
-          - $ref: '#/components/schemas/CURIE'
-          title: subject node id
       required:
-      - subject
-      - object
-      title: knowledge-graph edge
+        - attribute_type_id
+        - value
+      additionalProperties: false
+    BiolinkEntity:
+      description: >-
+        Compact URI (CURIE) for a Biolink class, biolink:NamedThing
+        or a child thereof. The CURIE must use the prefix 'biolink:'
+        followed by the PascalCase class name.
+      type: string
+      pattern: ^biolink:[A-Z][a-zA-Z]*$
+      externalDocs:
+        description: Biolink model entities
+        url: https://biolink.github.io/biolink-model/docs/NamedThing.html
+      example: biolink:PhenotypicFeature
+    BiolinkPredicate:
+      description: >-
+        CURIE for a Biolink 'predicate' slot, taken from the Biolink slot
+        ('is_a') hierarchy rooted in biolink:related_to (snake_case). This
+        predicate defines the Biolink relationship between the subject and
+        object nodes of a biolink:Association defining a knowledge graph edge.
+      type: string
+      pattern: ^biolink:[a-z][a-z_]*$
+      externalDocs:
+        description: Biolink model predicates
+        url: https://biolink.github.io/biolink-model/docs/related_to.html
+      example: biolink:interacts_with
+    CURIE:
+      type: string
+      description: >-
+        A Compact URI, consisting of a prefix and a reference separated
+        by a colon, such as UniProtKB:P00738. Via an external context
+        definition, the CURIE prefix and colon may be replaced by a URI
+        prefix, such as http://identifiers.org/uniprot/, to form a full
+        URI.
+      externalDocs:
+        url: https://www.w3.org/TR/2010/NOTE-curie-20101216/
+    Edge:
       type: object
+      description: >-
+        A specification of the semantic relationship linking two concepts
+        that are expressed as nodes in the knowledge "thought" graph
+        resulting from a query upon the underlying knowledge source.
+      properties:
+        predicate:
+          description: >-
+            The type of relationship between the subject and object
+            for the statement expressed in an Edge. These should be
+            Biolink Model predicate terms and are NOT allowed
+            to be of type 'abstract' or 'mixin'. Returning 'deprecated'
+            predicate terms should also be avoided.
+          example: biolink:gene_associated_with_condition
+          oneOf:
+            - $ref: '#/components/schemas/BiolinkPredicate'
+          nullable: false
+        subject:
+          description: >-
+            Corresponds to the map key CURIE of the
+            subject concept node of this relationship edge.
+          example: MONDO:0011382
+          oneOf:
+            - $ref: '#/components/schemas/CURIE'
+          nullable: false
+        object:
+          description: >-
+            Corresponds to the map key CURIE of the
+            object concept node of this relationship edge.
+          example: UniProtKB:P00738
+          oneOf:
+            - $ref: '#/components/schemas/CURIE'
+          nullable: false
+        attributes:
+          description: A list of additional attributes for this edge
+          items:
+            $ref: '#/components/schemas/Attribute'
+          nullable: true
+          type: array
+        qualifiers:
+          description: >-
+            A set of Qualifiers that act together to add nuance
+            or detail to the statement expressed in an Edge.
+          items:
+            $ref: '#/components/schemas/Qualifier'
+          nullable: true
+          type: array
+        sources:
+          type: array
+          description: >-
+            A list of RetrievalSource objects that provide information
+            about how a particular Information Resource served
+            as a source from which the knowledge expressed in an Edge,
+            or data used to generate this knowledge, was retrieved.
+          items:
+            $ref: '#/components/schemas/RetrievalSource'
+          minItems: 1
+          nullable: false
+      additionalProperties: false
+      required:
+        - object
+        - predicate
+        - subject
+        - sources
     EdgeBinding:
-      description: Edge binding.
-      example:
-        id: string
+      type: object
+      description: >-
+        A instance of EdgeBinding is a single KnowledgeGraph Edge mapping,
+        identified by the corresponding 'id' object key identifier of the
+        Edge within the Knowledge Graph. Instances of EdgeBinding may include
+        extra annotation (such annotation is not yet fully standardized).
+        Edge bindings are captured within a specific reasoner's Analysis
+        object because the Edges in the Knowledge Graph that get bound to
+        the input Query Graph may differ between reasoners.
       properties:
         id:
-          title: knowledge graph id
           type: string
+          description: The key identifier of a specific KnowledgeGraph Edge.
+        attributes:
+          type: array
+          description: >-
+            A list of attributes providing further information about the
+            edge binding. This is not intended for capturing edge attributes
+            and should only be used for properties that vary from result to
+            result.
+          items:
+            $ref: '#/components/schemas/Attribute'
+          nullable: true
+      additionalProperties: true
       required:
-      - id
-      title: edge binding
-      type: object
+        - id
     HTTPValidationError:
       properties:
         detail:
@@ -379,45 +613,77 @@ components:
       title: HTTPValidationError
       type: object
     KnowledgeGraph:
-      description: Knowledge graph.
+      type: object
+      description: >-
+        The knowledge graph associated with a set of results. The instances
+        of Node and Edge defining this graph represent instances of
+        biolink:NamedThing (concept nodes) and biolink:Association
+        (relationship edges) representing (Attribute) annotated knowledge
+        returned from the knowledge sources and inference agents wrapped by
+        the given TRAPI implementation.
       properties:
-        edges:
-          additionalProperties:
-            $ref: '#/components/schemas/Edge'
-          title: edges
-          type: object
         nodes:
+          type: object
+          description: >-
+            Dictionary of Node instances used in the KnowledgeGraph,
+            referenced elsewhere in the TRAPI output by the dictionary key.
           additionalProperties:
             $ref: '#/components/schemas/Node'
-          title: nodes
+        edges:
           type: object
+          description: >-
+            Dictionary of Edge instances used in the KnowledgeGraph,
+            referenced elsewhere in the TRAPI output by the dictionary key.
+          additionalProperties:
+            $ref: '#/components/schemas/Edge'
+      additionalProperties: true
       required:
-      - nodes
-      - edges
-      title: knowledge graph
-      type: object
+        - nodes
+        - edges
     Message:
-      additionalProperties: false
-      description: Message.
+      description: >-
+        The message object holds the main content of a Query or a Response in
+        three properties: query_graph, results, and knowledge_graph.
+        The query_graph property contains the query configuration, the results
+        property contains any answers that are returned by the service,
+        and knowledge_graph property contains lists of edges and nodes in the
+        thought graph corresponding to this message. The content of these
+        properties is context-dependent to the encompassing object and
+        the TRAPI operation requested.
+      type: object
       properties:
-        knowledge_graph:
-          allOf:
-          - $ref: '#/components/schemas/KnowledgeGraph'
-          nullable: true
-          title: knowledge graph
-        query_graph:
-          allOf:
-          - $ref: '#/components/schemas/QueryGraph'
-          nullable: true
-          title: query graph
         results:
+          description: >-
+            List of all returned Result objects for the query posed.
+            The list SHOULD NOT be assumed to be ordered. The 'score' property,
+             if present, MAY be used to infer result rankings.
+          type: array
           items:
             $ref: '#/components/schemas/Result'
           nullable: true
-          title: list of results
-          type: array
-      title: message
-      type: object
+        query_graph:
+          description: >-
+            QueryGraph object that contains a serialization of a query in the
+            form of a graph
+          oneOf:
+            - $ref: '#/components/schemas/QueryGraph'
+          nullable: true
+        knowledge_graph:
+          description: >-
+            KnowledgeGraph object that contains lists of nodes and edges
+            in the thought graph corresponding to the message
+          oneOf:
+            - $ref: '#/components/schemas/KnowledgeGraph'
+          nullable: true
+        auxiliary_graphs:
+          type: object
+          description: >-
+            Dictionary of AuxiliaryGraph instances that are used by Knowledge
+            Graph Edges and Result Analyses. These are referenced elsewhere by
+            the dictionary key.
+          additionalProperties:
+            $ref: '#components/schemas/AuxiliaryGraph'
+      additionalProperties: false
     MetaKnowledgeGraph:
       type: object
       description: >-
@@ -479,7 +745,7 @@ components:
           $ref: '#/components/schemas/BiolinkEntity'
           description: >-
             Subject node category of this relationship edge.
-          example: biolink:ChemicalSubstance
+          example: biolink:ChemicalEntity
         predicate:
           $ref: '#/components/schemas/BiolinkPredicate'
           description: >-
@@ -490,6 +756,16 @@ components:
           description: >-
             Object node category of this relationship edge.
           example: biolink:Protein
+        knowledge_types:
+          description: >-
+            A list of knowledge_types that are supported by the service.
+            If the knowledge_types is null, this means that only 'lookup'
+            is supported. Currently allowed values are 'lookup' or 'inferred'.
+          items:
+            type: string
+          minItems: 1
+          nullable: true
+          type: array
         attributes:
           type: array
           description: >-
@@ -497,6 +773,27 @@ components:
           items:
             $ref: '#/components/schemas/MetaAttribute'
           nullable: true
+        qualifiers:
+          description: >-
+            Qualifiers that are possible to be found on this edge type.
+          items:
+            $ref: '#/components/schemas/MetaQualifier'
+          nullable: true
+          type: array
+        association:
+          type: object
+          $ref: '#/components/schemas/BiolinkEntity'
+          description: >-
+            The Biolink association type (entity) that this edge represents.
+            Associations are classes in Biolink
+            that represent a relationship between two entities.
+            For example, the association 'gene interacts with gene'
+            is represented by the Biolink class,
+            'biolink:GeneToGeneAssociation'.  If association
+            is filled out, then the testing harness can
+            help validate that the qualifiers are being used
+            correctly.
+          example: biolink:ChemicalToGeneAssociation
       required:
         - subject
         - predicate
@@ -541,172 +838,298 @@ components:
       required:
         - attribute_type_id
     Node:
-      additionalProperties: false
-      description: Knowledge graph node.
-      example:
-        category: string
+      type: object
+      description: >-
+        A node in the KnowledgeGraph which represents some biomedical
+        concept. Nodes are identified by the keys in the KnowledgeGraph
+        Node mapping.
       properties:
+        name:
+          type: string
+          example: Haptoglobin
+          description: Formal name of the entity
+          nullable: true
+        categories:
+          type: array
+          description: >-
+            These should be Biolink Model categories and are NOT allowed
+            to be of type 'abstract' or 'mixin'. Returning 'deprecated'
+            categories should also be avoided.
+          items:
+            $ref: '#/components/schemas/BiolinkEntity'
+          nullable: true
         attributes:
+          type: array
+          description: A list of attributes describing the node
           items:
             $ref: '#/components/schemas/Attribute'
           nullable: true
-          title: Attributes
-          type: array
-        category:
-          anyOf:
-          - $ref: '#/components/schemas/BiolinkEntity'
-          - items:
-              $ref: '#/components/schemas/BiolinkEntity'
-            type: array
-          nullable: true
-          title: category
-        name:
-          nullable: true
-          title: Name
-          type: string
-      title: knowledge-graph node
-      type: object
+      additionalProperties: false
     NodeBinding:
-      description: Node binding.
-      example:
-        id: x:string
+      type: object
+      description: >-
+        An instance of NodeBinding is a single KnowledgeGraph Node mapping,
+        identified by the corresponding 'id' object key identifier of the
+        Node within the Knowledge Graph. Instances of NodeBinding may
+        include extra annotation in the form of additional properties.
+        (such annotation is not yet fully standardized). Each Node
+        Binding must bind directly to node in the original Query Graph.
       properties:
         id:
-          allOf:
-          - $ref: '#/components/schemas/CURIE'
-          title: knowledge graph id
+          $ref: '#/components/schemas/CURIE'
+          description: >-
+            The CURIE of a Node within the Knowledge Graph.
+        query_id:
+          oneOf:
+            - $ref: '#/components/schemas/CURIE'
+          description: >-
+            An optional property to provide the CURIE in the QueryGraph to
+            which this binding applies. If the bound QNode does not have an
+            an 'id' property or if it is empty, then this query_id MUST be
+            null or absent. If the bound QNode has one or more CURIEs
+            as an 'id' and this NodeBinding's 'id' refers to a QNode 'id'
+            in a manner where the CURIEs are different (typically due to
+            the NodeBinding.id being a descendant of a QNode.id), then
+            this query_id MUST be provided. In other cases, there is no
+            ambiguity, and this query_id SHOULD NOT be provided.
+          nullable: true
+        attributes:
+          type: array
+          description: >-
+            A list of attributes providing further information about the
+            node binding. This is not intended for capturing node attributes
+            and should only be used for properties that vary from result to
+            result.
+          items:
+            $ref: '#/components/schemas/Attribute'
+          nullable: true
+      additionalProperties: true
       required:
-      - id
-      title: node binding
-      type: object
+        - id
     QEdge:
-      description: Query edge.
+      type: object
+      description: >-
+        An edge in the QueryGraph used as a filter pattern specification in a
+        query. If the optional predicate property is not specified,
+        it is assumed to be a wildcard match to the target knowledge space.
+        If specified, the ontological inheritance hierarchy associated with
+        the term provided is assumed, such that edge bindings returned may be
+        an exact match to the given QEdge predicate term,
+        or to a term that is a descendant of the QEdge predicate term.
       properties:
-        object:
-          title: object node id
-          type: string
-        predicate:
-          anyOf:
-          - $ref: '#/components/schemas/BiolinkPredicate'
-          - items:
-              $ref: '#/components/schemas/BiolinkPredicate'
-            type: array
+        knowledge_type:
+          description: >-
+            Indicates the type of knowledge that the client wants from the
+            server between the subject and object. If the value is
+            'lookup', then the client wants direct lookup information from
+            knowledge sources. If the value is 'inferred', then the client
+            wants the server to get creative and connect the subject and
+            object in more speculative and non-direct-lookup ways. If this
+            property is absent or null, it MUST be assumed to mean
+            'lookup'. This feature is currently experimental and may be
+            further extended in the future.
+          example: lookup
           nullable: true
-          title: predicate
-        relation:
-          nullable: true
-          title: Relation
           type: string
+        predicates:
+          type: array
+          description: >-
+            These should be Biolink Model predicates and are allowed to be of
+            type 'abstract' or 'mixin' (only in QGraphs!). Use of 'deprecated'
+            predicates should be avoided.
+          items:
+            $ref: '#/components/schemas/BiolinkPredicate'
+          minItems: 1
+          nullable: true
         subject:
-          title: subject node id
           type: string
+          example: https://omim.org/entry/603903
+          description: >-
+            Corresponds to the map key identifier of the
+            subject concept node anchoring the query filter
+            pattern for the query relationship edge.
+        object:
+          type: string
+          example: https://www.uniprot.org/uniprot/P00738
+          description: >-
+            Corresponds to the map key identifier of the
+            object concept node anchoring the query filter
+            pattern for the query relationship edge.
+        attribute_constraints:
+          type: array
+          description: >-
+            A list of attribute constraints applied to a query edge.
+            If there are multiple items, they must all be true (equivalent
+            to AND)
+          items:
+            $ref: '#/components/schemas/AttributeConstraint'
+          default: []
+        qualifier_constraints:
+          type: array
+          description: >-
+            A list of QualifierConstraints that provide nuance to the QEdge.
+            If multiple QualifierConstraints are provided, there is an OR
+            relationship between them. If the QEdge has multiple
+            predicates or if the QNodes that correspond to the subject or
+            object of this QEdge have multiple categories or multiple
+            curies, then qualifier_constraints MUST NOT be specified
+            because these complex use cases are not supported at this time.
+          items:
+            $ref: '#/components/schemas/QualifierConstraint'
+          default: []
+      additionalProperties: true
       required:
-      - subject
-      - object
-      title: query-graph edge
-      type: object
+        - subject
+        - object
     QNode:
-      description: Query node.
-      properties:
-        category:
-          anyOf:
-          - $ref: '#/components/schemas/BiolinkEntity'
-          - items:
-              $ref: '#/components/schemas/BiolinkEntity'
-            type: array
-          nullable: true
-          title: category
-        id:
-          anyOf:
-          - $ref: '#/components/schemas/CURIE'
-          - items:
-              $ref: '#/components/schemas/CURIE'
-            type: array
-          nullable: true
-          title: id
-        is_set:
-          default: false
-          title: Is Set
-          type: boolean
-      title: query-graph node
       type: object
+      description: A node in the QueryGraph used to represent an entity in a
+        query. If a CURIE is not specified, any nodes matching the category
+        of the QNode will be returned in the Results.
+      properties:
+        ids:
+          type: array
+          items:
+            $ref: '#/components/schemas/CURIE'
+          minItems: 1
+          example: [OMIM:603903]
+          description: CURIE identifier for this node
+          nullable: true
+        categories:
+          type: array
+          description: >-
+            These should be Biolink Model categories and are allowed
+            to be of type 'abstract' or 'mixin' (only in QGraphs!).
+            Use of 'deprecated' categories should be avoided.
+          items:
+            $ref: '#/components/schemas/BiolinkEntity'
+          minItems: 1
+          nullable: true
+        is_set:
+          type: boolean
+          description: >-
+            Boolean that if set to true, indicates that this QNode MAY have
+            multiple KnowledgeGraph Nodes bound to it within each Result.
+            The nodes in a set should be considered as a set of independent
+            nodes, rather than a set of dependent nodes, i.e., the answer
+            would still be valid if the nodes in the set were instead returned
+            individually. Multiple QNodes may have is_set=True. If a QNode
+            (n1) with is_set=True is connected to a QNode (n2) with
+            is_set=False, each n1 must be connected to n2. If a QNode (n1)
+            with is_set=True is connected to a QNode (n2) with is_set=True,
+            each n1 must be connected to at least one n2.
+          default: false
+        constraints:
+          type: array
+          description: >-
+            A list of constraints applied to a query node.
+            If there are multiple items, they must all be true (equivalent
+            to AND)
+          items:
+            $ref: '#/components/schemas/AttributeConstraint'
+          default: []
+      additionalProperties: true
     Query:
-      description: Request.
+      description: >-
+        The Query class is used to package a user request for information. A
+        Query object consists of a required Message object with optional
+        additional properties. Additional properties are intended to convey
+        implementation-specific or query-independent parameters. For example,
+        an additional property specifying a log level could allow a user to
+        override the default log level in order to receive more fine-grained
+        log information when debugging an issue.
+      x-body-name: request_body
+      type: object
       properties:
         message:
-          allOf:
-          - $ref: '#/components/schemas/Message'
-          title: message
+          $ref: '#/components/schemas/Message'
+          description: >-
+            The query Message is a serialization of the user request. Content
+            of the Message object depends on the intended TRAPI operation. For
+            example, the fill operation requires a non-empty query_graph field
+            as part of the Message, whereas other operations, e.g. overlay,
+            require non-empty results and knowledge_graph fields.
+        log_level:
+          description: The least critical level of logs to return
+          oneOf:
+            - $ref: '#/components/schemas/LogLevel'
+          nullable: true
+        workflow:
+          description: List of workflow steps to be executed.
+          oneOf:
+            - $ref: http://standards.ncats.io/workflow/1.3.2/schema
+          nullable: true
+        submitter:
+          type: string
+          description: >-
+            Any string for self-identifying the submitter of a query. The
+            purpose of this optional field is to aid in the tracking of
+            the source of queries for development and issue resolution.
+          nullable: true
+      additionalProperties: true
       required:
-      - message
-      title: query
-      type: object
+        - message
     QueryGraph:
-      description: Query graph.
+      type: object
+      description: >-
+        A graph representing a biomedical question. It serves as a template for
+        each result (answer), where each bound knowledge graph node/edge is
+        expected to obey the constraints of the associated query graph element.
       properties:
-        edges:
-          additionalProperties:
-            $ref: '#/components/schemas/QEdge'
-          title: dict of edges
-          type: object
         nodes:
+          type: object
+          description: >-
+            The node specifications. The keys of this map are unique node
+            identifiers and the corresponding values include the constraints
+            on bound nodes.
           additionalProperties:
             $ref: '#/components/schemas/QNode'
-          title: dict of nodes
+        edges:
           type: object
+          description: >-
+            The edge specifications. The keys of this map are unique edge
+            identifiers and the corresponding values include the constraints
+            on bound edges, in addition to specifying the subject and object
+            QNodes.
+          additionalProperties:
+            $ref: '#/components/schemas/QEdge'
+      additionalProperties: true
       required:
-      - nodes
-      - edges
-      title: simple query graph
-      type: object
+        - nodes
+        - edges
     Result:
-      description: Result.
+      type: object
+      description: >-
+        A Result object specifies the nodes and edges in the knowledge graph
+        that satisfy the structure or conditions of a user-submitted query
+        graph. It must contain a NodeBindings object (list of query graph node
+        to knowledge graph node mappings) and an EdgeBindings object (list of
+        query graph edge to knowledge graph edge mappings).
       properties:
-        edge_bindings:
-          additionalProperties:
-            items:
-              $ref: '#/components/schemas/EdgeBinding'
-            type: array
-          title: list of edge bindings
-          type: object
         node_bindings:
+          type: object
+          description: >-
+            The dictionary of Input Query Graph to Result Knowledge Graph node
+            bindings where the dictionary keys are the key identifiers of the
+            Query Graph nodes and the associated values of those keys are
+            instances of NodeBinding schema type (see below). This value is an
+            array of NodeBindings since a given query node may have multiple
+            knowledge graph Node bindings in the result.
           additionalProperties:
+            type: array
             items:
               $ref: '#/components/schemas/NodeBinding'
-            type: array
-          title: list of node bindings
-          type: object
+        analyses:
+          type: array
+          description: >-
+            The list of all Analysis components that contribute to the result.
+            See below for Analysis components.
+          items:
+            $ref: '#/components/schemas/Analysis'
+      additionalProperties: true
       required:
-      - node_bindings
-      - edge_bindings
-      title: result
-      type: object
-    SimpleSpecElement:
-      properties:
-        edge_type:
-          title: Edge Type
-          type: string
-        source_type:
-          title: Source Type
-          type: string
-        target_type:
-          title: Target Type
-          type: string
-      required:
-      - source_type
-      - target_type
-      - edge_type
-      title: SimpleSpecElement
-      type: object
-    TypeSummary:
-      properties:
-        nodes_count:
-          title: Nodes Count
-          type: integer
-      required:
-      - nodes_count
-      title: TypeSummary
-      type: object
+        - node_bindings
+        - analyses
     ValidationError:
       properties:
         loc:
@@ -726,3 +1149,281 @@ components:
       - type
       title: ValidationError
       type: object
+    RetrievalSource:
+      type: object
+      description: >-
+        Provides information about how a particular InformationResource
+        served as a source from which knowledge expressed in an Edge, or
+        data used to generate this knowledge, was retrieved.
+      properties:
+        resource_id:
+          $ref: '#/components/schemas/CURIE'
+          description: >-
+            The CURIE for an Information Resource that served as a source
+            of knowledge expressed in an Edge, or a source of data used to
+            generate this knowledge.
+          example: infores:drugbank
+          nullable: false
+        resource_role:
+          $ref: '#/components/schemas/ResourceRoleEnum'
+          description: >-
+            The role played by the InformationResource in serving as a
+            source for an Edge. Note that a given Edge should have one
+            and only one 'primary' source, and may have any number of
+            'aggregator' or 'supporting data' sources.
+        upstream_resource_ids:
+          type: array
+          items:
+            $ref: '#/components/schemas/CURIE'
+          description: >-
+            An upstream InformationResource from which the resource
+            being described directly retrieved a record of the knowledge
+            expressed in the Edge, or data used to generate this knowledge.
+            This is an array because there are cases where a merged Edge
+            holds knowledge that was retrieved from multiple sources. e.g.
+            an Edge provided by the ARAGORN ARA can expressing knowledge it
+            retrieved from both the automat-mychem-info and molepro KPs,
+            which both provided it with records of this single fact.
+          example: [infores:automat-mychem-info, infores:molepro]
+        source_record_urls:
+          type: array
+          items:
+            type: string
+          description: >-
+            A URL linking to a specific web page or document provided by the 
+            source, that contains a record of the knowledge expressed in the 
+            Edge. If the knowledge is contained in more than one web page on 
+            an Information Resource's site, urls MAY be provided for each. 
+            For example, Therapeutic Targets Database (TTD) has separate web 
+            pages for 'Imatinib' and its protein target KIT, both of which hold 
+            the claim that 'the KIT protein is a therapeutic target for Imatinib'.
+          example: >-
+            [https://db.idrblab.net/ttd/data/drug/details/d0az3c, 
+            https://db.idrblab.net/ttd/data/target/details/t57700]
+      required:
+        - resource_id
+        - resource_role
+      additionalProperties: true
+    ResourceRoleEnum:
+      type: string
+      description: >-
+        The role played by the InformationResource in serving as a
+        source for an Edge. Note that a given Edge should have one
+        and only one 'primary' source, and may have any number of
+        'aggregator' or 'supporting data' sources.  This enumeration
+        is found in Biolink Model, but is repeated here for convenience.
+      enum:
+        - primary_knowledge_source
+        - aggregator_knowledge_source
+        - supporting_data_source
+    AuxiliaryGraph:
+      type: object
+      description: >-
+        A single AuxiliaryGraph instance that is used by Knowledge Graph
+        Edges and Result Analyses. Edges comprising an Auxiliary Graph
+        are a subset of the Knowledge Graph in the message. Data creators
+        can create an AuxiliaryGraph to assemble a specific collections
+        of edges from the Knowledge Graph into a named graph that can be
+        referenced from an Edge as evidence/explanation supporting that Edge,
+        or from a Result Analysis as information used to generate a score.
+      properties:
+        edges:
+          type: array
+          description: >-
+            List of edges that form the Auxiliary Graph. Each item is a
+            reference to a single Knowledge Graph edge
+          items:
+            type: string
+          nullable: false
+          minItems: 1
+        attributes:
+          type: array
+          description: >-
+            Attributes of the Auxiliary Graph
+          items:
+            $ref: '#/components/schemas/Attribute'
+          nullable: true
+      additionalProperties: true
+      required:
+        - edges
+    MetaQualifier:
+      type: object
+      properties:
+        qualifier_type_id:
+          $ref: '#/components/schemas/CURIE'
+          description: >-
+            The CURIE of the qualifier type.
+          example: biolink:subject_aspect_qualifier
+          nullable: false
+        applicable_values:
+          type: array
+          description: >-
+            The list of values that are possible for this qualifier.
+          items:
+            type: string
+            example: [expression, activity, abundance, degradation]
+      required:
+        - qualifier_type_id
+    AttributeConstraint:
+      type: object
+      description: >-
+        Generic query constraint for a query node or query edge
+      properties:
+        id:
+          oneOf:
+            - $ref: '#/components/schemas/CURIE'
+          description: >-
+            CURIE of the concept being constrained. For properties
+            defined by the Biolink model this SHOULD be a biolink CURIE.
+            otherwise, if possible, from the EDAM ontology. If a suitable
+            CURIE does not exist, enter a descriptive phrase here and
+            submit the new type for consideration by the appropriate
+            authority.
+          example: EDAM:data_0844
+        name:
+          type: string
+          description: >-
+            Human-readable name or label for the constraint concept.
+            If appropriate, it SHOULD be the term name of the CURIE used
+            as the 'id'. This is redundant but required for human
+            readability.
+          example: molecular mass
+        not:
+          type: boolean
+          default: false
+        operator:
+          type: string
+          description: >-
+            Relationship between the database value and the constraint value
+            for the specified id. The operators ==, >, and < mean
+            is equal to, is greater than, and is less than,
+            respectively. The 'matches' operator indicates that the value
+            is a regular expression to be evaluated. If value is a list type,
+            then at least one evaluation must be true (equivalent to OR).
+            This means that the == operator with a list acts like a SQL 'IN'
+            clause. If the value of the compared attribute is a list, then
+            comparisons are performed between each of the constraint values
+            and each of the attribute values, and any one true evaluation
+            counts as an overall true (e.g., [1,2,3] == [6,7,2] is true).
+            The == operator is therefore a broad interpretation of inclusion.
+            The '===' operator requires that the constraint value and
+            the attribute value be the same data type, length,
+            content, and order (e.g. only [1,2,3] === [1,2,3]).
+            The 'not' property negates the operator such that not
+            and == means 'not equal to' (or 'not in' for a list), and not >
+            means <=, and not < means >=, not matches means does not
+            match, and not === means the match between the constraint
+            and attribute values are not exact.
+            The '==' operator SHOULD NOT be used in a manner that
+            describes an "is a" subclass relationship for the parent QNode.
+          enum:
+            - ==
+            - '>'
+            - <
+            - matches
+            - ===
+        value:
+          example: 57.0
+          description: >-
+            Value of the attribute. May be any data type, including a list.
+            If the value is a list and there are multiple items, at least one
+            comparison must be true (equivalent to OR) unless the '==='
+            operator is used. If 'value' is of data
+            type 'object', the keys of the object MAY be treated as a list.
+            A 'list' data type paired with the '>' or '<' operators will
+            encode extraneous comparisons, but this is permitted as it is in
+            SQL and other languages.
+        unit_id:
+          example: UO:0000222
+          description: >-
+            CURIE of the units of the value or list of values in the 'value'
+            property. The Units of Measurement Ontology (UO) should be used
+            if possible. The unit_id MUST be provided for (lists of)
+            numerical values that correspond to a quantity that has units.
+          nullable: true
+        unit_name:
+          example: kilodalton
+          description: >-
+            Term name that is associated with the CURIE of the units
+            of the value or list of values in the 'value'
+            property. The Units of Measurement Ontology (UO) SHOULD be used
+            if possible. This property SHOULD be provided if a unit_id is
+            provided. This is redundant but recommended for human readability.
+          nullable: true
+      required:
+        - name
+        - id
+        - operator
+        - value
+      additionalProperties: false
+    LogLevel:
+      type: string
+      description: Logging level
+      enum:
+        - ERROR
+        - WARNING
+        - INFO
+        - DEBUG
+    Analysis:
+      type: object
+      description: >-
+        An analysis is a dictionary that contains information about
+        the result tied to a particular service. Each Analysis is
+        generated by a single reasoning service, and describes the
+        outputs of analyses performed by the reasoner on a particular
+        Result (e.g. a result score), along with provenance information
+        supporting the analysis (e.g. method or data that supported
+        generation of the score).
+      properties:
+        resource_id:
+          $ref: '#/components/schemas/CURIE'
+          description: The id of the resource generating this Analysis
+        score:
+          type: number
+          format: float
+          example: 163.233
+          description: >-
+            A numerical score associated with this result indicating the
+            relevance or confidence of this result relative to others in the
+            returned set. Higher MUST be better.
+          nullable: true
+        edge_bindings:
+          type: object
+          description: >-
+            The dictionary of input Query Graph to Knowledge Graph edge
+            bindings where the dictionary keys are the key identifiers of the
+            Query Graph edges and the associated values of those keys are
+            instances of EdgeBinding schema type (see below). This value is an
+            array of EdgeBindings since a given query edge may resolve to
+            multiple Knowledge Graph Edges.
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/EdgeBinding'
+        support_graphs:
+          type: array
+          description: >-
+            This is a list of references to Auxiliary Graph instances
+            that supported the analysis of a Result as performed by the
+            reasoning service. Each item in the list is the key of a
+            single Auxiliary Graph.
+          nullable: true
+          items:
+            type: string
+        scoring_method:
+          type: string
+          description: >-
+            An identifier and link to an explanation for the method used
+            to generate the score
+          nullable: true
+        attributes:
+          type: array
+          description: >-
+            The attributes of this particular Analysis.
+          items:
+            $ref: '#/components/schemas/Attribute'
+          nullable: true
+      additionalProperties: true
+      required:
+        - resource_id
+        - edge_bindings
