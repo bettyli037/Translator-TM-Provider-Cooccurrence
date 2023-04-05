@@ -9,7 +9,7 @@ info:
     A KG linking concepts that cooccur in scientific text, scored 
     at different levels, e.g. title, sentence, document, using 
     a suite of cooccurrence metrics.
-  title: Text Mined Cooccurrence API
+  title: Text Mined Cooccurrence API (TRAPI 1.4.0)
   version: 1.0.0
   x-translator:
     component: KP
@@ -30,17 +30,8 @@ info:
     url: https://github.com/UCDenver-ccp/Translator-TM-Provider-Cooccurrence/blob/main/LICENSE
 servers:
 - description: Development server
-  url: https://cooccurrence-p36smkc6hq-uc.a.run.app
+  url: https://cooccurrence-trapi-14-p36smkc6hq-uc.a.run.app
   x-maturity: development
-- description: ITRB CI server
-  url: https://cooccurrence.ci.transltr.io
-  x-maturity: staging
-- description: ITRB Test server
-  url: https://cooccurrence.test.transltr.io
-  x-maturity: testing
-- description: ITRB Prod server
-  url: https://cooccurrence.transltr.io
-  x-maturity: production
 
 tags:
 - name: meta_knowledge_graph
