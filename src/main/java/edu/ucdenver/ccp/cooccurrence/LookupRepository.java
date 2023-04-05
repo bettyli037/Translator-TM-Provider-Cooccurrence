@@ -28,12 +28,23 @@ public class LookupRepository {
 
     @Cacheable("categoriesforcuries")
     public Map<String, List<String>> getCategoriesForCuries(List<String> curies) {
-        List<Object[]> results = session.createNativeQuery("" +
-                        "SELECT n.curie, nc.category " +
-                        "FROM nodes n INNER JOIN node_category nc ON nc.node_id = n.id " +
-                        "WHERE n.curie IN (:curies)")
-                .setParameter("curies", curies)
-                .getResultList();
+        String query = "SELECT n.curie, nc.category " +
+                "FROM nodes n INNER JOIN node_category nc ON nc.node_id = n.id " +
+                "WHERE n.curie IN (:curies)";
+        List<Object[]> results = new ArrayList<>();
+        if (curies.size() <= Short.MAX_VALUE) {
+            results = session.createNativeQuery(query)
+                    .setParameter("curies", curies)
+                    .getResultList();
+        } else {
+            for (int i = 0; i < curies.size(); i += Short.MAX_VALUE) {
+                int endIndex = Math.min(i + Short.MAX_VALUE, curies.size());
+                List<String> curiesSubList = curies.subList(i, endIndex);
+                results.addAll(session.createNativeQuery(query)
+                        .setParameter("curies", curiesSubList)
+                        .getResultList());
+            }
+        }
         Map<String, List<String>> categoryMap = new HashMap<>();
         for (Object[] resultRow : results) {
             String curie = (String) resultRow[0];
@@ -52,12 +63,23 @@ public class LookupRepository {
 
     @Cacheable("labelsforcuries")
     public Map<String, String> getLabels(List<String> curies) {
-        List<Object[]> results = session.createNativeQuery("" +
-                        "SELECT curie, label " +
-                        "FROM labels " +
-                        "WHERE curie IN (:curies)")
-                .setParameter("curies", curies)
-                .getResultList();
+        String query = "SELECT curie, label " +
+                "FROM labels " +
+                "WHERE curie IN (:curies)";
+        List<Object[]> results = new ArrayList<>();
+        if (curies.size() <= Short.MAX_VALUE) {
+            results = session.createNativeQuery(query)
+                    .setParameter("curies", curies)
+                    .getResultList();
+        } else {
+            for (int i = 0; i < curies.size(); i += Short.MAX_VALUE) {
+                int endIndex = Math.min(i + Short.MAX_VALUE, curies.size());
+                List<String> curiesSubList = curies.subList(i, endIndex);
+                results.addAll(session.createNativeQuery(query)
+                        .setParameter("curies", curiesSubList)
+                        .getResultList());
+            }
+        }
         Map<String, String> labelMap = new HashMap<>();
         for (Object[] resultRow : results) {
             String curie = (String) resultRow[0];
