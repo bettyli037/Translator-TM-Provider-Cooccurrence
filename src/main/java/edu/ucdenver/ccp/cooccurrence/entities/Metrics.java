@@ -291,7 +291,7 @@ public class Metrics {
             Attribute supportingDocument = new Attribute();
             supportingDocument.setAttributeTypeId("biolink:publications");
             supportingDocument.setValue(documentIdList);
-            supportingDocument.setValueTypeId("biolink:Publication");
+            supportingDocument.setValueTypeId("biolink:Uriorcurie");
             description = String.format("The documents where the concepts of this assertion were observed to cooccur at the %s level.", this.documentPart);
             supportingDocument.setDescription(description);
             supportingDocument.setAttributeSource("infores:pubmed");
