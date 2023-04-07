@@ -32,6 +32,7 @@ public class CooccurrenceController {
     private static final List<String> supportedPredicates = List.of("biolink:related_to", "biolink:related_to_at_instance_level", "biolink:associated_with",
             "biolink:correlated_with", "biolink:occurs_together_in_literature_with");
     private Map<String, Integer> conceptCounts;
+    private List<String> invalidClasses;
 
     private final int NN_BATCH_SIZE = 1000;
 
@@ -44,6 +45,7 @@ public class CooccurrenceController {
         for (String part : documentParts) {
             documentPartCounts.put(part, nodeRepo.getDocumentCount(part));
         }
+        invalidClasses = BiolinkService.getClasses(BiolinkService.getBiolinkNode());
     }
 
     // region: Endpoints
@@ -56,6 +58,7 @@ public class CooccurrenceController {
 
     @GetMapping("/refresh")
     public JsonNode getRefresh() {
+        invalidClasses = BiolinkService.getClasses(BiolinkService.getBiolinkNode());
         conceptCounts = lookupQueries.getConceptCounts();
         for (String part : documentParts) {
             documentPartCounts.put(part, nodeRepo.getDocumentCount(part));
@@ -498,6 +501,7 @@ public class CooccurrenceController {
             }
             String subjectLabel = labelMap.getOrDefault(pair.getSubject(), "");
             String objectLabel = labelMap.getOrDefault(pair.getObject(), "");
+            String cat;
             List<String> subjectCategoryList = categoryMap.getOrDefault(pair.getSubject(), new ArrayList<>());
             List<String> objectCategoryList = categoryMap.getOrDefault(pair.getObject(), new ArrayList<>());
             if (subjectLabel.isEmpty()) {
@@ -518,9 +522,20 @@ public class CooccurrenceController {
                     Iterator<JsonNode> cats = normalizedNodes.get(pair.getSubject()).get("type").elements();
                     while (cats.hasNext()) {
                         JsonNode categoryNode = cats.next();
-                        subjectCategoryList.add(categoryNode.asText());
+                        cat = categoryNode.asText();
+                        if (!invalidClasses.contains(cat.toLowerCase())) {
+                            subjectCategoryList.add(cat);
+                        }
                     }
                 }
+            } else {
+                List<String> removeList = new ArrayList<>();
+                for (String category : subjectCategoryList) {
+                    if (invalidClasses.contains(category.toLowerCase())) {
+                        removeList.add(category);
+                    }
+                }
+                subjectCategoryList.removeAll(removeList);
             }
             if (objectCategoryList.size() == 0) {
                 if (normalizedNodes.hasNonNull(pair.getObject()) && normalizedNodes.get(pair.getObject()).hasNonNull("type") &&
@@ -528,9 +543,20 @@ public class CooccurrenceController {
                     Iterator<JsonNode> cats = normalizedNodes.get(pair.getObject()).get("type").elements();
                     while (cats.hasNext()) {
                         JsonNode categoryNode = cats.next();
-                        objectCategoryList.add(categoryNode.asText());
+                        cat = categoryNode.asText();
+                        if (!invalidClasses.contains(cat.toLowerCase())) {
+                            objectCategoryList.add(cat);
+                        }
                     }
                 }
+            } else {
+                List<String> removeList = new ArrayList<>();
+                for (String category : objectCategoryList) {
+                    if (invalidClasses.contains(category.toLowerCase())) {
+                        removeList.add(category);
+                    }
+                }
+                objectCategoryList.removeAll(removeList);
             }
             KnowledgeEdge edge = new KnowledgeEdge(pair.getSubject(), pair.getObject(), "biolink:occurs_together_in_literature_with", attributeList);
             KnowledgeNode subjectNode = new KnowledgeNode(subjectLabel, subjectCategoryList);
