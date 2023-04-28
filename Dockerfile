@@ -24,5 +24,6 @@ ENV SONAR_PASSWORD=my-sonarqubepassword
 RUN sonar-scanner \
  -Dsonar.login=sqp_b5130e5a80c13f615ca5244f4c1bdbfc7e4235e3 \
  -Dsonar.projectKey=TMKP-Cooccurrence \
+ -Dsonar.exclusions=/sys/** \
  -Dsonar.host.url=http://sonarqube-bl-1456515170.us-east-1.elb.amazonaws.com
 ENTRYPOINT ["java","-Xmx16G","-jar","/app.jar"]
