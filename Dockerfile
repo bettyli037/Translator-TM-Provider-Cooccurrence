@@ -16,10 +16,10 @@ RUN yum -y update && yum -y install unzip \
 
 # Set environment variables for the SonarQube scanner
 ENV SONAR_HOST_URL=http://sonarqube-bl-1456515170.us-east-1.elb.amazonaws.com
-ENV SONAR_LOGIN=sqp_b5130e5a80c13f615ca5244f4c1bdbfc7e4235e3
+#ENV SONAR_LOGIN=sqp_b5130e5a80c13f615ca5244f4c1bdbfc7e4235e3
 ENV SONAR_PASSWORD=my-sonarqubepassword
 ENV SONAR_PROJECT_KEY=TMKP-Cooccurrence
 
 # Run the SonarQube analysis
-RUN sonar-scanner
+RUN sonar-scanner -Dsonar.login=sqp_b5130e5a80c13f615ca5244f4c1bdbfc7e4235e3
 ENTRYPOINT ["java","-Xmx16G","-jar","/app.jar"]
