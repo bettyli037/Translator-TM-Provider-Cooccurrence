@@ -52,6 +52,25 @@ pipeline {
                 }
             }
         }
+        stage('Unit Tests - JUnit and Jacoco') {
+            steps {
+                sh "mvn test"
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
+                    jacoco execPattern: 'target/jacoco.exec'
+                }
+            }
+        }
+        stage('SonarQube - SAST') {
+            steps {
+                sh "mvn clean verify sonar:sonar \
+                    -Dsonar.projectKey=TMKP-Coocurrence \
+                    -Dsonar.host.url=http://sonarqube-bl-1456515170.us-east-1.elb.amazonaws.com \
+                    -Dsonar.login=sqp_b5130e5a80c13f615ca5244f4c1bdbfc7e4235e3"
+            }
+        }
         stage('Deploy to AWS EKS Blue') {
             agent {
                 label 'translator && ci && deploy'
