@@ -7,6 +7,7 @@ import edu.ucdenver.ccp.cooccurrence.TRAPI.Attribute;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Metrics {
 
@@ -288,9 +289,12 @@ public class Metrics {
         attributeList.add(lfbmd);
 
         if (this.documentIdList.size() > 0) {
+            List<String> curiefiedIds = documentIdList.stream()
+                    .map(id -> id.startsWith("PMC") && !id.contains(":") ? id.replace("PMC", "PMC:") : id)
+                    .collect(Collectors.toList());
             Attribute supportingDocument = new Attribute();
             supportingDocument.setAttributeTypeId("biolink:publications");
-            supportingDocument.setValue(documentIdList);
+            supportingDocument.setValue(curiefiedIds);
             supportingDocument.setValueTypeId("biolink:Uriorcurie");
             description = String.format("The documents where the concepts of this assertion were observed to cooccur at the %s level.", this.documentPart);
             supportingDocument.setDescription(description);
