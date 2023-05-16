@@ -13,6 +13,7 @@ public class KnowledgeEdge {
     private String subject;
     private String object;
     private String predicate;
+    private final List<RetrievalSource> sources;
     private List<Attribute> attributes;
     private List<Qualifier> qualifiers;
     private String queryKey;
@@ -21,6 +22,7 @@ public class KnowledgeEdge {
         this.subject = "";
         this.object = "";
         this.predicate = "";
+        this.sources = new ArrayList<>();
         this.attributes = new ArrayList<>();
         this.qualifiers = new ArrayList<>();
         this.queryKey = "";
@@ -30,6 +32,7 @@ public class KnowledgeEdge {
         this.subject = subject;
         this.object = object;
         this.predicate = predicate;
+        this.sources = new ArrayList<>();
         this.attributes = attributes;
         this.qualifiers = new ArrayList<>();
     }
@@ -56,6 +59,14 @@ public class KnowledgeEdge {
 
     public void setPredicate(String predicate) {
         this.predicate = predicate;
+    }
+
+    public List<RetrievalSource> getSources() {
+        return sources;
+    }
+
+    public void addSource(RetrievalSource source) {
+        this.sources.add(source);
     }
 
     public List<Attribute> getAttributes() {
@@ -96,6 +107,13 @@ public class KnowledgeEdge {
         edgeNode.put("subject", this.subject);
         edgeNode.put("object", this.object);
         edgeNode.put("predicate", this.predicate);
+        if (this.sources.size() > 0) {
+            ArrayNode sourcesNode = om.createArrayNode();
+            for (RetrievalSource source : this.sources) {
+                sourcesNode.add(source.toJSON());
+            }
+            edgeNode.set("sources", sourcesNode);
+        }
         if (this.attributes.size() > 0) {
             ArrayNode attributesNode = om.createArrayNode();
             for (Attribute attribute : this.attributes) {
@@ -113,15 +131,14 @@ public class KnowledgeEdge {
         return edgeNode;
     }
     public static KnowledgeEdge parseJSON(JsonNode jsonKEdge) {
-        if (!jsonKEdge.hasNonNull("subject") || !jsonKEdge.hasNonNull("object")) {
+        if (!jsonKEdge.hasNonNull("subject") || !jsonKEdge.hasNonNull("object") || !jsonKEdge.hasNonNull("predicate") ||
+                !jsonKEdge.hasNonNull("sources") || !jsonKEdge.get("sources").isArray()) {
             return null;
         }
         KnowledgeEdge edge = new KnowledgeEdge();
         edge.setSubject(jsonKEdge.get("subject").asText());
         edge.setObject(jsonKEdge.get("object").asText());
-        if (jsonKEdge.hasNonNull("predicate")) {
-            edge.setPredicate(jsonKEdge.get("predicate").asText());
-        }
+        edge.setPredicate(jsonKEdge.get("predicate").asText());
 
         if (jsonKEdge.hasNonNull("attributes") && jsonKEdge.get("attributes").isArray()) {
             JsonNode attributesNode = jsonKEdge.get("attributes");
@@ -136,6 +153,14 @@ public class KnowledgeEdge {
             Iterator<JsonNode> qualifiersIterator = qualifiersNode.elements();
             while (qualifiersIterator.hasNext()) {
                 edge.addQualifier(Qualifier.parseJSON(qualifiersIterator.next()));
+            }
+        }
+
+        if (jsonKEdge.hasNonNull("sources") && jsonKEdge.get("sources").isArray()) {
+            JsonNode sourcesNode = jsonKEdge.get("sources");
+            Iterator<JsonNode> sourcesIterator = sourcesNode.elements();
+            while (sourcesIterator.hasNext()) {
+                edge.addSource(RetrievalSource.parseJSON(sourcesIterator.next()));
             }
         }
 

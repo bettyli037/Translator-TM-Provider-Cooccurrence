@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,6 +32,9 @@ public class CooccurrenceController {
     private static final List<String> supportedPredicates = List.of("biolink:related_to", "biolink:related_to_at_instance_level", "biolink:associated_with",
             "biolink:correlated_with", "biolink:occurs_together_in_literature_with");
     private Map<String, Integer> conceptCounts;
+    private List<String> invalidClasses;
+
+    private final int NN_BATCH_SIZE = 1000;
 
     public CooccurrenceController(NodeRepository repo, LookupRepository impl, NodeNormalizerService sri) {
         this.nodeRepo = repo;
@@ -43,6 +45,7 @@ public class CooccurrenceController {
         for (String part : documentParts) {
             documentPartCounts.put(part, nodeRepo.getDocumentCount(part));
         }
+        invalidClasses = BiolinkService.getClasses(BiolinkService.getBiolinkNode());
     }
 
     // region: Endpoints
@@ -50,11 +53,12 @@ public class CooccurrenceController {
     @GetMapping("/test")
     public JsonNode testNN() {
         List<String> curies = lookupQueries.getTextMinedCuries();
-        return sri.getNormalizedNodes(curies);
+        return sri.getNormalizedNodesInBatches(curies, NN_BATCH_SIZE);
     }
 
     @GetMapping("/refresh")
     public JsonNode getRefresh() {
+        invalidClasses = BiolinkService.getClasses(BiolinkService.getBiolinkNode());
         conceptCounts = lookupQueries.getConceptCounts();
         for (String part : documentParts) {
             documentPartCounts.put(part, nodeRepo.getDocumentCount(part));
@@ -82,8 +86,19 @@ public class CooccurrenceController {
             logger.debug(StringUtils.join(errors, "|"));
             return ResponseEntity.unprocessableEntity().body(objectMapper.convertValue(errors, ArrayNode.class));
         }
-        QueryGraph queryGraph = QueryGraph.parseJSON(messageNode.get("query_graph"));
+        // TRAPI specs allow several named properties as well as additional properties, but we only care about "message" so the rest just get passed along.
+        // TODO: make use of the log_level property
+        Map<String, JsonNode> otherAttributes = new HashMap<>();
+        Iterator<String> keyIterator = requestNode.fieldNames();
+        while (keyIterator.hasNext()) {
+            String key = keyIterator.next();
+            if (key.equals("message")) {
+                continue;
+            }
+            otherAttributes.put(key, requestNode.get(key));
+        }
 
+        QueryGraph queryGraph = QueryGraph.parseJSON(messageNode.get("query_graph"));
         List<AttributeConstraint> unsupportedConstraints = new ArrayList<>();
         for (Map.Entry<String, QueryEdge> edgeEntry : queryGraph.getEdges().entrySet()) {
             unsupportedConstraints.addAll(edgeEntry.getValue().getAttributeConstraints().stream().filter(x -> !x.isSupported()).collect(Collectors.toList()));
@@ -99,6 +114,7 @@ public class CooccurrenceController {
         List<ConceptPair> initialPairs = getConceptPairs(queryGraph); // This is the actual query portion.
         Map<String, QueryEdge> edgeMap = queryGraph.getEdges();
         List<ConceptPair> conceptPairs = new ArrayList<>();
+        // Remove partial results that do not satisfy attribute constraints, if any
         for (ConceptPair pair : initialPairs) {
             QueryEdge edge = edgeMap.get(pair.getEdgeKey());
             if (edge.getAttributeConstraints().size() > 0) {
@@ -120,27 +136,31 @@ public class CooccurrenceController {
                 .map(cp -> List.of(cp.getSubject(), cp.getObject()))
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
-        JsonNode normalizedNodes = sri.getNormalizedNodes(curies);
+        JsonNode normalizedNodes = sri.getNormalizedNodesInBatches(curies, NN_BATCH_SIZE);
         Map<String, List<String>> categoryMap = lookupQueries.getCategoriesForCuries(curies);
         Map<String, String> labelMap = lookupQueries.getLabels(curies);
 
         KnowledgeGraph knowledgeGraph = buildKnowledgeGraph(conceptPairs, labelMap, categoryMap, normalizedNodes); // Equivalent to a fill operation.
         List<Result> resultsList = bindGraphs(queryGraph, knowledgeGraph); // Almost an atomic bind operation
-        List<Result> completedResults = completeResults(resultsList); // Atomic complete_results operation
+//        List<Result> completedResults = completeResults(resultsList); // Atomic complete_results operation
 
         // With all the information in place, we just pack it up into JSON to respond.
         ObjectNode responseMessageNode = objectMapper.createObjectNode();
         responseMessageNode.set("query_graph", queryGraph.toJSON());
         responseMessageNode.set("knowledge_graph", knowledgeGraph.toJSON());
-        List<JsonNode> jsonResults = completedResults.stream().map(Result::toJSON).collect(Collectors.toList());
+        List<JsonNode> jsonResults = resultsList.stream().map(Result::toJSON).collect(Collectors.toList());
         responseMessageNode.set("results", objectMapper.convertValue(jsonResults, ArrayNode.class));
         logger.info("Lookup completed in " + (System.currentTimeMillis() - startTime) + "ms");
         ObjectNode responseNode = objectMapper.createObjectNode();
         responseNode.set("message", responseMessageNode);
+        for (Map.Entry<String, JsonNode> attribute : otherAttributes.entrySet()) {
+            responseNode.set(attribute.getKey(), attribute.getValue());
+        }
         return ResponseEntity.ok(responseNode);
     }
 
 
+    // TODO: add a TRAPI class for the MetaKnowledgeGraph and associated subclasses
     @GetMapping("/meta_knowledge_graph")
     public JsonNode getMetaKnowledgeGraph() {
         long startTime = System.currentTimeMillis();
@@ -163,13 +183,73 @@ public class CooccurrenceController {
             nodeMetadataNode.set(categoryEntry.getKey(), entry);
         }
 
+        ArrayNode edgeMetaAttributeArray = objectMapper.createArrayNode();
+
+        ObjectNode partNode = objectMapper.createObjectNode();
+        partNode.put("attribute_type_id", "biolink:supporting_text_located_in");
+        partNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
+        partNode.put("constraint_use", true);
+        partNode.put("constraint_name", "biolink:supporting_text_located_in");
+        edgeMetaAttributeArray.add(partNode);
+
+        ObjectNode subjectNode = objectMapper.createObjectNode();
+        subjectNode.put("attribute_type_id", "biolink:concept_count_subject");
+        subjectNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
+        subjectNode.put("constraint_use", true);
+        subjectNode.put("constraint_name", "biolink:concept_count_subject");
+        edgeMetaAttributeArray.add(subjectNode);
+
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put("attribute_type_id", "biolink:concept_count_object");
+        objectNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
+        objectNode.put("constraint_use", true);
+        objectNode.put("constraint_name", "biolink:concept_count_object");
+        edgeMetaAttributeArray.add(objectNode);
+
+        ObjectNode pairNode = objectMapper.createObjectNode();
+        pairNode.put("attribute_type_id", "biolink:concept_pair_count");
+        pairNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
+        pairNode.put("constraint_use", true);
+        pairNode.put("constraint_name", "biolink:concept_pair_count");
+        edgeMetaAttributeArray.add(pairNode);
+
+        ObjectNode ngdNode = objectMapper.createObjectNode();
+        ngdNode.put("attribute_type_id", "biolink:tmkp_normalized_google_distance");
+        ngdNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
+        ngdNode.put("constraint_use", true);
+        ngdNode.put("constraint_name", "biolink:tmkp_normalized_google_distance");
+        edgeMetaAttributeArray.add(ngdNode);
+
+        ObjectNode npmiMaxNode = objectMapper.createObjectNode();
+        npmiMaxNode.put("attribute_type_id", "biolink:tmkp_normalized_pointwise_mutual_information_max");
+        npmiMaxNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
+        npmiMaxNode.put("constraint_use", true);
+        npmiMaxNode.put("constraint_name", "biolink:tmkp_normalized_pointwise_mutual_information_max");
+        edgeMetaAttributeArray.add(npmiMaxNode);
+
+        ObjectNode mdNode = objectMapper.createObjectNode();
+        mdNode.put("attribute_type_id", "biolink:tmkp_mutual_dependence");
+        mdNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
+        mdNode.put("constraint_use", true);
+        mdNode.put("constraint_name", "biolink:tmkp_mutual_dependence");
+        edgeMetaAttributeArray.add(mdNode);
+
+        ObjectNode lfbmdNode = objectMapper.createObjectNode();
+        lfbmdNode.put("attribute_type_id", "biolink:tmkp_log_frequency_biased_mutual_dependence");
+        lfbmdNode.put("attribute_source", "infores:text-mining-provider-cooccurrence");
+        lfbmdNode.put("constraint_use", true);
+        lfbmdNode.put("constraint_name", "biolink:tmkp_log_frequency_biased_mutual_dependence");
+        edgeMetaAttributeArray.add(lfbmdNode);
+
         ArrayNode edgeMetadataArray = objectMapper.createArrayNode();
         for (EdgeMetadata em : edgeMetadata) {
             ObjectNode entry = objectMapper.createObjectNode();
             entry.put("subject", em.getSubject());
             entry.put("object", em.getObject());
             entry.put("predicate", em.getPredicate());
-            entry.set("attributes", objectMapper.nullNode());
+            entry.set("knowledge_types", objectMapper.nullNode());
+            entry.set("attributes", edgeMetaAttributeArray);
+            entry.set("qualifiers", objectMapper.nullNode());
             edgeMetadataArray.add(entry);
         }
 
@@ -195,6 +275,7 @@ public class CooccurrenceController {
         JsonNode messageNode = requestNode.get("message");
         Validator validator = new Validator();
         Set<ValidationMessage> errors = validator.validateInput(messageNode.get("query_graph"));
+//        Set<ValidationMessage> errors = validator.validateMessage(messageNode);
         if (errors.size() > 0) {
             return ResponseEntity.unprocessableEntity().body(objectMapper.convertValue(errors, ArrayNode.class));
         }
@@ -202,11 +283,25 @@ public class CooccurrenceController {
         if (errors.size() > 0) {
             return ResponseEntity.unprocessableEntity().body(objectMapper.convertValue(errors, ArrayNode.class));
         }
+
+        Map<String, JsonNode> otherAttributes = new HashMap<>();
+        Iterator<String> keyIterator = requestNode.fieldNames();
+        while (keyIterator.hasNext()) {
+            String key = keyIterator.next();
+            if (key.equals("message")) {
+                continue;
+            }
+            otherAttributes.put(key, requestNode.get(key));
+        }
+
         KnowledgeGraph knowledgeGraph = KnowledgeGraph.parseJSON(messageNode.get("knowledge_graph"));
         List<Result> results = new ArrayList<>();
         Iterator<JsonNode> resultsIterator = messageNode.get("results").elements();
         while (resultsIterator.hasNext()) {
-            results.add(Result.parseJSON(resultsIterator.next()));
+            Result result = Result.parseJSON(resultsIterator.next());
+            if (result != null) {
+                results.add(result);
+            }
         }
         List<String> curies = new ArrayList<>(knowledgeGraph.getNodes().keySet());
 
@@ -230,14 +325,21 @@ public class CooccurrenceController {
             String edgeId = s + "_" + o;
             KnowledgeEdge edge = new KnowledgeEdge(conceptPair.getSubject(), conceptPair.getObject(),
                     "biolink:occurs_together_in_literature_with", conceptPair.toAttributeList());
+            RetrievalSource source = new RetrievalSource();
+            source.setResource("infores:text-mining-provider-cooccurrence");
+            source.setResourceRole("primary_knowledge_source");
+            edge.addSource(source);
             knowledgeGraph.addEdge(edgeId, edge);
             logger.debug("Added edge " + edgeId);
             for (Result result : results) {
                 if (result.bindsNodeCurie(s) && result.bindsNodeCurie(o)) {
                     logger.debug("Result binds (" + s + ", " + o + ")");
+                    Analysis analysis = new Analysis();
+                    analysis.setResourceId("infores:text-mining-provider-cooccurrence");
                     EdgeBinding edgeBinding = new EdgeBinding();
                     edgeBinding.setId(edgeId);
-                    result.addEdgeBinding("", edgeBinding);
+                    analysis.addEdgeBinding("", edgeBinding);
+                    result.addAnalysis(analysis);
                 }
             }
         }
@@ -249,7 +351,10 @@ public class CooccurrenceController {
             resultsNode.add(result.toJSON());
         }
         responseMessageNode.set("results", resultsNode);
-        JsonNode responseNode = objectMapper.createObjectNode().set("message", responseMessageNode);
+        ObjectNode responseNode = objectMapper.createObjectNode().set("message", responseMessageNode);
+        for (Map.Entry<String, JsonNode> attribute : otherAttributes.entrySet()) {
+            responseNode.set(attribute.getKey(), attribute.getValue());
+        }
         logger.info("Overlay completed in " + (System.currentTimeMillis() - startTime) + "ms");
         return ResponseEntity.ok(responseNode);
     }
@@ -266,12 +371,15 @@ public class CooccurrenceController {
         Map<String, KnowledgeNode> knowledgeNodeMap = kGraph.getNodes();
         for (Map.Entry<String, KnowledgeEdge> edgeEntry : kGraph.getEdges().entrySet()) {
             Result result = new Result();
+            Analysis analysis = new Analysis();
+            analysis.setResourceId("infores:text-mining-provider-cooccurrence");
             String queryGraphEdgeLabel = edgeEntry.getValue().getQueryKey();
             String knowledgeGraphEdgeLabel = edgeEntry.getKey();
             EdgeBinding edgeBinding = new EdgeBinding();
             edgeBinding.setId(knowledgeGraphEdgeLabel);
             if (queryEdgeMap.containsKey(queryGraphEdgeLabel)) {
-                result.addEdgeBinding(queryGraphEdgeLabel, edgeBinding);
+                analysis.addEdgeBinding(queryGraphEdgeLabel, edgeBinding);
+                result.addAnalysis(analysis);
             }
 
             String knowledgeGraphSubjectLabel = edgeEntry.getValue().getSubject();
@@ -296,6 +404,7 @@ public class CooccurrenceController {
         return results;
     }
 
+/*
     private List<Result> completeResults(List<Result> inputList) {
         List<Result> outputList = new ArrayList<>();
         for (int i = 0; i < inputList.size(); i++) {
@@ -339,7 +448,7 @@ public class CooccurrenceController {
         }
         return inputList;
     }
-
+*/
     // endregion
 
     //region Just Overlay Stuff
@@ -387,11 +496,12 @@ public class CooccurrenceController {
         KnowledgeGraph kg = new KnowledgeGraph();
         for (ConceptPair pair : conceptPairs) {
             List<Attribute> attributeList = pair.toAttributeList();
-            if (attributeList.size() == 0) {
+            if (attributeList.size() < 2) {
                 continue;
             }
             String subjectLabel = labelMap.getOrDefault(pair.getSubject(), "");
             String objectLabel = labelMap.getOrDefault(pair.getObject(), "");
+            String cat;
             List<String> subjectCategoryList = categoryMap.getOrDefault(pair.getSubject(), new ArrayList<>());
             List<String> objectCategoryList = categoryMap.getOrDefault(pair.getObject(), new ArrayList<>());
             if (subjectLabel.isEmpty()) {
@@ -412,9 +522,20 @@ public class CooccurrenceController {
                     Iterator<JsonNode> cats = normalizedNodes.get(pair.getSubject()).get("type").elements();
                     while (cats.hasNext()) {
                         JsonNode categoryNode = cats.next();
-                        subjectCategoryList.add(categoryNode.asText());
+                        cat = categoryNode.asText();
+                        if (!invalidClasses.contains(cat.toLowerCase())) {
+                            subjectCategoryList.add(cat);
+                        }
                     }
                 }
+            } else {
+                List<String> removeList = new ArrayList<>();
+                for (String category : subjectCategoryList) {
+                    if (invalidClasses.contains(category.toLowerCase())) {
+                        removeList.add(category);
+                    }
+                }
+                subjectCategoryList.removeAll(removeList);
             }
             if (objectCategoryList.size() == 0) {
                 if (normalizedNodes.hasNonNull(pair.getObject()) && normalizedNodes.get(pair.getObject()).hasNonNull("type") &&
@@ -422,13 +543,29 @@ public class CooccurrenceController {
                     Iterator<JsonNode> cats = normalizedNodes.get(pair.getObject()).get("type").elements();
                     while (cats.hasNext()) {
                         JsonNode categoryNode = cats.next();
-                        objectCategoryList.add(categoryNode.asText());
+                        cat = categoryNode.asText();
+                        if (!invalidClasses.contains(cat.toLowerCase())) {
+                            objectCategoryList.add(cat);
+                        }
                     }
                 }
+            } else {
+                List<String> removeList = new ArrayList<>();
+                for (String category : objectCategoryList) {
+                    if (invalidClasses.contains(category.toLowerCase())) {
+                        removeList.add(category);
+                    }
+                }
+                objectCategoryList.removeAll(removeList);
             }
             KnowledgeEdge edge = new KnowledgeEdge(pair.getSubject(), pair.getObject(), "biolink:occurs_together_in_literature_with", attributeList);
             KnowledgeNode subjectNode = new KnowledgeNode(subjectLabel, subjectCategoryList);
             KnowledgeNode objectNode = new KnowledgeNode(objectLabel, objectCategoryList);
+
+            RetrievalSource source = new RetrievalSource();
+            source.setResource("infores:text-mining-provider-cooccurrence");
+            source.setResourceRole("primary_knowledge_source");
+            edge.addSource(source);
 
             // These are the only way I could think of to know which kedge and knode is connected to which qedge and qnode
             edge.setQueryKey(pair.getEdgeKey());
@@ -579,7 +716,6 @@ public class CooccurrenceController {
 
     // The goal here is to translate as many incoming curies as possible to the curies used in the text mined database.
     private List<String> getTextMinedCuries(List<String> queryCuriesList) {
-//        List<String> textMinedCuriesList = lookupQueries.getTextMinedCuriesList(queryCuriesList);
         logger.debug("Starting curie(s)");
         logger.debug(String.join(",", queryCuriesList));
         // The first step is to get those curies that are already known synonyms of TM curies
@@ -598,7 +734,7 @@ public class CooccurrenceController {
             logger.debug("Trying SRI NN");
             List<List<String>> newSynonymsList = new ArrayList<>();
             List<String> allTextMinedCuries = lookupQueries.getTextMinedCuries();
-            JsonNode nnJSON = sri.getNormalizedNodes(unmatchedQueryCuries);
+            JsonNode nnJSON = sri.getNormalizedNodesInBatches(unmatchedQueryCuries, NN_BATCH_SIZE);
             logger.debug(nnJSON.toPrettyString());
             for (String curie : unmatchedQueryCuries) {
                 logger.debug("Trying for " + curie);

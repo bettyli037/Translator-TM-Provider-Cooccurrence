@@ -23,7 +23,7 @@ public class Validator {
     }
 
     public static void populateJsonSchemas(String uri) {
-        String specUri = "https://raw.githubusercontent.com/NCATSTranslator/ReasonerAPI/v1.3.0/TranslatorReasonerAPI.yaml";
+        String specUri = "https://raw.githubusercontent.com/NCATSTranslator/ReasonerAPI/1.4/TranslatorReasonerAPI.yaml";
         if (uri != null && !uri.isBlank()) {
             specUri = uri;
         }
@@ -66,6 +66,29 @@ public class Validator {
             return queryGraphSchema.validate(message.get("query_graph"));
         }
         return queryGraphSchema.validate(message);
+    }
+
+    public Set<ValidationMessage> validateMessage(JsonNode message) {
+        Set<ValidationMessage> results = new HashSet<>();
+        if (message.has("query_graph")) {
+            results.addAll(queryGraphSchema.validate(message.get("query_graph")));
+        } else {
+            results.add(ValidationMessage.of("missing", CustomErrorMessageType.of("bleh") , "$.query_graph", "#/QueryGraph"));
+        }
+        System.out.println(results.size() + " results after checking QG");
+        if (message.has("knowledge_graph")) {
+            results.addAll(knowledgeGraphSchema.validate(message.get("knowledge_graph")));
+        } else {
+            results.add(ValidationMessage.of("missing", CustomErrorMessageType.of("bleh") , "$.knowledge_graph", "#/KnowledgeGraph"));
+        }
+        System.out.println(results.size() + " results after checking KG");
+        if (message.has("results")) {
+            results.addAll(resultsSchema.validate(message.get("results")));
+        } else {
+            results.add(ValidationMessage.of("missing", CustomErrorMessageType.of("bleh") , "$.results", "#/Results"));
+        }
+        System.out.println(results.size() + " results after checking Results");
+        return results;
     }
 
     public Set<ValidationMessage> validateOutput(JsonNode message) {

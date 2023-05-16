@@ -12,11 +12,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.netty.http.client.HttpClient;
-import reactor.netty.http.client.PrematureCloseException;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -32,6 +32,28 @@ public class NodeNormalizerService {
                 .baseUrl(endpoint)
                 .build();
         objectMapper = new ObjectMapper();
+    }
+
+    public JsonNode getNormalizedNodesInBatches(List<String> curies, int batchSize) {
+        if (curies.size() == 0) {
+            return objectMapper.createObjectNode();
+        }
+        if (curies.size() < batchSize) {
+            return getNormalizedNodes(curies);
+        }
+        ObjectNode totalResults = objectMapper.createObjectNode();
+        for (int i = 0; i < curies.size(); i += batchSize) {
+            int endIndex = Math.min(i + batchSize, curies.size());
+            List<String> curiesSubList = curies.subList(i, endIndex);
+            JsonNode partialResults = getNormalizedNodes(curiesSubList);
+            Iterator<String> keyIterator = partialResults.fieldNames();
+            while(keyIterator.hasNext()) {
+                String key = keyIterator.next();
+                JsonNode property = partialResults.get(key);
+                totalResults.set(key, property);
+            }
+        }
+        return totalResults;
     }
 
     public JsonNode getNormalizedNodes(List<String> curies) {
