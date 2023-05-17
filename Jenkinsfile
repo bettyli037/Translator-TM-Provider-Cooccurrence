@@ -66,6 +66,7 @@ pipeline {
                         aws --region ${AWS_REGION} eks update-kubeconfig --name ${KUBERNETES_BLUE_CLUSTER_NAME}
                         /bin/bash prepare.sh
                         cd translator-ops/ops/tmkp/cooccurrence/
+                        ls
                         /bin/bash deploy.sh
                         '''
                     }
