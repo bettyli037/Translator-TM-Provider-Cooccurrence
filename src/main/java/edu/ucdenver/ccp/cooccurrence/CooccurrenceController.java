@@ -50,10 +50,11 @@ public class CooccurrenceController {
 
     // region: Endpoints
 
-    @GetMapping("/test")
-    public JsonNode testNN() {
-        List<String> curies = lookupQueries.getTextMinedCuries();
-        return sri.getNormalizedNodesInBatches(curies, NN_BATCH_SIZE);
+    @GetMapping("/version")
+    public JsonNode getVersion() {
+        ObjectNode responseNode = objectMapper.createObjectNode();
+        responseNode.put("version", "0.3.0");
+        return responseNode;
     }
 
     @GetMapping("/refresh")

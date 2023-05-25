@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>edu.ucdenver.ccp</groupId>
 	<artifactId>cooccurrence</artifactId>
-	<version>0.2.0</version>
+	<version>0.3.0</version>
 	<name>cooccurrence</name>
 	<description>TRAPI endpoint for cooccurrence metrics</description>
 	<properties>
