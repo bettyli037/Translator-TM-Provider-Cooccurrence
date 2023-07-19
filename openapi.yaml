@@ -12,12 +12,13 @@ info:
   title: Text Mined Cooccurrence API
   version: 1.0.0
   x-translator:
+    biolink-version: 3.5.0
     component: KP
     infores: infores:text-mining-provider-cooccurrence
     team:
     - Text Mining Provider
   x-trapi:
-    version: 1.3.0
+    version: 1.4.0
     test_data_location:
       development:
         url: https://raw.githubusercontent.com/UCDenver-ccp/Translator-TM-Provider-Cooccurrence/main/src/test/data/test_triples.json
