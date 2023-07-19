@@ -29,13 +29,18 @@ info:
     name: MIT License
     url: https://github.com/UCDenver-ccp/Translator-TM-Provider-Cooccurrence/blob/main/LICENSE
 servers:
-- description: ITRB Test server
-  url: https://cooccurrence.test.transltr.io
-  x-maturity: testing
-- description: ITRB Prod server
-  url: https://cooccurrence.transltr.io
-  x-maturity: production
-
+  - description: Development server
+    url: https://cooccurrence-p36smkc6hq-uc.a.run.app
+    x-maturity: development
+  - description: ITRB CI server
+    url: https://cooccurrence.ci.transltr.io
+    x-maturity: staging
+  - description: ITRB Test server
+    url: https://cooccurrence.test.transltr.io
+    x-maturity: testing
+  - description: ITRB Prod server
+    url: https://cooccurrence.transltr.io
+    x-maturity: production
 tags:
 - name: meta_knowledge_graph
   description: >-
