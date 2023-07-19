@@ -682,7 +682,7 @@ components:
             Graph Edges and Result Analyses. These are referenced elsewhere by
             the dictionary key.
           additionalProperties:
-            $ref: '#components/schemas/AuxiliaryGraph'
+            $ref: '#/components/schemas/AuxiliaryGraph'
       additionalProperties: false
     MetaKnowledgeGraph:
       type: object
@@ -1029,6 +1029,55 @@ components:
             $ref: '#/components/schemas/AttributeConstraint'
           default: []
       additionalProperties: true
+    Qualifier:
+      additionalProperties: false
+      description: An additional nuance attached to an assertion
+      properties:
+        qualifier_type_id:
+          $ref: '#/components/schemas/CURIE'
+          description: CURIE for a Biolink 'qualifier' association slot, generally
+            taken from Biolink association slots designated for this purpose (that
+            is, association slots with names ending in 'qualifier') e.g. biolink:subject_aspect_qualifier,  biolink:subject_direction_qualifier,
+            biolink:object_aspect_qualifier, etc. Such qualifiers are used to elaborate
+            a second layer of meaning of a knowledge graph edge. Available qualifiers
+            are edge properties in the Biolink Model (see https://biolink.github.io/biolink-model/docs/edge_properties.html)
+            which have slot names with the suffix string 'qualifier'.
+          example: biolink:subject_aspect_qualifier
+          nullable: false
+          pattern: ^biolink:[a-z][a-z_]*$
+        qualifier_value:
+          description: The value associated with the type of the qualifier, drawn
+            from a set of controlled values by the type as specified in the Biolink
+            model (e.g. 'expression' or 'abundance' for the qualifier type 'biolink:subject_aspect_qualifier',
+            etc). The enumeration of qualifier values for a given qualifier type is
+            generally going to be constrained by the category of edge (i.e. biolink:Association
+            subtype) of the (Q)Edge.
+          example: expression
+          nullable: false
+          type: string
+      required:
+        - qualifier_type_id
+        - qualifier_value
+      type: object
+    QualifierConstraint:
+      additionalProperties: false
+      description: Defines a query constraint based on the qualifier_types and qualifier_values
+        of a set of Qualifiers attached to an edge. For example, it can constrain
+        a "ChemicalX - affects - ?Gene" query to return only edges where ChemicalX
+        specifically affects the 'expression' of the Gene, by constraining on the
+        qualifier_type "biolink:object_aspect_qualifier" with a qualifier_value of
+        "expression".
+      properties:
+        qualifier_set:
+          description: A set of Qualifiers that serves to add nuance to a query, by
+            constraining allowed values held by Qualifiers on queried Edges.
+          items:
+            $ref: '#/components/schemas/Qualifier'
+          nullable: false
+          type: array
+      required:
+        - qualifier_set
+      type: object
     Query:
       description: >-
         The Query class is used to package a user request for information. A
