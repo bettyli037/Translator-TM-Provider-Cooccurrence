@@ -11,10 +11,14 @@ import edu.ucdenver.ccp.cooccurrence.entities.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 @RestController
@@ -22,6 +26,8 @@ public class CooccurrenceController {
 
     public static Logger logger = LoggerFactory.getLogger(CooccurrenceController.class);
 
+    @Autowired
+    private CacheManager cacheManager;
     private final NodeRepository nodeRepo;
     private final ObjectMapper objectMapper;
     private final LookupRepository lookupQueries;
@@ -68,6 +74,28 @@ public class CooccurrenceController {
         responseNode.set("concepts", objectMapper.valueToTree(conceptCounts));
         responseNode.set("documents", objectMapper.valueToTree(documentPartCounts));
         return responseNode;
+    }
+
+    @GetMapping("/cache")
+    public JsonNode getCacheSize() {
+        Collection<String> names = cacheManager.getCacheNames();
+        HashMap<String, Integer> cacheSizes = new HashMap<>(names.size());
+        for (String name : names) {
+            Cache cache = cacheManager.getCache(name);
+            if (cache != null) {
+                ConcurrentMap<Object, Object> map = (ConcurrentMap<Object, Object>) cache.getNativeCache();
+                StringBuilder builder = new StringBuilder();
+                for (Map.Entry<Object, Object> entry : map.entrySet()) {
+                    builder.append(entry.getKey());
+                    builder.append(':');
+                    builder.append(entry.getValue());
+                    builder.append('\n');
+                }
+                logger.debug(name + " ::: " + builder.toString().length());
+                cacheSizes.put(name, builder.toString().length());
+            }
+        }
+        return objectMapper.valueToTree(cacheSizes);
     }
 
     @PostMapping("/query")

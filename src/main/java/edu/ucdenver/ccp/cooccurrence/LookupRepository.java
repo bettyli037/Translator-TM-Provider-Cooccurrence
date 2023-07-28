@@ -14,7 +14,7 @@ public class LookupRepository {
     @PersistenceContext
     EntityManager session;
 
-    @Cacheable("curiesforcategory")
+    @Cacheable("getCuriesForCategory")
     public List<String> getCuriesForCategory(String category) {
         List<Object> results = session.createNativeQuery("" +
                         "SELECT n.curie " +
@@ -26,7 +26,7 @@ public class LookupRepository {
         return results.stream().map(o -> (String) o).collect(Collectors.toList());
     }
 
-    @Cacheable("categoriesforcuries")
+    @Cacheable("getCategoriesForCuries")
     public Map<String, List<String>> getCategoriesForCuries(List<String> curies) {
         String query = "SELECT n.curie, nc.category " +
                 "FROM nodes n INNER JOIN node_category nc ON nc.node_id = n.id " +
@@ -61,7 +61,7 @@ public class LookupRepository {
         return categoryMap;
     }
 
-    @Cacheable("labelsforcuries")
+    @Cacheable("getLabels")
     public Map<String, String> getLabels(List<String> curies) {
         String query = "SELECT curie, label " +
                 "FROM labels " +
@@ -89,7 +89,7 @@ public class LookupRepository {
         return labelMap;
     }
 
-    @Cacheable("cooccurrences")
+    @Cacheable("getPairCounts")
     public Map<String, List<String>> getPairCounts(List<String> concept1List, List<String> concept2List) {
         if (concept1List.size() == 0 || concept2List.size() == 0) {
             return Collections.emptyMap();
@@ -117,9 +117,9 @@ public class LookupRepository {
         }
         return cooccurrences;
     }
-    @Cacheable("cooccurrences")
+
     public Map<String, List<String>> getCooccurrencesByDocumentPart(List<Integer> node1List, List<Integer> node2List, String documentPart) {
-        if (node1List.size() == 0 || node2List.size() == 0 || !CooccurrenceController.documentParts.contains(documentPart)) {
+        if (node1List.isEmpty() || node2List.isEmpty() || !CooccurrenceController.documentParts.contains(documentPart)) {
             return Collections.emptyMap();
         }
         String abstractQuery = "" +
@@ -177,7 +177,7 @@ public class LookupRepository {
         return cooccurrences;
     }
 
-    @Cacheable("singleConceptBatch")
+    @Cacheable("getSingleCounts")
     public Map<String, Map<String, Integer>> getSingleCounts(List<String> curies) {
         List<Object[]> results = new ArrayList<>();
         String query = "" +
@@ -333,6 +333,7 @@ public class LookupRepository {
     }
 
     // returns a Map where the key is concept1_curie + concept2_curie + documentPart and the value is a list of document hashes
+    @Cacheable("getCooccurrencesByParts")
     public Map<String, List<String>> getCooccurrencesByParts(List<String> concept1List, List<String> concept2List) {
         long t1 = System.currentTimeMillis();
         CooccurrenceController.logger.debug(String.format("Starting getCooccurrencesByParts with (%d, %d) concepts.", concept1List.size(), concept2List.size()));
@@ -402,7 +403,7 @@ public class LookupRepository {
         return conceptGroups;
     }
 
-    @Cacheable("concepts")
+    @Cacheable("getConceptCounts")
     public Map<String, Integer> getConceptCounts() {
         List<Object[]> results = session.createNativeQuery("SELECT document_part, COUNT(DISTINCT(curie)) " +
                 "FROM concept_counts " +
@@ -450,7 +451,7 @@ public class LookupRepository {
                 .getResultList();
     }
 
-    @Cacheable("node_curies")
+    @Cacheable("getTextMinedCuries")
     public List<String> getTextMinedCuries() {
         return session.createNativeQuery("SELECT curie FROM nodes").getResultList();
     }
